@@ -91,7 +91,7 @@ class GridScene(VoiceScene):
                 self.wait_until(max(self.now, self._cue_time(t) - 0.12))
                 anims = t.lit() + [Indicate(t.label, color=color, scale_factor=1.06)]
                 if len(t.icon) or t.icon.points.size:
-                    anims.append(t.icon.animate(rate_func=there_and_back).scale(1.12))
+                    anims.append(t.icon.animate(rate_func=there_and_back).scale(1.06))
                 if current is not None:
                     anims += current.visited()
                 self.play(*anims, run_time=0.35)

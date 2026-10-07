@@ -578,7 +578,7 @@ class C1Qrh(VoiceScene):
         mb_wall = Line([mbx(self.wsig), MB_Y0 + MB_H, 0], [mbx(self.wsig), MB_Y0, 0],
                        stroke_color=WHITE_, stroke_width=4)
         q0, q1 = self.cue("quasi"), self.cue("L4_end")
-        self.wait_until(max(self.now, q0 + 0.3 * (q1 - q0)))
+        self.wait_until(max(self.now, q0 + 0.27 * (q1 - q0)))
         self.play(Create(wall_draw), Create(mb_wall), FadeIn(wlab, shift=DOWN * 0.15),
                   run_time=self.rt(0.7, "claim"))
         self.remove(wall_draw)
@@ -593,8 +593,8 @@ class C1Qrh(VoiceScene):
             f = smooth(a * 3 - seg)
             self.wsig = keys[seg] + (keys[seg + 1] - keys[seg]) * f
 
-        self.wait_until(max(self.now, q0 + 0.44 * (q1 - q0)))
-        self.play(self.drive(wig, rate_func=linear), run_time=max(0.5, q0 + 0.62 * (q1 - q0) - self.now))
+        self.wait_until(max(self.now, q0 + 0.39 * (q1 - q0)))
+        self.play(self.drive(wig, rate_func=linear), run_time=max(0.5, q0 + 0.63 * (q1 - q0) - self.now))
 
         # descend back to the real axis: the wall is the same at every height,
         # the classical sliver is not; the zeros come back, all left of the wall

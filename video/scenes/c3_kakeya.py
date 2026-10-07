@@ -361,8 +361,8 @@ class C3Kakeya(VoiceScene):
         star = VGroup(cm, slices, cp, trail)
         self.star, self.pivot = star, pivot
         # gentle drift while the sentence finishes
-        self.play_until("conj", FadeOut(sw), FadeOut(ptr), trail.animate.set_stroke(opacity=0.2),
-                        Rotate(star, -6 * DEGREES, about_point=pivot), rate_func=smooth)
+        self.play_until("conj", FadeOut(sw, rate_func=early(0.25)), FadeOut(ptr, rate_func=early(0.25)),
+                        Rotate(star, -6 * DEGREES, about_point=pivot))
         self.side = VGroup(meter, m_bar, lim, lim_c, d_arc, d_base, d_lbl, d_fill)
 
     # ============================================================ 3. the conjecture
@@ -373,6 +373,7 @@ class C3Kakeya(VoiceScene):
         if target.height > 2.5:
             target.scale(2.5 / target.height)
         target.move_to([4.15, 0.45, 0])
+        target[3].set_stroke(opacity=0.22)        # needles recede: the set itself is the subject now
         title3 = caps("The Kakeya conjecture", 20, ACC).move_to(self.title)
         formula = MathTex(r"K\subset\mathbb{R}^n", r"\text{ contains a unit segment in every direction}",
                           r"\;\Longrightarrow\;", r"\dim K = n", font_size=36, color=WHITE_)

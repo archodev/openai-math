@@ -103,3 +103,7 @@ preview.sh — fix those too (they mean an animation was squeezed).
   concurrent renders no longer clobber each other; no per-scene retry hacks needed.
 * `self.cue("end")` means the narration end; a cue literally named `end` must be read
   from `self.timing["cues"]["end"]`.
+* Grid big cards: inside a feature `animate(scene, mob, run_time)` callable, pass
+  `group=mob` to any AnimationGroup/LaggedStart/Succession that animates parts of `mob`,
+  and attach newly created pieces to `mob` (mob.add) between play() calls — otherwise
+  manim re-parents them and they won't collapse with the card.
