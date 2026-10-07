@@ -273,12 +273,8 @@ class C1Qrh(VoiceScene):
         exp = MathTex("=", "1", "+", r"\frac{1}{2^s}", "+", r"\frac{1}{3^s}", "+",
                       r"\frac{1}{4^s}", "+", r"\frac{1}{5^s}", "+", r"\cdots",
                       font_size=62, color=WHITE_).move_to(DOWN * 1.0)
-        rest = VGroup(*full[1:])
         self.play_at("sum", FadeOut(wave), FadeOut(wave_ax), FadeOut(xdots), FadeOut(cap),
-                     ReplacementTransform(big, full[0]),
-                     FadeIn(rest, shift=LEFT * 0.3), run_time=self.rt(1.1, "complex"))
-        self.remove(full[0], rest)
-        self.add(full)
+                     TransformMatchingTex(big, full), run_time=self.rt(1.1, "complex"))
         self.play(LaggedStart(*[FadeIn(p, shift=DOWN * 0.15) for p in exp], lag_ratio=0.2),
                   Indicate(full[2], color=ACC, scale_factor=1.12),
                   run_time=self.rt(1.8, "complex"))
@@ -376,9 +372,9 @@ class C1Qrh(VoiceScene):
         edge = Line(ORIGIN, UP, stroke_color=GREY_, stroke_width=2.5).set_z_index(-1)
         self.vlines.append((edge, 1.0, 0.0))
         self.relayout()
-        lab0 = MathTex("0", font_size=32, color=GREY_).move_to([sx(0) - 0.17, Y0 - 0.3, 0])
-        lab1 = MathTex("1", font_size=32, color=GREY_).move_to([sx(1), Y0 - 0.32, 0])
-        self.att += [(lab0, 0, -0.3), (lab1, 0, -0.32)]
+        lab0 = MathTex("0", font_size=32, color=GREY_).move_to([sx(0) - 0.17, Y0 - 0.33, 0])
+        lab1 = MathTex("1", font_size=32, color=GREY_).move_to([sx(1), Y0 - 0.38, 0])
+        self.att += [(lab0, 0, -0.33), (lab1, 0, -0.38)]
         cap = caps("critical strip", 20, ACC).move_to([sx(0.5), Y0 - 0.85, 0])
         self.strip, self.edge, self.lab0, self.lab1, self.cap = strip, edge, lab0, lab1, cap
 
@@ -403,8 +399,8 @@ class C1Qrh(VoiceScene):
         crit = VDash(0.5, WHITE_, width=2.5, opacity=0.85).set_z_index(-1)
         crit.layout(self.Y(0), 0.0)
         self.dashes.append(crit)
-        half = MathTex(r"\tfrac12", font_size=32, color=GREY_).move_to([sx(0.5), Y0 - 0.34, 0])
-        self.att.append((half, 0, -0.34))
+        half = MathTex(r"\tfrac12", font_size=32, color=GREY_).move_to([sx(0.5), Y0 - 0.38, 0])
+        self.att.append((half, 0, -0.38))
         self.crit, self.half = crit, half
         self.play_at("line", FadeOut(span), FadeOut(span_l), Create(crit, lag_ratio=0.6), FadeIn(half),
                      run_time=self.rt(0.8, "open"))
@@ -630,7 +626,7 @@ class C1Qrh(VoiceScene):
         self.rects.append((band, 7 / 8, lambda: self.band_s1, 1.0))
         self.relayout()
         self.add(band)
-        t78 = MathTex(r"\tfrac78", font_size=32, color=YELLOW_).move_to([sx(7 / 8), Y0 - 0.34, 0])
+        t78 = MathTex(r"\tfrac78", font_size=32, color=YELLOW_).move_to([sx(7 / 8), Y0 - 0.38, 0])
         self.sl_on = False
 
         def fill_band(a):
@@ -726,7 +722,7 @@ class C1Qrh(VoiceScene):
                   run_time=self.rt(0.8, "siegel"))
 
         # {siegel}: a hypothetical real zero hugging s = 1 is ruled out
-        sz = Dot([sx(0.94), Y0, 0], radius=0.075, color=RED_).set_z_index(5)
+        sz = Dot([sx(0.93), Y0, 0], radius=0.075, color=RED_).set_z_index(5)
         sl = VGroup(bold("Landau–Siegel zero", 28, color=RED_),
                     txt("hypothetical real zero of L(s,χ)", 22, GREY_))
         sl.arrange(DOWN, aligned_edge=LEFT, buff=0.14).move_to([RIGHT_X + 0.2, -0.8, 0], aligned_edge=UL)
@@ -737,10 +733,10 @@ class C1Qrh(VoiceScene):
                      run_time=self.rt(0.7, "L6_end"))
         # "hypothetical rogue zeros hugging the edge"
         self.wait_until(max(self.now, self.cue("L6_end") - 3.9))
-        self.play(sz.animate.move_to([sx(0.965), Y0, 0]), Flash(sz, color=RED_, line_length=0.15,
+        self.play(sz.animate.move_to([sx(0.957), Y0, 0]), Flash(sz, color=RED_, line_length=0.15,
                                                                  flash_radius=0.2),
                   run_time=self.rt(0.8, "L6_end"))
-        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.16).move_to([sx(0.965), Y0, 0])
+        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.13).move_to([sx(0.957), Y0, 0])
         cross.set_stroke(RED_, width=7).set_z_index(6)
         self.wait_until(max(self.now, self.cue("L6_end") - 2.4))
         self.play(Create(cross), sz.animate.set_opacity(0.25), banner[0].animate(rate_func=there_and_back).set_stroke(width=5),

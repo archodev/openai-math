@@ -284,7 +284,7 @@ class C5Erdos(VoiceScene):
         # ============================================================ 4. {claim}
         card = paper_card(NUM, width=3.0).move_to([4.62, 0.3, 0])
         tag = paper_tag(NUM, color=ACC)
-        cap = caps("The paper claims", 20, ACC)
+        cap = caps("The paper claims", 22, ACC)
         chead = serif("Erdős's conjecture, in full", 46)
         hdr = VGroup(cap, chead).arrange(DOWN, aligned_edge=LEFT, buff=0.2).to_edge(LEFT, buff=0.55)
         hdr.set_y(2.62)

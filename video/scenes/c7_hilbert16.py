@@ -329,7 +329,7 @@ class C7Hilbert16(VoiceScene):
     def construct(self):
         C1 = np.array([-2.3, -0.15, 0.0])    # main phase-plane origin on screen
         SA, SB = 2.0, 1.0                     # scale: swirl field, Hilbert field
-        C2, S2 = np.array([-3.35, -0.55, 0.0]), 0.8   # quintic Lienard plane
+        C2, S2 = np.array([-3.7, -0.55, 0.0]), 0.8   # quintic Lienard plane
 
         # ---------------------------------------------------------- masks
         mx = ValueTracker(9.0)                             # right fade edge (hook)
@@ -344,7 +344,7 @@ class C7Hilbert16(VoiceScene):
             return smooth01((0.95 - X) / 1.1) * smooth01((X + 5.85) / 0.9)
 
         def lie_mask(X, Y):
-            return (smooth01((X + 6.75) / 0.5) * smooth01((-0.3 - X) / 0.6)
+            return (smooth01((X + 6.85) / 0.5) * smooth01((-0.65 - X) / 0.6)
                     * smooth01((Y + 2.95) / 0.45) * smooth01((1.95 - Y) / 0.45))
 
         t_close = self.at("L0", "L0_end", 0.66)
@@ -383,11 +383,11 @@ class C7Hilbert16(VoiceScene):
         self.bring_to_front(f_a)
 
         # "... is given by polynomials."
-        e1 = mt(r"\dot x", "=", r"x-2y-(x+y)(x^2+y^2)", size=42)
-        e2 = mt(r"\dot y", "=", r"2x+y+(x-y)(x^2+y^2)", size=42)
+        e1 = mt(r"\dot x", "=", r"x-2y-(x+y)(x^2+y^2)", size=40)
+        e2 = mt(r"\dot y", "=", r"2x+y+(x-y)(x^2+y^2)", size=40)
         e2.next_to(e1, DOWN, buff=0.26)
         e2.shift((e1[1].get_center()[0] - e2[1].get_center()[0]) * RIGHT)
-        eq = VGroup(e1, e2).move_to([3.85, 2.25, 0])
+        eq = VGroup(e1, e2).move_to([3.8, 2.25, 0])
         rhs = VGroup(e1[2], e2[2])
         br = Brace(rhs, DOWN, buff=0.16, color=GREY_)
         br_lab = txt("polynomials in x and y", 26, YELLOW_).next_to(br, DOWN, buff=0.12)
@@ -438,7 +438,8 @@ class C7Hilbert16(VoiceScene):
                         f_a.rate.animate.set_value(-1.0),
                         Uncreate(tr_in, rate_func=linear), Uncreate(tr_out, rate_func=linear),
                         FadeOut(v_cyc), FadeOut(v_glow), FadeIn(v_dash),
-                        FadeOut(sub_a, shift=UP * 0.1), FadeIn(sub_r, shift=UP * 0.1),
+                        Succession(FadeOut(sub_a, shift=UP * 0.1, run_time=0.35),
+                                   FadeIn(sub_r, shift=UP * 0.1, run_time=0.65)),
                         lab.animate.set_color(REPL), ptr.animate.set_color(REPL),
                         dot_a.animate.set_color(REPL))
         for d_ in heads:
@@ -459,11 +460,13 @@ class C7Hilbert16(VoiceScene):
         geq = VGroup(g1, g2).move_to([3.75, 1.2, 0])
         gbr = Brace(geq, DOWN, buff=0.16, color=GREY_)
         gbr_lab = txt("polynomials of degree ≤ d", 26, YELLOW_).next_to(gbr, DOWN, buff=0.12)
-        self.play(FadeOut(VGroup(lab, ptr, dot_a, sub_r, v_dash, heads)),
-                  Transform(arr, arr_hil),
+        self.play(FadeOut(VGroup(lab, ptr, dot_a, sub_r, heads, eq, br, br_lab)),
+                  f_a.op.animate.set_value(0.3), FadeOut(v_dash), run_time=0.45)
+        self.play(Transform(arr, arr_hil),
                   f_a.op.animate.set_value(0.0), f_b.op.animate.set_value(1.0),
-                  FadeOut(eq, shift=DOWN * 0.3), FadeOut(br), FadeOut(br_lab),
-                  Write(head), run_time=1.2)
+                  Write(head), run_time=1.0)
+        for a_, b_ in zip(arr, arr_hil):
+            a_.base_op = b_.base_op
         self.remove(f_a)
         self.wait_until(self.at("hilbert", "quad", 0.2))
         self.play(FadeIn(prob, shift=UP * 0.15), FadeIn(geq, shift=UP * 0.2),
@@ -473,7 +476,7 @@ class C7Hilbert16(VoiceScene):
         hc = [cycle_curve(p, C1, SB, st, width=4.6) for p, st in hil_cyc]
         hglow = [glow(c_, ATTR, layers=4, width=14, opacity=0.06) if st else VGroup()
                  for c_, (_, st) in zip(hc, hil_cyc)]
-        title_q = mt(r"\#\,\text{limit cycles}", r"\le", "?", size=44)
+        title_q = mt(r"\#\,\text{limit cycles}", r"\le", r"\,?", size=44)
         title_q[2].set_color(YELLOW_)
         title_q.move_to([3.75, -1.2, 0])
         nums = [tex(r"=\," + str(i + 1), size=44).next_to(title_q[0], RIGHT, buff=0.2)
@@ -543,7 +546,7 @@ class C7Hilbert16(VoiceScene):
         #  {claim}  This paper claims that for every degree, there is a
         #           finite ceiling.
         # ================================================================
-        card = paper_card("143", width=3.45).move_to([-3.35, 0.25, 0])
+        card = paper_card("143", width=3.7).move_to([-3.0, 0.3, 0])
         tag = paper_tag("143", color=YELLOW_)
         if CATALOG["143"].get("lean"):
             tag[1].remove(tag[1][-1])          # Lean covers only the Lienard companion
@@ -563,7 +566,7 @@ class C7Hilbert16(VoiceScene):
         for x, h, d in zip(cols, heights, range(2, 7)):
             cl = Line([x - 0.36, h, 0], [x + 0.36, h, 0], color=YELLOW_, stroke_width=6)
             rg = Rectangle(width=0.72, height=h - AXY, stroke_width=0)
-            rg.set_fill([YELLOW_, YELLOW_], opacity=[0.0, 0.2]).set_sheen_direction(UP)
+            rg.set_fill([YELLOW_, YELLOW_], opacity=[0.0, 0.13]).set_sheen_direction(UP)
             rg.move_to([x, (h + AXY) / 2, 0])
             lb = tex(f"B({d})", size=26, color=GREY_).next_to(cl, UP, buff=0.1)
             ceil.add(cl), regions.add(rg), clabs.add(lb)
@@ -598,18 +601,29 @@ class C7Hilbert16(VoiceScene):
         bob_amp = ValueTracker(0.0)
         pulse = ValueTracker(0.0)
 
-        def bob(i):
+        def hgt(i):
+            return base_h[i] + bob_amp.get_value() * np.sin(2 * PI * 0.45 * clock.get_value() + phase[i])
+
+        def up_ceil(i):
             def upd(m):
-                h = base_h[i] + bob_amp.get_value() * np.sin(2 * PI * 0.45 * clock.get_value() + phase[i])
-                m.set_y(h)
+                m.set_y(hgt(i))
                 m.set_stroke(width=6 + 5 * pulse.get_value())
-                clabs[i].next_to(m, UP, buff=0.1)
-                regions[i].stretch_to_fit_height(h - AXY).set_y((h + AXY) / 2)
+            return upd
+
+        def up_lab(i):
+            return lambda m: m.move_to([cols[i], hgt(i) + 0.27, 0])
+
+        def up_reg(i):
+            def upd(m):
+                h = hgt(i)
+                m.stretch_to_fit_height(h - AXY).set_y((h + AXY) / 2)
             return upd
         clock.add_updater(lambda m, dt: m.increment_value(dt))
         self.add(clock, bob_amp, pulse)
         for i in range(len(ceil)):
-            ceil[i].add_updater(bob(i))
+            ceil[i].add_updater(up_ceil(i))
+            clabs[i].add_updater(up_lab(i))
+            regions[i].add_updater(up_reg(i))
         not_comp = chip("value not computed", GREY_, size=22)
         exists = chip("exists", YELLOW_, size=22)
         chips_ = VGroup(exists, not_comp).arrange(RIGHT, buff=0.25).move_to([3.95, 1.8, 0])
@@ -631,29 +645,29 @@ class C7Hilbert16(VoiceScene):
         banner[0].set_z_index(-1)
         chart = VGroup(x_axis, y_axis, d_lab, *tick_lab, dots_lab, loops, regions, ceil, clabs, every, chips_)
         self.wait_until("lienard")
-        for c_ in ceil:
+        for c_ in [*ceil, *clabs, *regions]:
             c_.clear_updaters()
         self.play(FadeOut(chart, shift=DOWN * 0.3),
-                  ReplacementTransform(title_c, banner[1][1]),
+                  FadeTransform(title_c, banner[1][1]),
                   FadeIn(banner[0]), FadeIn(banner[1][0]),
                   card.animate.shift(LEFT * 6.5), run_time=1.0)
         self.remove(card, clock)
 
-        f_lie = Flow("lie", lie_field, LIE_COEFS, C2, S2, lambda t: (-6.6, -0.4, -2.9, 2.0),
+        f_lie = Flow("lie", lie_field, LIE_COEFS, C2, S2, lambda t: (-6.8, -0.7, -2.9, 2.0),
                      n=75, t0=self.now, t1=self.cue("end") + 1, mask=lie_mask, seed=9,
                      width=2.2)
         self.add(f_lie.op, f_lie.rate, f_lie)
-        lgx = np.arange(-6.45, -0.2, 0.55)
+        lgx = np.arange(-6.6, -0.5, 0.55)
         lgy = np.arange(-2.75, 1.95, 0.55)
         arr_lie = arrow_field(lie_field, C2, S2, lgx, lgy, lie_mask, length=0.24, op=0.38)
         comp = VGroup(caps("companion paper", size=22, color=GREY_, spacing=0.05), lean_badge(20)).arrange(
             RIGHT, buff=0.3)
-        le1 = tex(r"\dot x = y - F(x),\qquad \dot y = -x", size=44)
-        le2 = mt(r"\deg F \le 5", r"\ \Longrightarrow\ ", r"\text{at most } 2", r"\text{ limit cycles}", size=40)
+        le1 = tex(r"\dot x = y - F(x),\qquad \dot y = -x", size=42)
+        le2 = mt(r"\deg F \le 5", r"\ \Longrightarrow\ ", r"\text{at most } 2", r"\text{ limit cycles}", size=38)
         le2[2].set_color(YELLOW_)
         sharp = txt("and some have exactly 2", 24, GREY_)
         lblock = VGroup(comp, le1, le2, sharp).arrange(DOWN, buff=0.42, aligned_edge=LEFT)
-        lblock.move_to([3.4, -0.45, 0])
+        lblock.move_to([0.35, -0.45, 0], aligned_edge=LEFT)
         self.until(self.at("lienard", "L3_end", 0.27),
                    f_lie.op.animate.set_value(1.0),
                    LaggedStart(*[FadeIn(a) for a in arr_lie], lag_ratio=0.004),
@@ -672,7 +686,7 @@ class C7Hilbert16(VoiceScene):
         for i, (p, st) in enumerate(lie_cyc):
             j = np.argmax(p[:, 0] + p[:, 1])
             pt = C2 + S2 * np.array([p[j, 0], p[j, 1], 0])
-            nums_l[i].move_to(pt + np.array([0.22, 0.22, 0]))
+            nums_l[i].move_to(pt + np.array([0.26, 0.26, 0]))
         self.wait_until(self.at("lienard", "L3_end", 0.74))
         self.until(self.at("lienard", "L3_end", 0.9),
                    LaggedStart(*[AnimationGroup(Create(c_), FadeIn(g_), FadeIn(n_))

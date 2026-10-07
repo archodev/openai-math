@@ -171,8 +171,8 @@ class S02Rules(VoiceScene):
             box.get_corner(UL), DR, buff=0.25).shift(UP * 0.03)
 
         # --- transition from the fan
-        self.remove(self.fan_drv)
         self.wait_until("L0_end")
+        self.remove(self.fan_drv)
         quick = lambda t: smooth(min(1.0, t / 0.25))
         self.play_until(self.frac("procedure", "exceptions", 0.97),
                         FadeOut(stamp, scale=0.9, rate_func=quick),
@@ -205,7 +205,7 @@ class S02Rules(VoiceScene):
         tip.rotate(-PI / 2).move_to([zone.get_left()[0] - 0.1, yb, 0])
         ex_chip = chip("EXCEPTIONS", GOLD_, size=20, fill_opacity=0.18)
         ex_back = ex_chip[0].copy().set_stroke(width=0).set_fill(BG, 1)
-        ex = VGroup(ex_back, ex_chip).move_to([zone.get_left()[0] + 1.35, zone.get_top()[1], 0])
+        ex = VGroup(ex_back, ex_chip).move_to([zone.get_center()[0], zone.get_top()[1], 0])
 
         z_card = paper_card("003", width=1.0).move_to([1.55, -1.82, 0])
         h_card = paper_card("032", width=1.0).move_to([4.65, -1.82, 0])
@@ -326,7 +326,7 @@ class S02Rules(VoiceScene):
             checks.add(ck)
 
         early = lambda t: smooth(min(1.0, t / 0.3))
-        late = lambda t: smooth(max(0.0, (t - 0.22) / 0.78))
+        late = lambda t: smooth(max(0.0, (t - 0.12) / 0.88))
         self.wait_until("code-0.1")
         self.play_until(self.frac("code", "L2_end", 0.34),
                         FadeOut(self.sqs, shift=DOWN * 0.25, rate_func=early),
@@ -370,15 +370,16 @@ class S02Rules(VoiceScene):
         def pulse(m, dt):
             m.t += dt
             m.set_stroke(opacity=0.035 + 0.03 * np.sin(2.2 * m.t))
-        halo.add_updater(pulse)
         c1 = txt("this family has a Lean formalization", 32, WHITE_).move_to([0, -0.9, 0])
         c2 = txt("covering at least part of the result", 30, GREY_,
                  t2c={"at least part": YELLOW_}).next_to(c1, DOWN, buff=0.3)
 
         self.play_between("L2_end", "badge+0.85",
                           LaggedStart(FadeOut(self.code_grp, shift=LEFT * 0.4),
-                                      AnimationGroup(GrowFromCenter(big), FadeIn(halo)), lag_ratio=0.4),
+                                      AnimationGroup(GrowFromCenter(big), FadeIn(halo, scale=0.3)),
+                                      lag_ratio=0.4),
                           rate_func=smooth, min_time=0.5)
+        halo.add_updater(pulse)
         halo.add_updater(lambda m: m.move_to(big))
         self.play_at(self.frac("badge", "L3_end", 0.3), big.animate.move_to([0, 0.8, 0]),
                      FadeIn(c1, shift=UP * 0.15), run_time=0.6)
@@ -513,9 +514,8 @@ class S02Rules(VoiceScene):
         def breathe(m, dt):
             m.t += dt
             m.set_stroke(opacity=0.05 + 0.035 * np.sin(2.0 * m.t))
-        lights.add_updater(breathe)
         sp_t1 = caps("Spotlight", 24, YELLOW_, spacing=0.06)
-        sp_t2 = txt("the biggest problems,\nproperly explained", 24, GREY_, line_spacing=0.8)
+        sp_t2 = txt("biggest problems,\nproperly explained", 24, GREY_, line_spacing=0.8)
         sp_txt = VGroup(sp_t1, sp_t2).arrange(DOWN, aligned_edge=LEFT, buff=0.22)
         sp_txt.next_to(img, RIGHT, buff=0.5)
 
@@ -541,8 +541,10 @@ class S02Rules(VoiceScene):
         B = lambda f: self.frac("big", "rapid", f)
         R = lambda f: self.frac("rapid", "L6_end", f)
         self.play_until(B(0.42), GrowFromCenter(brace), GrowArrow(ar1), Create(sp_frame), min_time=0.4)
-        self.play_until(B(0.68), FadeIn(lights), FadeIn(img, shift=UP * 0.2), FadeIn(img_b, shift=UP * 0.2),
+        self.play_until(B(0.68), FadeIn(lights, rate_func=lambda t: smooth(max(0.0, (t - 0.6) / 0.4))),
+                        FadeIn(img, shift=UP * 0.2), FadeIn(img_b, shift=UP * 0.2),
                         FadeIn(sp_t1, shift=LEFT * 0.2), min_time=0.4)
+        lights.add_updater(breathe)
         self.play_until(B(0.88), FadeIn(sp_t2, shift=LEFT * 0.2), min_time=0.3)
 
         self.wait_until("rapid")

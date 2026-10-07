@@ -114,6 +114,12 @@ def win(a, b, f=smooth):
     return lambda t: f(min(1.0, max(0.0, (t - a) / (b - a))))
 
 
+def win_rev(a, b, f=smooth):
+    """win() for TransformFromCopy, which feeds its rate function 1 - t."""
+    w = win(a, b, f)
+    return lambda u: 1.0 - w(1.0 - u)
+
+
 def note(label, color, size=24):
     """Quiet caveat pill (mixed case, thin outline)."""
     t = txt(label, size, color, weight=MEDIUM)
@@ -359,8 +365,8 @@ class C4Matmul(VoiceScene):
         self.remove(sf)
         # values drop onto the line first; their names follow once the path is clear
         self.go(S(0.71), S(0.79),
-                TransformFromCopy(t_n3[0][1], v3l, rate_func=win(0, 0.65)),
-                TransformFromCopy(t_n2[0][1:], pval, rate_func=win(0, 0.65)),
+                TransformFromCopy(t_n3[0][1], v3l, rate_func=win_rev(0, 0.65)),
+                TransformFromCopy(t_n2[0][1:], pval, rate_func=win_rev(0, 0.65)),
                 FadeIn(VGroup(g3, ptri), shift=DOWN * 0.2, rate_func=win(0.15, 0.7)),
                 FadeIn(VGroup(n3l, sname), shift=DOWN * 0.1, rate_func=win(0.6, 1)))
 

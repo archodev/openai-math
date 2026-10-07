@@ -158,9 +158,9 @@ def icon_047():
     blob = _blob(0.29, width=2.0)
     ncong = tex(r"\ncong", 42, RED_)
     sq = _grid_square(0.56, n=3, width=1.8)
-    left = VGroup(cyl, cong, cube).arrange(RIGHT, buff=0.08)
-    right = VGroup(blob, ncong, sq).arrange(RIGHT, buff=0.08)
-    return VGroup(left, right).arrange(RIGHT, buff=0.3)
+    left = VGroup(cyl, cong, cube).arrange(RIGHT, buff=0.05)
+    right = VGroup(blob, ncong, sq).arrange(RIGHT, buff=0.05)
+    return VGroup(left, right).arrange(RIGHT, buff=0.24)
 
 
 def icon_039():
@@ -474,12 +474,24 @@ def big_047():
 
 
 def animate_047(scene, vis, run_time):
-    R = run_time
+    """Beats are anchored to the spoken line itself (f047 .. f047_end), not to the time left:
+    the first three follow the question as fractions of the line, the last two ("Over the complex
+    numbers", "...is no.") are anchored to its end, so the red "not isomorphic" lands on "no"."""
     k = vis.frame_rect.width / BIG_W
     c = vis.frame_rect.get_center()
     z = vis.front.z_index
     g = vis.geo
     P, F, G, L, r, c_f = g["P"], g["F"], g["G"], g["L"], g["r"], g["c_f"]
+    s0, e0 = scene.cue("f047"), scene.cue("f047_end")
+    D = e0 - s0
+    t_close = scene.now + run_time       # the card starts collapsing here
+
+    def at(frac):          # a moment in the spoken line, as a fraction of it
+        return s0 + frac * D
+
+    def span(t_a, t_b, *anims, rate_func=linear, min_rt=0.25):
+        scene.wait(max(0.0, t_a - scene.now))
+        scene.play(*anims, run_time=max(min_rt, t_b - scene.now), rate_func=rate_func)
 
     def T(m):   # build coordinates -> on-screen coordinates (vis may have been scaled/moved)
         m.scale(k, about_point=ORIGIN).shift(c)
@@ -489,7 +501,6 @@ def animate_047(scene, vis, run_time):
     def Tp(pts):
         return [np.array(p) * k + c for p in pts]
 
-    t0 = scene.now
     # ---------------------------------------------------------------- pieces (build coords)
     axis = Arrow(c_f - 1.45 * r * D_EXT, c_f + (L + 1.55 * r) * D_EXT, buff=0, color=GREY_,
                  stroke_width=2.4, tip_length=0.2, max_tip_length_to_length_ratio=0.2)
@@ -518,41 +529,55 @@ def animate_047(scene, vis, run_time):
         m.set_points_as_corners(Tp(_sweep_pts(P, F, G, a * L)))
 
     # Parts join `vis` (so they collapse with the card) only right before they animate in.
-    # 1) "if a shape, times a line": the line appears and X is swept along it.
-    scene.wait(max(0.0, 0.12 * R - (scene.now - t0)))
+    # 0) "if a shape": the shape X pulses.
+    span(at(0.19), at(0.19) + 0.6,
+         Indicate(VGroup(vis.body, vis.back, vis.front), color=ACC, scale_factor=1.12),
+         rate_func=smooth)
+
+    # 1) "times a line": the line appears and X is swept along it.
+    scene.wait(max(0.0, at(0.262) - scene.now))
     vis.add_to_back(axis)          # the line sits under the translucent solid
     vis.add(lab_line, times_c)
-    scene.play(AnimationGroup(
+    span(at(0.262), at(0.37), AnimationGroup(
         AnimationGroup(Create(axis), FadeIn(lab_line), run_time=0.6),
         AnimationGroup(UpdateFromAlphaFunc(vis.body, grow), vis.back.animate.shift(L * k * D_EXT),
                        Transform(vis.lab_x, lab_xc[0]), FadeIn(times_c, shift=RIGHT * 0.1), run_time=1.3),
-        lag_ratio=0.75), run_time=0.19 * R, rate_func=linear)
+        lag_ratio=0.75))
 
-    # 2) "...is ordinary five-dimensional space. Must the shape be ordinary four-space?"
-    scene.wait(max(0.0, 0.32 * R - (scene.now - t0)))
-    ghost = vis.front.copy().set_fill(opacity=0).set_stroke(opacity=0)
-    vis.add(cube, cong, lab_c5, blob2, lab_x2, sq, lab_c4, rel_q)
-    five = AnimationGroup(
+    # 2) "...is ordinary five-dimensional space."
+    scene.wait(max(0.0, at(0.37) - scene.now))
+    vis.add(cube, cong, lab_c5)
+    span(at(0.37), at(0.52), AnimationGroup(
         AnimationGroup(TransformFromCopy(full_cyl, cube.hull), FadeIn(lab_c5), run_time=1.0),
         AnimationGroup(Write(cong), Create(cube.grid, lag_ratio=0.1), Create(cube.inner), FadeIn(cube.tint),
                        run_time=0.7),
-        lag_ratio=1.0)
-    four = AnimationGroup(
+        lag_ratio=1.0))
+
+    # 3) "Must the shape be ordinary four-space?"
+    scene.wait(max(0.0, at(0.545) - scene.now))
+    ghost = vis.front.copy().set_fill(opacity=0).set_stroke(opacity=0)
+    vis.add(blob2, lab_x2, sq, lab_c4, rel_q)
+    span(at(0.545), at(0.705), AnimationGroup(
         AnimationGroup(TransformFromCopy(ghost, blob2), FadeIn(lab_x2, shift=DOWN * 0.1),
                        FadeIn(sq, shift=DOWN * 0.1), FadeIn(lab_c4, shift=DOWN * 0.1), run_time=1.0),
-        Write(rel_q, run_time=0.7), lag_ratio=0.6)
-    scene.play(AnimationGroup(five, four, lag_ratio=1.0), run_time=0.38 * R, rate_func=linear)
+        Write(rel_q, run_time=0.7), lag_ratio=0.6))
 
-    # 3) "...the paper's answer is no."
-    scene.wait(max(0.0, 0.83 * R - (scene.now - t0)))
-    scene.play(Transform(rel_q, rel_no),
-               Indicate(blob2, color=RED_, scale_factor=1.06), run_time=0.1 * R)
+    # 4) "Over the complex numbers...": every C on the card lights up in turn.
+    span(e0 - 2.75, e0 - 1.7, LaggedStart(
+        *[Indicate(m, color=YELLOW_, scale_factor=1.25) for m in (lab_line, lab_xc[2], lab_c5, lab_c4)],
+        lag_ratio=0.18), rate_func=linear)
+
+    # 5) "...the paper's answer is no."  (the red relation lands on "no")
+    span(e0 - 0.9, e0 - 0.45, Transform(rel_q, rel_no), rate_func=smooth)
+    span(e0 - 0.45, min(e0 + 0.05, t_close - 0.02), Indicate(rel_q, color=RED_, scale_factor=1.25),
+         Indicate(VGroup(blob2, lab_x2), color=RED_, scale_factor=1.06), rate_func=linear)
 
 
 class C2Grid(GridScene):
     CHAPTER = "ag"
     TILES = [
-        dict(num="047", name="Zariski cancellation fails over ℂ", verdict="counterexample", icon=_padded(icon_047),
+        dict(num="047", name="Zariski cancellation fails over ℂ", verdict="counterexample",
+             icon=icon_047,   # featured: never gets the 'lit' pulse, so no safety margin needed
              feature=dict(caption="X × line ≅ 5-space, yet X is not 4-space.",
                           big=big_047, animate=animate_047)),
         dict(num="039", name="Nagata's conjecture", verdict="proved", icon=_padded(icon_039)),
@@ -567,3 +592,29 @@ class C2Grid(GridScene):
         dict(num="058", name="Kollár–Pardon universal covers", verdict="proved", icon=_padded(icon_058)),
         dict(num="057", name="Campana's abelianity conjecture", verdict="proved", icon=_padded(icon_057)),
     ]
+
+    def feature(self, t, color):
+        """As GridScene.feature, but the card stays open through the line's last word
+        ("...is no.") and collapses in the short pause before the next tile is named."""
+        start, end = self.cue(f"f{t.num}"), self.cue(f"f{t.num}_end")
+        later = [ct for o in self.tiles if o is not t
+                 for ct in [self._cue_time(o)] if ct is not None and ct > end]
+        nxt = min(later) if later else self.narr_end
+        close = max(end - 0.45, min(end + 0.2, nxt - 0.62))
+        self.wait_until(max(self.now, start - 0.15))
+        card, vis = self.big_card(t, color)
+        dim = Rectangle(width=config.frame_width + 1, height=config.frame_height + 1,
+                        stroke_width=0, fill_color=BG, fill_opacity=0.86)
+        dim.set_z_index(50)
+        card.set_z_index(60)
+        card.save_state()
+        card.scale(t.frame.width / card[0].width).move_to(t)
+        card.set_opacity(0)
+        self.play(*t.lit(), FadeIn(dim), Restore(card), run_time=0.55)
+        anim = t.spec["feature"].get("animate")
+        if anim and close - self.now > 1.0:
+            anim(self, vis, close - self.now)
+        self.wait_until(max(self.now, close))
+        self.play(card.animate.scale(t.frame.width / card[0].width).move_to(t).set_opacity(0),
+                  FadeOut(dim), *t.visited(), run_time=0.45)
+        self.remove(card)

@@ -378,10 +378,10 @@ class C3Mahler(VoiceScene):
 
         # ================================================================ 1: stretch
         self.play_until(self.fr("stretch", "max", 0.13), FadeIn(readout, shift=UP * 0.2))
-        self.play_until(self.fr("stretch", "max", 0.43), self.t.animate.set_value(1.65))
-        Plab.clear_updaters()
-        self.play_until(self.fr("stretch", "max", 0.72), self.t.animate.set_value(0.62),
-                        FadeOut(Plab, rate_func=delayed(0.0, 0.3)))
+        # the K° label rides along briefly, then leaves before the diamond gets too thin
+        self.play_until(self.fr("stretch", "max", 0.43), self.t.animate.set_value(1.65),
+                        FadeOut(Plab, rate_func=delayed(0.05, 0.4)))
+        self.play_until(self.fr("stretch", "max", 0.72), self.t.animate.set_value(0.62))
         self.play_until(self.fr("stretch", "max", 0.93), self.t.animate.set_value(1.0),
                         Circumscribe(pnum, color=YELLOW_, buff=0.08, stroke_width=3,
                                      rate_func=delayed(0.1, 0.95, linear)))

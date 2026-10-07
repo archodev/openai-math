@@ -618,8 +618,8 @@ class C9Hotspots(VoiceScene):
         self.wait_until("claim")
 
         # ============================================== 7. the paper {claim}
-        card = paper_card("369", width=2.75)
-        card.move_to([2.35, 0.6, 0])
+        card = paper_card("369", width=3.2)
+        card.move_to([2.3, 0.5, 0])
         tag = paper_tag("369", color=acc)
         every = txt("any smooth shape without holes", 26, GREY_)
         every.move_to([0, P4[1] - 1.9, 0]).align_to(np.array([-6.3, 0, 0]), LEFT)
@@ -634,8 +634,10 @@ class C9Hotspots(VoiceScene):
         crit = VGroup(tex(r"\nabla u \neq 0", 36, WHITE_), txt("inside: no interior critical point", 26, GREY_)).arrange(RIGHT, buff=0.25)
         crit.next_to(banner, DOWN, buff=0.4).align_to(banner, LEFT).shift(RIGHT * 0.35)
         self.wait_until(t_ban)
-        self.play(LaggedStart(AnimationGroup(FadeOut(card, shift=RIGHT * 0.6), FadeOut(every)),
-                              FadeIn(banner, shift=LEFT * 0.4), lag_ratio=0.35), run_time=0.9)
+        # the paper folds into its source tag; the claim takes its place
+        self.play(LaggedStart(AnimationGroup(FadeOut(card, target_position=tag.get_center() + RIGHT * 0.6, scale=0.12),
+                                             FadeOut(every)),
+                              FadeIn(banner, shift=LEFT * 0.3), lag_ratio=0.45), run_time=1.0)
         self.wait_until(max(t_edge, self.now))
         self.play(Flash(spots["hot"].get_center(), color=acc, line_length=0.2, flash_radius=0.42),
                   Flash(spots["cold"].get_center(), color=BLUE_, line_length=0.2, flash_radius=0.42),

@@ -347,14 +347,19 @@ class C8Fgf(VoiceScene):
                               stroke_width=2.2, fill_color=CARD, fill_opacity=0.92).move_to([-3.1, TOP, 0])
         r3 = r2.copy().move_to([3.1, TOP, 0])
         self.wait_until("history")
+        # staggered: the trees clear out to the corners first, then the boxes rise
+        # into the gap they left (no tree ever sweeps across a box)
+        tree_rf = lambda t: smooth(min(1.0, t / 0.6))
+        box_rf = lambda t: smooth(max(0.0, (t - 0.3) / 0.7))
         self.play_until(h_(0.26),
-                        MoveToTarget(f2), MoveToTarget(f3),
-                        Transform(box2.rect, r2), Transform(box3.rect, r3),
-                        box2.lab.animate.scale(0.72).move_to(r2),
-                        box3.lab.animate.scale(0.72).move_to(r3),
+                        MoveToTarget(f2, rate_func=tree_rf), MoveToTarget(f3, rate_func=tree_rf),
+                        Transform(box2.rect, r2, rate_func=box_rf),
+                        Transform(box3.rect, r3, rate_func=box_rf),
+                        box2.lab.animate(rate_func=box_rf).scale(0.72).move_to(r2),
+                        box3.lab.animate(rate_func=box_rf).scale(0.72).move_to(r3),
                         *[FadeOut(m, rate_func=lambda t: smooth(min(1.0, t / 0.4)))
                           for m in (box2.cap, box3.cap, arrs, head2, head3, ncong, ncap)],
-                        qg.animate.scale(0.75).move_to([0, TOP + 0.1, 0]))
+                        qg.animate(rate_func=box_rf).scale(0.75).move_to([0, TOP + 0.1, 0]))
 
         kad = txt("Richard Kadison's question", size=24, color=GREY_)
         kad.move_to([0, TOP - 0.9, 0])

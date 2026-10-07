@@ -376,8 +376,8 @@ class C6Kaplansky(VoiceScene):
         uf = MathTex(r"u\ \text{invertible}", r"\;\Longrightarrow\;", r"u=\lambda g", font_size=40,
                      color=WHITE_).move_to(ubox.get_center() + DOWN * 0.05)
         ucard = VGroup(ubox, utitle, uf)
-        self.at(self.ph("Giles", "gardam+1.2") - 0.15, zcard.animate.move_to([3.15, -0.15 + 0.0, 0]),
-                FadeIn(ucard, shift=RIGHT * 0.8), rt=0.8)
+        self.at(self.ph("Giles", "gardam+1.2") - 0.15, zcard.animate(rate_func=early).move_to([3.15, -0.15, 0]),
+                FadeIn(ucard, shift=RIGHT * 0.8, rate_func=lambda t: late(t, 0.45)), rt=0.9)
         uchip = chip("DISPROVED · GARDAM 2021", RED_, size=18).move_to(ubox.get_bottom() + UP * 0.45)
         self.at(self.ph("disproved", "gardam+2.0"), FadeIn(uchip, scale=1.3),
                 ubox.animate.set_stroke(RED_), uf.animate.set_opacity(0.55), rt=0.6)
