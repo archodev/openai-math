@@ -627,7 +627,7 @@ def icon_290():
     arrs = VGroup(*[arrow(c + 0.25 * rotate_vector(RIGHT, a), c + 0.09 * rotate_vector(RIGHT, a),
                           WHITE_, 1.4, 0.06) for a in (PI / 4, 3 * PI / 4, 5 * PI / 4, 7 * PI / 4)])
     ctr = Dot(c, radius=0.04, color=WHITE_)
-    mlab = tex("M", 24, ACC).move_to(c + P(-0.5, 0.36))
+    mlab = tex("M", 30, ACC).move_to(c + P(-0.52, 0.38))
     flow = arc_arrow(c + 0.58 * rotate_vector(RIGHT, 0.35), c + 0.58 * rotate_vector(RIGHT, 1.25),
                      0.9, GREY_, 1.4, 0.07)
     eq = tex(r"B_\varphi = \mathbb{C}", 32, WHITE_).move_to(P(0.72, 0))
@@ -791,7 +791,7 @@ def icon_322():
     rays = VGroup(*[DashedLine(P(0.92, 0), p, dash_length=0.04) for p in rp]).set_stroke(GREY_, 1.0)
     a1 = arc_arrow(lp[0] + P(0.07, 0.03), rp[0] + P(-0.07, 0.03), -0.5, GREY_, 1.5, 0.09)
     a2 = arc_arrow(lp[2] + P(0.07, -0.03), rp[2] + P(-0.07, -0.03), 0.5, GREY_, 1.5, 0.09)
-    tl = tex("T", 24, WHITE_).next_to(a1, UP, buff=0.04)
+    tl = tex("T", 29, WHITE_).next_to(a1, UP, buff=0.04)
     return VGroup(left, right, rays, ldots, rdots, a1, a2, tl)
 
 

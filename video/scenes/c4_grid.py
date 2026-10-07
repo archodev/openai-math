@@ -668,7 +668,8 @@ def big_138():
     l50 = MathTex(r"2^{n/2}", font_size=32, color=WHITE_).move_to([ox + 0.5, oy + H - 0.1, 0])
     l49 = MathTex(r"2^{0.49n}", font_size=32, color=YELLOW_).move_to([ox + 0.62, oy + H * 0.5 - 0.05, 0])
     # the claimed method is randomized (correct w.p. >= 2/3): say so under its plot
-    rnd = Text("randomized", font=SANS, font_size=22, color=YELLOW_)
+    # (a tag, not plain text, so it doesn't read as a continuation of the grey caption)
+    rnd = chip("RANDOMIZED", YELLOW_, size=14)
     rnd.move_to([(ox + 2.55) / 2, hs.get_y(), 0])
     axes = VGroup(xax, yax, nl, tl)
     root.add(pad, boxes, div, target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs,
