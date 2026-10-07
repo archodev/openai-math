@@ -271,7 +271,7 @@ class C4Matmul(VoiceScene):
         cbox = RoundedRectangle(width=Cm[0].width + 0.24, height=Cm[0].height + 0.26, corner_radius=0.14,
                                 stroke_color=ACC, stroke_width=2.5, fill_color=ACC,
                                 fill_opacity=0.06).move_to(Cm[0])
-        self.go(M(0.82), M(0.96),
+        self.go(M(0.81), M(0.96),
                 left.animate.move_to(left_full), FadeIn(cnt_eq), Write(n3),
                 FadeOut(VGroup(rowrect, colrect)), ReplacementTransform(crect, cbox))
 

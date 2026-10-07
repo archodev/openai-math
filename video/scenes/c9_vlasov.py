@@ -410,22 +410,16 @@ class C9Vlasov(VoiceScene):
         k = ks[nth - 1]
         return float(np.interp(cum[k] + frac * dur[k], xs, ys))
 
-    def dbg(self, label):
-        try:
-            with open("/tmp/claude-0/-home-user-openai-math/5106a9e4-8263-509c-a885-b44fd752a939/scratchpad/c9v/dbg.log", "a") as fh:
-                fh.write(f"{label}: t={self.now:.2f}\n")
-        except OSError:
-            pass
-
-    def play(self, *anims, **kw):
-        self.dbg(f"  play {', '.join(type(a).__name__ for a in anims)[:60]} rt={kw.get('run_time')}")
-        super().play(*anims, **kw)
+    def wait_until(self, t, **kw):
+        """Like VoiceScene.wait_until, but skips sub-frame waits (no 'too short' warnings)."""
+        dt = self.cue(t) - self.now
+        if dt > 1.0 / config.frame_rate - 1e-6:
+            self.wait(dt, **kw)
 
     def span(self, t0, t1, *anims, min_rt=0.3, **kw):
         self.wait_until(t0)
         rt = max(min_rt, self.cue(t1) - self.now)
         self.play(*anims, run_time=rt, **kw)
-
 
     # -------------------------------------------------------------- build
     def construct(self):
@@ -446,7 +440,7 @@ class C9Vlasov(VoiceScene):
         wind_lab = txt("solar wind", 28, GREY_).move_to([-2.4, 2.35, 0])
 
         self.wait_until("plasma")
-        self.play(FadeIn(sun, shift=RIGHT * 0.5), *pl.to(alpha=1.0), run_time=0.7)
+        self.play(FadeIn(sun, shift=RIGHT * 0.5), *pl.to(alpha=1.0), run_time=0.45)
         self.span(wt(0, "like") - 0.1, wt(0, "wind", frac=1.0), FadeIn(wind_lab, shift=UP * 0.1))
 
         # ---- 'is a swarm of charged particles': the wind gathers into a swirling cloud
@@ -521,7 +515,6 @@ class C9Vlasov(VoiceScene):
         self.play(*pl.to(cx=-4.6, cy=0.1, sc=1.1, clipx=-1.85, clipy=3.65), FadeOut(cap), run_time=0.9)
         self.span(self.now, max(self.now + 0.7, wt(1, "maxwell")), FadeIn(lab_f), Write(vl))
         self.play(FadeIn(lab_F), Write(mx), FadeIn(vrow, shift=UP * 0.1), run_time=0.95)
-        self.dbg("eqs written")
         self.wait_until(wt(1, "describe") - 0.15)
         self.play(LaggedStart(AnimationGroup(Create(arcR), FadeIn(labR)),
                               AnimationGroup(Create(arcL), FadeIn(labL)), lag_ratio=0.5), run_time=0.6)
@@ -534,7 +527,6 @@ class C9Vlasov(VoiceScene):
                   pl.trk["ripple"].animate(rate_func=linear).set_value(1.2),
                   vl[5].animate(rate_func=there_and_back).scale(1.3),
                   vl[7].animate(rate_func=there_and_back).scale(1.3), min_rt=0.4)
-        self.dbg("loop done")
         pl.trk["ripple"].set_value(-1.0)
 
         # ================================================== QUESTION: max |p| over time
@@ -586,12 +578,10 @@ class C9Vlasov(VoiceScene):
         self.wait_until(cue("q") - 0.3)
         self.play(FadeOut(eqs, shift=UP * 0.3), FadeOut(pdot), run_time=0.45)
         self.play(Create(axes, lag_ratio=0), FadeIn(ylab), FadeIn(xlab), run_time=0.7)
-        self.dbg("axes in")
         self.add(curve, tip)
         self.span(self.now, wt(1, "forever", frac=0.6), tt.animate.set_value(TB), rate_func=smooth, min_rt=0.8)
         self.play(Create(cont), FadeIn(q_lab), run_time=0.7)
         # '...or can particles get kicked to infinite momentum?'
-        self.dbg("forever drawn")
         self.wait_until(wt(1, "kicked") - 0.25)
         pl.start_kick()
         pl.tween("kalpha", 0.3, 1.0)
@@ -625,7 +615,6 @@ class C9Vlasov(VoiceScene):
         shift = np.array([-1.5, -1.5, 0]) - about
         ax_t = axes.copy().scale(k, about_point=about).shift(shift)
         tgt = lab_pos(ax_t)
-        self.dbg("pre-claim")
         self.wait_until("claim")
         self.play(VGroup(axes, cont).animate.scale(k, about_point=about).shift(shift),
                   *[m.animate.move_to(tgt[m]) for m in (ylab, xlab, q_lab)],
@@ -641,11 +630,11 @@ class C9Vlasov(VoiceScene):
         # ================================================== DETAILS
         banner = result_banner("Global smooth solutions for 3D relativistic Vlasov–Maxwell",
                                lean=CATALOG[NUM]["lean"], size=30)
-        banner.move_to([0, -0.62, 0])
+        banner.move_to([0, -0.72, 0])
         chips_ = [chip(s, ACC, size=18) for s in ("GLOBAL EXISTENCE", "UNIQUENESS", "NO SMALLNESS", "NO SYMMETRY")]
-        crow = VGroup(*chips_).arrange(RIGHT, buff=0.3).move_to([0, -1.9, 0])
+        crow = VGroup(*chips_).arrange(RIGHT, buff=0.3).move_to([0, -1.97, 0])
         fine = txt("one species  ·  compactly supported particles  ·  finite-energy fields", 22, GREY_)
-        fine.move_to([0, -2.48, 0])
+        fine.move_to([0, -2.52, 0])
         k2 = 0.6 / 0.72
         about2 = axes.c2p(0, 0)
         shift2 = np.array([1.05, 0.78, 0]) - about2
@@ -656,7 +645,6 @@ class C9Vlasov(VoiceScene):
                   VGroup(axes, cont).animate.scale(k2, about_point=about2).shift(shift2),
                   *[m.animate.move_to(tgt2[m]) for m in (ylab, xlab, fin_lab)],
                   *pl.to(cx=-4.0, cy=1.95, sc=0.8, clipx=0.3), run_time=0.8)
-        self.dbg("reflow done")
         self.play(FadeIn(banner, shift=UP * 0.15), FadeIn(chips_[0], shift=UP * 0.1), run_time=0.6)
         self.wait_until(wt(2, "uniqueness") - 0.1)
         self.play(FadeIn(chips_[1], shift=UP * 0.1), run_time=0.45)

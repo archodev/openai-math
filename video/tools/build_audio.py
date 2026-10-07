@@ -218,9 +218,13 @@ def build(scenes, only=None, procs=4):
             t += pause
         audio = np.concatenate(chunks)
         total = len(audio) / SR
-        sf.write(VIDEO / "build" / "audio" / f"{sc['id']}.wav", audio, SR, subtype="FLOAT")
         timing = {"duration": round(total, 3), "cues": cues, "lines": info}
-        (VIDEO / "build" / "timing" / f"{sc['id']}.json").write_text(json.dumps(timing, indent=1))
+        tpath = VIDEO / "build" / "timing" / f"{sc['id']}.json"
+        apath = VIDEO / "build" / "audio" / f"{sc['id']}.wav"
+        new_json = json.dumps(timing, indent=1)
+        if not tpath.exists() or tpath.read_text() != new_json or not apath.exists():
+            sf.write(apath, audio, SR, subtype="FLOAT")
+            tpath.write_text(new_json)
         summary.append((sc["id"], total, sum(len(l["text"].split()) for l in lines)))
     tot = sum(s[1] for s in summary)
     for sid, d, w in summary:

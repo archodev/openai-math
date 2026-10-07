@@ -285,7 +285,7 @@ class C7Mubs(VoiceScene):
         stack = VGroup(s["solid"], s["ghosts"], s["brace"], s["qm"])
         S1 = 1.35
         tgt = stack.copy().scale(S1)
-        tgt.shift(np.array([-4.3, -0.95, 0]) - tgt[0][0].get_center())
+        tgt.shift(np.array([-4.0, -0.95, 0]) - tgt[0][0].get_center())
         rtgt = s["rng"].copy().scale(1.25).shift(DOWN * 0.05)
 
         fade_out = VGroup(*ch["cols"].values(), *ch["counts"].values(), *ch["dlabs"].values(),
@@ -314,7 +314,7 @@ class C7Mubs(VoiceScene):
         rng = s["rng"]
         n63 = MathTex("N(6)", "=", "3", font_size=40 * 1.25, color=ACCENT).move_to(rng)
         # the upper bound 7 collapses onto the known lower bound 3
-        self.play_between("claim+1.1", "claim+1.7",
+        self.play_between("claim+1.05", "claim+1.6",
                           *[FadeOut(g, scale=0.4) for g in ghosts[1:]],
                           FadeOut(s["brace"]), FadeOut(s["qm"]),
                           g4.animate.set_stroke(RED_),
@@ -333,9 +333,16 @@ class C7Mubs(VoiceScene):
         head_part, rest_part = glyphs[:6], glyphs[6:]
 
         final = VGroup(s["solid"], g4, cross)
-        S2 = 1.8
+        # settle bigger and higher: the stack's top lines up with the paper card's
+        S2 = 2.0
         ftgt = final.copy().scale(S2 / S1)
-        ftgt.shift(np.array([-4.0, 0.85, 0]) - VGroup(ftgt[0], ftgt[1]).get_center())
+        ftgt.shift(np.array([-4.0, 0.9, 0]) - VGroup(ftgt[0], ftgt[1]).get_center())
+        for d_ in ftgt[0]:                      # strokes don't scale: thicken to match
+            d_[0].set_stroke(width=2.2)
+            d_[1].set_stroke(width=4.6)
+            d_[2].set_stroke(width=4.6)
+        ftgt[1].set_stroke(width=3.0)
+        ftgt[2].set_stroke(width=5.5)
         kbr = Brace(ftgt[0], LEFT, buff=0.12, color=GREY_, sharpness=1.2)
         known = VGroup(kbr, txt("known", 26, GREY_).next_to(kbr, LEFT, buff=0.12))
         ruled = txt("ruled out", 26, RED_).next_to(ftgt[1], LEFT, buff=0.32)
@@ -344,7 +351,7 @@ class C7Mubs(VoiceScene):
         self.bring_to_front(*n63)
         box.set_opacity(0)
         n63_glyphs = VGroup(*[g for part in n63 for g in part])
-        self.play_between("claim+1.85", "claim+2.6",
+        self.play_between("claim+1.65", "claim+2.35",
                           box.animate.set_fill(CARD, opacity=0.92).set_stroke(ACCENT, opacity=1),
                           Succession(Wait(0.6), FadeIn(header, shift=RIGHT * 0.15, run_time=0.4)),
                           ReplacementTransform(n63_glyphs, head_part),
@@ -356,7 +363,7 @@ class C7Mubs(VoiceScene):
         # "computer-assisted proof"
         comp = chip("COMPUTER-ASSISTED PROOF", ORANGE_, size=22, pad_x=0.2, pad_y=0.11)
         fp = txt("under stated floating-point assumptions", 22, GREY_)
-        VGroup(comp, fp).arrange(DOWN, buff=0.2).move_to([-0.45, 0.85, 0])
+        VGroup(comp, fp).arrange(DOWN, buff=0.2).move_to([-0.15, 0.9, 0])
         self.play_between("L2_end-1.25", "L2_end-0.7",
                           FadeIn(comp, scale=0.85), FadeIn(fp, shift=UP * 0.1))
         self.wait_until("L2_end")
