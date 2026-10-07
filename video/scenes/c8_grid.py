@@ -228,10 +228,14 @@ def big_293():
                                          P(X293[j - 1] + 0.09, Y293 - 0.09), -PI / 2,
                                          WHITE_, 2.2, 0.12) for j in range(-2, 4)])
     later["v_lab"] = tex("V", 40, WHITE_).move_to(P(-2.1, Y293 - 0.36))
+    # faint drop lines: the tail K_{>=h} starts right under the basis vector e_h
+    later["drops"] = VGroup(*[DashedLine(P(X293[h], Y293 - 0.36), P(X293[h], LAD[h] + 0.19),
+                                         dash_length=0.06) for h in LAD]).set_stroke(GREY_, 1.3, opacity=0.5)
     later["b1"] = txt("every tail is S-invariant", 24, GREEN_).move_to(P(0.2, YB293))
     later["b2"] = tex(r"VS = SV,\quad V K_{\ge h} \not\subseteq K_{\ge h}", 32, WHITE_).move_to(P(0.2, YB293))
-    later["b3"] = txt("no hyperinvariant subspace", 26, RED_, weight=SEMIBOLD).move_to(P(0.2, YB293))
-    later["b4"] = txt("(the invariant subspace problem stays open)", 19, GREY_).move_to(P(0.2, YB293 - 0.4))
+    # precise wording: only the trivial subspaces 0 and H are hyperinvariant
+    later["b3"] = txt("no nontrivial hyperinvariant subspace", 22, RED_, weight=SEMIBOLD).move_to(P(0.1, YB293))
+    later["b4"] = txt("invariant subspace problem: still open", 22, GREY_).move_to(P(0.1, YB293 - 0.42))
     vis.later = later
     return vis
 
@@ -247,10 +251,12 @@ def anim_293(scene, mob, T):
     bars = [_bring(mob, b, below=True) for b in L["bars"]]
     labs = [_bring(mob, b) for b in L["labs"]]
     checks = [_bring(mob, b) for b in L["checks"]]
+    drops = _bring(mob, L["drops"], below=True)
     b1 = _bring(mob, L["b1"])
     flash = mob.s_arcs.copy().set_stroke(YELLOW_, 4)
     # 1. shift S moves e_j -> e_{j+1}: every tail K_{>=h} is invariant (a ladder)
     scene.play(ShowPassingFlash(flash, time_width=0.5),
+               at(mob, Create(drops, lag_ratio=0.18), 0.0, 0.7),
                LaggedStart(*[AnimationGroup(GrowFromEdge(b, RIGHT), FadeIn(lb, shift=RIGHT * 0.1),
                                             group=mob)
                              for b, lb in zip(bars, labs)], lag_ratio=0.18, group=mob),
@@ -653,23 +659,34 @@ def icon_285():
     return VGroup(mesh, mdots, ar, mu, x, grid, br)
 
 
+def mini_globe(c, r=0.15, color=ACC, width=1.8):
+    """A tiny sphere (outline + equator + meridian) used as a 'survives' mark."""
+    c = np.array(c, float)
+    out = Circle(r).move_to(c).set_stroke(color, width).set_fill(color, 0.22)
+    eq = Ellipse(width=2 * r, height=0.55 * r).move_to(c).set_stroke(color, width * 0.6, opacity=0.9)
+    mer = Ellipse(width=0.55 * r, height=2 * r).move_to(c).set_stroke(color, width * 0.6, opacity=0.9)
+    return VGroup(out, eq, mer)
+
+
 def icon_309():
-    """Kervaire invariant at p = 3: classes j = 0, 2, 3 survive (stems 10, 106, 322)."""
-    c = P(-1.22, 0.02)
-    sph = Circle(0.28).move_to(c).set_stroke(WHITE_, 1.6).set_fill(ACC, 0.08)
-    eq = Ellipse(width=0.56, height=0.14).move_to(c).set_stroke(GREY_, 1.0, opacity=0.8)
-    frames = VGroup(*[arrow(c + 0.28 * rotate_vector(RIGHT, a), c + 0.48 * rotate_vector(RIGHT, a),
-                            ACC, 1.5, 0.07) for a in (0.5, 1.55, 2.6)])
-    base = Line(P(-0.68, -0.04), P(1.62, -0.04)).set_stroke(GREY_, 1.0, opacity=0.7)
+    """Kervaire invariant at p = 3: classes j = 0, 2, 3 survive (stems 10, 106, 322);
+    j = 1 (stem 34) and j >= 4 (970, ...) die.  Survivors are drawn as small spheres (these
+    are elements of the stable homotopy groups of spheres); stems are readable numbers."""
     stems = [10, 34, 106, 322, 970]
     alive = [True, False, True, True, False]
-    xs = [-0.5 + 0.48 * i for i in range(5)]
-    marks, labs = VGroup(), VGroup()
-    for x, s, ok in zip(xs, stems, alive):
-        marks.add(Dot(P(x, 0.2), radius=0.075, color=ACC) if ok else xmark(P(x, 0.2), 0.07, RED_, 2.4))
-        labs.add(txt(str(s), 15, WHITE_ if ok else GREY_).move_to(P(x, -0.25)))
-    ell = dots_ellipsis(P(1.72, 0.2), r=0.018, gap=0.06)
-    return VGroup(sph, eq, frames, base, marks, labs, ell)
+    # lay the stem numbers out by their own widths (tile width is the binding constraint:
+    # this keeps them at ~22pt on screen instead of ~13pt)
+    labs = VGroup(*[txt(str(s), 24, WHITE_ if ok else GREY_, weight=SEMIBOLD if ok else NORMAL)
+                    for s, ok in zip(stems, alive)]).arrange(RIGHT, buff=0.17)
+    labs.move_to(P(0, -0.34), aligned_edge=DOWN)
+    marks = VGroup()
+    for lb, ok in zip(labs, alive):
+        x = lb.get_center()[0]
+        marks.add(mini_globe(P(x, 0.2), 0.16) if ok else xmark(P(x, 0.2), 0.1, RED_, 3.0))
+    ell = dots_ellipsis(P(labs.get_right()[0] + 0.15, 0.2), r=0.024, gap=0.07)
+    base = Line(P(labs.get_left()[0] - 0.06, -0.06), P(ell.get_right()[0], -0.06)) \
+        .set_stroke(GREY_, 1.2, opacity=0.6)
+    return VGroup(base, marks, labs, ell)
 
 
 def _trefoil_pieces(n=720, gap=0.17):
@@ -717,9 +734,9 @@ def trefoil(scale=0.15, color=ACC, width=2.2):
 def icon_306():
     """Purely cosmetic surgery: distinct slopes give non-homeomorphic manifolds."""
     k = trefoil(0.155, ACC, 2.4).move_to(P(-1.0, 0))
-    kl = tex("K", 22, ACC).move_to(P(-1.62, 0.36))
+    kl = tex("K", 27, ACC).move_to(P(-1.64, 0.38))
     eq = tex(r"S^3_{r}(K)\ \not\cong\ S^3_{r'}(K)", 25, WHITE_).move_to(P(0.5, 0.12))
-    sub = tex(r"r \ne r'", 24, GREY_).next_to(eq, DOWN, buff=0.14)
+    sub = tex(r"r \ne r'", 26, GREY_).next_to(eq, DOWN, buff=0.14)
     return VGroup(k, kl, eq, sub)
 
 
@@ -743,8 +760,8 @@ def icon_315():
                      .move_to(P(x, base_y + 0.3)))
         else:
             bars.add(Line(P(x - 0.1, base_y + 0.02), P(x + 0.1, base_y + 0.02)).set_stroke(WHITE_, 3))
-        labs.add(txt(str(i), 16, WHITE_ if i == 2 else GREY_).move_to(P(x, base_y - 0.15)))
-    bt = tex(r"b^{(2)}_k(\widetilde M^4)", 22, WHITE_).move_to(P(0.6, 0.42)).align_to(P(-0.12, 0), LEFT)
+        labs.add(txt(str(i), 23, WHITE_ if i == 2 else GREY_).move_to(P(x, base_y - 0.2)))
+    bt = tex(r"b^{(2)}_k(\widetilde M^4)", 25, WHITE_).move_to(P(0.6, 0.44)).align_to(P(-0.12, 0), LEFT)
     return VGroup(tiles, bl, bars, labs, bt)
 
 

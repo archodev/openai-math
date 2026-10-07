@@ -270,7 +270,6 @@ class C9Hotspots(VoiceScene):
             return c(a) + f * (c(b) - c(a))
 
         # ------------------------------------------------ schedule (all from cues)
-        t_plate = c("plate")
         t_ins = fr("L0", "L0_end", 0.33)          # "insulated around its edges"
         t_heat = fr("L0", "L0_end", 0.67)         # "heat it unevenly"
         t_wait = fr("L0", "L0_end", 0.86)         # "and wait"
@@ -553,11 +552,11 @@ class C9Hotspots(VoiceScene):
         self.play(FadeIn(lab_hot, scale=0.8), FadeIn(lab_cold, scale=0.8),
                   Flash(spots["hot"].get_center(), color=acc, line_length=0.18, flash_radius=0.38),
                   Flash(spots["cold"].get_center(), color=BLUE_, line_length=0.18, flash_radius=0.38),
-                  FadeOut(start_dot), run_time=0.7)
+                  FadeOut(start_dot), run_time=min(0.7, max(0.35, c("rauch") - self.now)))
         self.wait_until("rauch")
 
         # ============================================== 4. Rauch, 1974 {rauch}
-        rauch = VGroup(serif("Jeffrey Rauch, 1974", 44), )
+        rauch = serif("Jeffrey Rauch, 1974", 44)
         q_line = VGroup(txt("always on the", 32), txt("boundary", 32, YELLOW_, weight=SEMIBOLD),
                         txt("?", 32)).arrange(RIGHT, buff=0.14)
         q_line[2].shift(LEFT * 0.08)
