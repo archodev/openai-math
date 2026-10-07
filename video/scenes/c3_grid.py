@@ -682,3 +682,31 @@ def _tiles():
 class C3Grid(GridScene):
     CHAPTER = "an"
     TILES = _tiles()
+    THREE_D = ("078", "079", "077")   # "... all three in three dimensions"
+
+    def wait_until(self, t, **kw):
+        # Hook into the template's idle stretch between {t077} and {t076}: when the
+        # narration says "all three in three dimensions", light the three 3D tiles
+        # together (Bochner-Riesz, local smoothing, restriction).
+        target = self.cue(t)
+        if not getattr(self, "_did_3d", False) and self.has_cue("t077") and self.has_cue("t076"):
+            s = max(self.cue("t077") + 1.0, self.cue("t076") - 1.5)
+            if self.now <= s + 0.05 and target >= s + 1.15:
+                self._did_3d = True
+                super().wait_until(s)
+                self._three_d(target)
+        super().wait_until(t, **kw)
+
+    def _three_d(self, until):
+        color = CHAPTER_COLOR[self.CHAPTER]
+        group = [t for t in self.tiles if t.num in self.THREE_D]
+        if len(group) != 3:
+            return
+        lit = []
+        for t in group:
+            lit += t.lit() + [Indicate(t.label, color=color, scale_factor=1.05),
+                              t.icon.animate(rate_func=there_and_back).scale(1.08)]
+        self.play(*lit, run_time=0.5)
+        back = min(0.4, max(0.2, until - self.now - 0.45))
+        self.wait(max(0.0, until - self.now - back - 0.05) * 0.5)
+        self.play(*[a for t in group for a in t.visited()], run_time=back)

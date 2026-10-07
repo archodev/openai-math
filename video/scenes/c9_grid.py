@@ -70,7 +70,7 @@ def _tri(center, direction, size=0.08, color=AC):
     return _shape(pts, color, 1.0)
 
 
-def _fit(m, w=ICON_W, h=ICON_H, margin=0.9):
+def _fit(m, w=ICON_W, h=ICON_H, margin=0.94):
     """Normalise an icon; an invisible margin keeps it inside its tile even
     during the grid's 1.12x 'lit' pulse."""
     m.scale(min(w / m.width, h / m.height)).move_to(ORIGIN)
@@ -315,8 +315,9 @@ def anim_degiorgi(scene, vis, rt):
     _z(leg_ok, leg_bad, ring8)
     scene.wait(0.04 * rt)
     scene.play(LaggedStart(*[c.animate.set_fill(AC, 0.22).set_stroke(AC, 1.4, 0.8) for c in ok],
-                           lag_ratio=0.12),
-               LaggedStart(*[nm.animate.set_color(WHITE_) for nm in vis.nums[:7]], lag_ratio=0.12),
+                           lag_ratio=0.12, group=vis),
+               LaggedStart(*[nm.animate.set_color(WHITE_) for nm in vis.nums[:7]], lag_ratio=0.12,
+                           group=vis),
                FadeIn(leg_ok), run_time=0.14 * rt)
     scene.play(Create(ring8), vis.nums[6].animate.set_color(AC).scale(1.2),
                *[c.animate.set_stroke(RED_, 1.4, 0.9).set_fill(RED_, 0.12) for c in bad],

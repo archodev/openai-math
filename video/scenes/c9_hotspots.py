@@ -611,10 +611,10 @@ class C9Hotspots(VoiceScene):
         open_chip = chip("STILL OPEN", YELLOW_, size=20)
         open_chip.move_to([P2[0], bw.get_center()[1], 0])
         right = VGroup(holed_band, holed, glow_in, hot_in, in_lab, hdr_r, bw, schem)
-        self.play(right.animate.fade(0.6), FadeIn(open_chip, scale=1.2), run_time=0.8)
-        self.play_until(max(self.now + 0.5, c("L2_end") - 0.2),
-                        Circumscribe(hdr_l, color=YELLOW_, fade_out=True, buff=0.12),
-                        Indicate(open_chip, color=YELLOW_, scale_factor=1.15))
+        self.play(right.animate.fade(0.6), Circumscribe(hdr_l, color=YELLOW_, fade_out=True, buff=0.12), run_time=1.1)
+        self.wait_until(max(self.now, fr("sc", "L2_end", 0.5)))   # "...the question stayed open"
+        self.play(FadeIn(open_chip, scale=1.3), run_time=0.5)
+        self.play_until(max(self.now + 0.4, c("L2_end")), Indicate(open_chip, color=YELLOW_, scale_factor=1.12))
         self.wait_until("claim")
 
         # ============================================== 7. the paper {claim}
