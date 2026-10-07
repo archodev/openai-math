@@ -334,8 +334,13 @@ def koebe_big():
     w = koebe_domain(1.0, warped=True, mesh=True, dust_level=2)
     r = koebe_domain(1.0, warped=False, mesh=True, dust_level=2)
     r.set_opacity(0)          # hidden: target geometry, carried along by scaling
-    vis = VGroup(w, r)
-    vis.W, vis.R = w, r
+    w.mesh.set_stroke(opacity=0)   # the conformal grid is drawn in on the card
+    # "from 1908": tucked into the empty upper-left corner, clear of both the
+    # warped and the round outer boundary
+    year = txt("1908", 30, GREY_, weight=SEMIBOLD).move_to([-2.0, 2.0, 0], aligned_edge=UL)
+    year.set_opacity(0)
+    vis = VGroup(w, r, year)
+    vis.W, vis.R, vis.year = w, r, year
     return vis
 
 
@@ -345,25 +350,39 @@ def _flash(m, color=YELLOW_, width=5, tw=0.7):
     return ShowPassingFlash(f, time_width=tw)
 
 
+def _late(a0, a1=1.0):
+    """rate_func that holds still, then eases over [a0, a1] of the animation."""
+    return lambda a: smooth(float(np.clip((a - a0) / (a1 - a0), 0, 1)))
+
+
 def koebe_animate(scene, vis, rt):
+    # Beats of L1 ("Koebe's circle domain conjecture, from 1908: any region with
+    # holes, even infinitely many, of any shapes, can be reshaped without
+    # distorting angles, so that every hole becomes a perfect circle, or a point.")
     W, R = vis.W, vis.R
-    w0, a, b, c = 0.08 * rt, 0.32 * rt, 0.42 * rt, 0.13 * rt
-    scene.wait(w0)
-    # 1. "any region with holes, of any shapes": trace the boundary, then each hole
-    scene.play(LaggedStart(_flash(W.outer, WHITE_, 4, 0.5), *[_flash(h) for h in W.holes],
-                           lag_ratio=0.3), run_time=a)
-    # 2. the conformal reshaping z -> (1-s) f(z) + s z: every intermediate map is
-    #    analytic and univalent, so the mesh stays orthogonal (angles preserved)
+    at, span = _beats(scene, rt)
+    # 0. the conformal grid is drawn on the region; "from 1908"
+    W.mesh.set_stroke(opacity=0.38)
+    vis.year.set_opacity(1.0)
+    span(0.03, 0.20, LaggedStart(*[Create(m) for m in W.mesh], lag_ratio=0.03),
+         FadeIn(vis.year, shift=DOWN * 0.1, rate_func=_late(0.45)))
+    # 1. "any region with holes": trace the outer boundary, then each hole
+    span(0.24, 0.39, LaggedStart(_flash(W.outer, WHITE_, 4, 0.5), *[_flash(h) for h in W.holes],
+                                 lag_ratio=0.3))
+    # 2. "even infinitely many": the Cantor dust of point-holes
+    span(0.385, 0.48, Indicate(W.dust, color=YELLOW_, scale_factor=1.35))
+    # 3. "reshaped without distorting angles": the conformal family
+    #    z -> (1-s) f(z) + s z; every intermediate map is analytic, so the mesh
+    #    stays orthogonal (angles preserved)
     anims = []
     for wp, rp in zip(W.pieces, R.pieces):
         t = rp.copy()
         t.match_style(wp)
         anims.append(Transform(wp, t))
-    scene.play(*anims, run_time=b, rate_func=smooth)
-    # 3. "a perfect circle, or a point"
-    scene.play(AnimationGroup(LaggedStart(*[_flash(h, tw=0.8) for h in W.holes], lag_ratio=0.15),
-                              Indicate(W.dust, color=YELLOW_, scale_factor=1.35),
-                              lag_ratio=0.4), run_time=c)
+    span(0.52, 0.83, *anims, rate_func=smooth)
+    # 4. "every hole becomes a perfect circle, or a point"
+    span(0.84, 0.93, LaggedStart(*[_flash(h, tw=0.8) for h in W.holes], lag_ratio=0.15))
+    span(0.93, 1.0, Indicate(W.dust, color=YELLOW_, scale_factor=1.35))
 
 
 # ================================================================ 072 Brennan

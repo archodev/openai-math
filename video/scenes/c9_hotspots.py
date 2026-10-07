@@ -281,19 +281,17 @@ class C9Hotspots(VoiceScene):
         t_walk1 = t_q + min(1.6, 0.75 * (c("rauch") - t_q))
         t_holes = c("holes")
         t_claim = c("claim")
-        t_m0 = t_claim + 0.7
+        t_m0 = t_claim + 0.8
         t_ban = fr("claim", "L3_end", 0.47)       # end of "...every smooth shape without holes:"
-        t_m2 = t_ban - 0.05
+        t_m2 = t_ban + 0.35
         t_m1 = (t_m0 + t_m2) / 2
         t_edge = fr("claim", "L3_end", 0.62)      # "the hot and cold spots always sit on the edge"
 
         # placements (centre x, centre y, scale: manim units per shape unit)
         P1 = (-0.9, -0.25, 2.1)
         P2 = (-3.45, -0.35, 1.42)
-        P3 = (-2.15, 0.4, 1.75)
-        P4 = (-4.6, 0.45, 1.4)
-        moves = [(t_holes + 0.1, t_holes + 1.1, P1, P2), (t_claim, t_claim + 0.9, P2, P3),
-                 (t_ban, t_ban + 0.8, P3, P4)]
+        P4 = (-4.45, 0.45, 1.5)
+        moves = [(t_holes + 0.1, t_holes + 1.1, P1, P2), (t_claim, t_claim + 0.9, P2, P4)]
 
         def placement(t):
             P = P1
@@ -480,8 +478,8 @@ class C9Hotspots(VoiceScene):
 
         upd_contrast(contrast)
 
-        self.play(FadeOut(ins_lab), FadeOut(leader), FadeIn(cb, shift=LEFT * 0.2),
-                  run_time=max(0.3, min(0.8, t_mag0 - self.now - 0.5)))
+        self.play(LaggedStart(AnimationGroup(FadeOut(ins_lab), FadeOut(leader)), FadeIn(cb, shift=LEFT * 0.2),
+                              lag_ratio=0.6), run_time=max(0.4, min(1.0, t_mag0 - self.now - 0.5)))
         contrast.add_updater(upd_contrast)
         self.play(FadeIn(contrast), run_time=0.5)
         self.wait_until("question")
@@ -590,16 +588,16 @@ class C9Hotspots(VoiceScene):
         holed = Cutout(outer, hole1, hole2, fill_color=PLATE, fill_opacity=1, stroke_color=WHITE_, stroke_width=2.6)
         holed_band = VGroup(outer.copy(), hole1.copy(), hole2.copy()).set_fill(opacity=0).set_stroke(GREY_, 11, 0.32)
         hot_in = make_spot(acc).move_to(hc + np.array([0.0, 0.0, 0]))
-        glow_in = VGroup(*[Circle(radius=r, stroke_width=0, fill_color=acc, fill_opacity=0.07)
-                           for r in np.linspace(0.18, 0.62, 6)]).move_to(hot_in)
-        in_lab = bold("hottest point: inside", 24, acc).next_to(hc, DOWN, buff=0.5)
+        glow_in = VGroup(*[Circle(radius=r, stroke_width=0, fill_color=acc, fill_opacity=0.075)
+                           for r in np.linspace(0.16, 0.7, 7)]).move_to(hot_in)
+        in_lab = bold("hot spot inside", 24, acc).next_to(hc, DOWN, buff=0.42)
 
         hdr_l = bold("no holes", 30, WHITE_).move_to([P2[0], 2.35, 0])
         hdr_r = bold("with holes", 30, WHITE_).move_to([hc[0], 2.35, 0])
         bw_lab = txt("Burdzy & Werner, 1999", 30, WHITE_)
         cx_chip = chip("COUNTEREXAMPLE", RED_, size=20)
         bw = VGroup(bw_lab, cx_chip).arrange(DOWN, buff=0.18).next_to(outer, DOWN, buff=0.35)
-        schem = txt("schematic", 22, GREY_).next_to(outer, UR, buff=-0.15).shift(UP * 0.2)
+        schem = txt("(schematic)", 22, GREY_).next_to(hdr_r, DOWN, buff=0.12)
 
         self.play_until(t_holes + 1.3, FadeIn(hdr_l), FadeIn(hdr_r),
                         Create(holed_band), DrawBorderThenFill(holed), rate_func=smooth)
@@ -621,10 +619,10 @@ class C9Hotspots(VoiceScene):
 
         # ============================================== 7. the paper {claim}
         card = paper_card("369", width=2.75)
-        card.move_to([4.4, 0.4, 0])
+        card.move_to([2.35, 0.6, 0])
         tag = paper_tag("369", color=acc)
         every = txt("any smooth shape without holes", 26, GREY_)
-        every.move_to([P3[0], P3[1] - 2.2, 0])
+        every.move_to([0, P4[1] - 1.9, 0]).align_to(np.array([-6.3, 0, 0]), LEFT)
         self.play_until(t_claim + 1.0, LaggedStart(
             AnimationGroup(FadeOut(right, shift=RIGHT * 0.5), FadeOut(hdr_l), FadeOut(open_chip)),
             AnimationGroup(FadeIn(card, shift=LEFT * 1.0), FadeIn(tag, shift=UP * 0.15)), lag_ratio=0.5))
@@ -636,7 +634,8 @@ class C9Hotspots(VoiceScene):
         crit = VGroup(tex(r"\nabla u \neq 0", 36, WHITE_), txt("inside: no interior critical point", 26, GREY_)).arrange(RIGHT, buff=0.25)
         crit.next_to(banner, DOWN, buff=0.4).align_to(banner, LEFT).shift(RIGHT * 0.35)
         self.wait_until(t_ban)
-        self.play(FadeOut(card, shift=RIGHT * 0.8), FadeOut(every), FadeIn(banner, shift=LEFT * 0.4), run_time=0.8)
+        self.play(LaggedStart(AnimationGroup(FadeOut(card, shift=RIGHT * 0.6), FadeOut(every)),
+                              FadeIn(banner, shift=LEFT * 0.4), lag_ratio=0.35), run_time=0.9)
         self.wait_until(max(t_edge, self.now))
         self.play(Flash(spots["hot"].get_center(), color=acc, line_length=0.2, flash_radius=0.42),
                   Flash(spots["cold"].get_center(), color=BLUE_, line_length=0.2, flash_radius=0.42),
