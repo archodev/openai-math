@@ -406,7 +406,15 @@ class C9Vlasov(VoiceScene):
         return float(np.interp(cum[k] + frac * dur[k], xs, ys))
 
     def dbg(self, label):
-        print(f"[VoiceScene] c9_vlasov dbg {label}: t={self.now:.2f}")
+        try:
+            with open("/tmp/claude-0/-home-user-openai-math/5106a9e4-8263-509c-a885-b44fd752a939/scratchpad/dbg.log", "a") as fh:
+                fh.write(f"{label}: t={self.now:.2f}\n")
+        except OSError:
+            pass
+
+    def play(self, *anims, **kw):
+        self.dbg(f"  play {', '.join(type(a).__name__ for a in anims)[:60]} rt={kw.get('run_time')}")
+        super().play(*anims, **kw)
 
     def span(self, t0, t1, *anims, min_rt=0.3, **kw):
         self.wait_until(t0)

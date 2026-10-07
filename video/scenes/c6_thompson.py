@@ -300,13 +300,18 @@ class C6Thompson(VoiceScene):
         mapping = VGroup(top_track, top_segs, top_ends, top_mid, bot_ticks, quads,
                          movers, stretch2, arrow, arrow_lab)
         self.wait_until("amen")
+        box = T_big[0]
+        box.save_state()
+        box.set_fill(opacity=0).set_stroke(opacity=0)
+        self.add(box)
+        self.bring_to_back(box)
         self.play(FadeOut(mapping, shift=RIGHT * 0.3, rate_func=early(0.5)),
                   FadeOut(title, shift=UP * 0.3, rate_func=early(0.5)),
                   FadeOut(VGroup(gridl, lab0, labx1, laby1, diag, bdots, guides, xl, yl, slopes, x0lab),
                           rate_func=early(0.4)),
                   ReplacementTransform(frame, T_big[1], rate_func=late(0.2)),
                   ReplacementTransform(pieces, T_big[2], rate_func=late(0.2)),
-                  FadeIn(T_big[0], rate_func=late(0.55)),
+                  Restore(box, rate_func=late(0.55)),
                   run_time=1.2)
         self.remove(T_big[0], T_big[1], T_big[2])
         self.add(T_big)
@@ -490,7 +495,7 @@ class C6Thompson(VoiceScene):
         tag = paper_tag("248", color=ACC)
         tree_tgt = np.array([2.8, 0.42, 0])
         tok_size = tok.width * 0.8
-        row_w = tok_size + 0.25 + lab_non.width
+        row_w = tok_size + 0.38 + lab_non.width
         tok_tgt = np.array([2.8 - row_w / 2 + tok_size / 2, 2.98, 0])
         lab_tgt = np.array([2.8 + row_w / 2 - lab_non.width / 2, 2.98, 0])
         self.add(card)
@@ -509,8 +514,8 @@ class C6Thompson(VoiceScene):
         banner.move_to(np.array([0, -2.15, 0]))
         t_no = w(2, "says no")
         self.seg(max(self.now, t_no - 0.1), max(self.now, t_no - 0.1) + 0.5,
-                 Indicate(lab_non, color=NON_COL, scale_factor=1.12),
-                 tok.animate(rate_func=there_and_back).scale(1.15))
+                 Indicate(lab_non, color=NON_COL, scale_factor=1.08),
+                 tok.animate(rate_func=there_and_back).scale(1.1))
         t_ban = max(self.now, w(2, "Thompson's group F is not") - 0.45)
         self.seg(t_ban, t_ban + 0.6, FadeIn(banner, shift=UP * 0.2), FadeIn(geo, shift=UP * 0.08))
         # living hold: the tree's boundary breathes, the card drifts a touch

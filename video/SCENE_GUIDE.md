@@ -90,3 +90,16 @@ legibility, alignment, empty/static stretches, sync with the cue words, correctn
 of the maths, consistency with the style rules. Fix and re-render. Errors and
 VoiceScene timing warnings (e.g. "play_until(...) only 0.05s left") are printed by
 preview.sh — fix those too (they mean an animation was squeezed).
+
+## Known engine pitfalls (read!)
+
+* **Ghosting:** the Cairo renderer snapshots which sub-mobjects a group has at the start of
+  each `play()` call. A group that swaps its children mid-animation (`always_redraw`,
+  `become()` of a different structure, `DecimalNumber` with updaters, `.remove()/.add()`
+  inside updaters) can leave frozen "ghost" copies on screen. Prefer a fixed pool of
+  mobjects whose points/opacity change in place; if you must swap, do it between `play()`
+  calls. Check stills for duplicated/stale numbers or labels.
+* LaTeX: lib/voice.py disables manim's tex-cache cleanup and uses a per-scene tex dir, so
+  concurrent renders no longer clobber each other; no per-scene retry hacks needed.
+* `self.cue("end")` means the narration end; a cue literally named `end` must be read
+  from `self.timing["cues"]["end"]`.

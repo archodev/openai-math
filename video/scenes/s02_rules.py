@@ -207,10 +207,13 @@ class S02Rules(VoiceScene):
         ex_back = ex_chip[0].copy().set_stroke(width=0).set_fill(BG, 1)
         ex = VGroup(ex_back, ex_chip).move_to([zone.get_left()[0] + 1.35, zone.get_top()[1], 0])
 
-        z_card = paper_card("003", width=1.05).move_to([1.55, -1.98, 0])
-        h_card = paper_card("032", width=1.05).move_to([4.65, -1.98, 0])
-        z_lbl = txt("Riemann zeta", 22, WHITE_).next_to(z_card, DOWN, buff=0.15)
-        h_lbl = txt("Hodge conjecture", 22, WHITE_).next_to(h_card, DOWN, buff=0.15)
+        z_card = paper_card("003", width=1.0).move_to([1.55, -1.82, 0])
+        h_card = paper_card("032", width=1.0).move_to([4.65, -1.82, 0])
+
+        def two(a, b):
+            return VGroup(txt(a, 22, WHITE_), txt(b, 22, GREY_)).arrange(DOWN, buff=0.08)
+        z_lbl = two("Riemann zeta", "zero-free region").next_to(z_card, DOWN, buff=0.14)
+        h_lbl = two("Hodge conjecture", "CM abelian varieties").next_to(h_card, DOWN, buff=0.14)
         z_lbl.align_to(h_lbl, UP)
 
         self.play_until(self.frac("exceptions", "L1_end", 0.2),
@@ -312,13 +315,16 @@ class S02Rules(VoiceScene):
             ck.is_bar = bar is not None
             checks.add(ck)
 
-        self.play_until(self.frac("code", "L2_end", 0.32),
-                        FadeOut(self.sqs, shift=DOWN * 0.25), FadeOut(self.counter, shift=UP * 0.2),
-                        FadeIn(panel), FadeIn(fname),
+        early = lambda t: smooth(min(1.0, t / 0.3))
+        late = lambda t: smooth(max(0.0, (t - 0.22) / 0.78))
+        self.wait_until("code-0.1")
+        self.play_until(self.frac("code", "L2_end", 0.34),
+                        FadeOut(self.sqs, shift=DOWN * 0.25, rate_func=early),
+                        FadeOut(self.counter, shift=UP * 0.2, rate_func=early),
+                        FadeIn(panel, rate_func=late), FadeIn(fname, rate_func=late),
                         LaggedStart(*[FadeIn(ln, shift=RIGHT * 0.15) for ln in lines],
                                     LaggedStart(*[GrowFromEdge(b, LEFT) for b in bars], lag_ratio=0.15),
-                                    lag_ratio=0.18),
-                        rate_func=smooth)
+                                    lag_ratio=0.18, rate_func=late))
         self.add(checks)
         band = Rectangle(width=panel.width - 0.08, height=0.36, stroke_width=0,
                          fill_color=TEAL_, fill_opacity=0.12)
@@ -389,7 +395,8 @@ class S02Rules(VoiceScene):
                         FadeOut(halo, rate_func=early),
                         FadeOut(self.badge_caps, shift=DOWN * 0.2, rate_func=early),
                         FadeIn(self.sqs, scale=0.94, rate_func=late),
-                        FadeIn(l_txt, shift=LEFT * 0.2, rate_func=late), min_time=0.5)
+                        FadeIn(l_txt, shift=LEFT * 0.2, rate_func=lambda t: smooth(max(0.0, (t - 0.7) / 0.3))),
+                        min_time=0.5)
         self.remove(halo)
         self.play_until(self.frac("rest", "L4_end", 0.25),
                         self.lean_sqs.animate.set_fill(opacity=0.28),
@@ -521,15 +528,17 @@ class S02Rules(VoiceScene):
         sp_txt.shift(RIGHT * (tx - sp_txt.get_left()[0]))
         rf_txt.shift(RIGHT * (tx - rf_txt.get_left()[0]))
 
-        self.play(GrowFromCenter(brace), GrowArrow(ar1), Create(sp_frame), run_time=0.8)
-        self.play(FadeIn(lights), FadeIn(img, shift=UP * 0.2), FadeIn(img_b, shift=UP * 0.2),
-                  FadeIn(sp_t1, shift=LEFT * 0.2), run_time=0.7)
-        self.play(FadeIn(sp_t2, shift=LEFT * 0.2), run_time=0.5)
+        B = lambda f: self.frac("big", "rapid", f)
+        R = lambda f: self.frac("rapid", "L6_end", f)
+        self.play_until(B(0.42), GrowFromCenter(brace), GrowArrow(ar1), Create(sp_frame), min_time=0.4)
+        self.play_until(B(0.68), FadeIn(lights), FadeIn(img, shift=UP * 0.2), FadeIn(img_b, shift=UP * 0.2),
+                        FadeIn(sp_t1, shift=LEFT * 0.2), min_time=0.4)
+        self.play_until(B(0.88), FadeIn(sp_t2, shift=LEFT * 0.2), min_time=0.3)
 
         self.wait_until("rapid")
-        self.play(GrowArrow(ar2), Create(rf_frame), run_time=0.6)
-        self.play(LaggedStart(*[FadeIn(tl, scale=0.6) for tl in tiles], lag_ratio=0.08),
-                  FadeIn(rf_t1, shift=LEFT * 0.2), run_time=0.7)
+        self.play_until(R(0.25), GrowArrow(ar2), Create(rf_frame), min_time=0.4)
+        self.play_until(R(0.55), LaggedStart(*[FadeIn(tl, scale=0.6) for tl in tiles], lag_ratio=0.08),
+                        FadeIn(rf_t1, shift=LEFT * 0.2), min_time=0.4)
         tiles.t = 0.0
         order = [0, 5, 10, 3, 6, 9, 1, 11, 4, 2, 7, 8]
 
@@ -542,4 +551,4 @@ class S02Rules(VoiceScene):
                 else:
                     tl.set_stroke(tl.col, width=1.5, opacity=0.5).set_fill(CARD, 1)
         self.drive(lambda dt: flick(tiles, dt))
-        self.play(FadeIn(rf_t2, shift=LEFT * 0.2), run_time=0.5)
+        self.play_until(R(0.78), FadeIn(rf_t2, shift=LEFT * 0.2), min_time=0.3)

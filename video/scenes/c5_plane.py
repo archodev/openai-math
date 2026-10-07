@@ -405,7 +405,8 @@ class C5Plane(VoiceScene):
         self.wait_until("how")
         self.play(FadeIn(hud[0], shift=DOWN * 0.3), FadeIn(hud[1], shift=DOWN * 0.3), run_time=0.5)
         self.play(LaggedStart(*[FadeIn(t, shift=DOWN * 0.15) for t in hud[2]], lag_ratio=0.12), run_time=0.8)
-        self.play(Indicate(self.hud_lab[0][2], color=ACC, scale_factor=1.4), run_time=0.7)
+        self.play(Indicate(self.hud_lab[0][2], color=ACC, scale_factor=1.4),
+                  run_time=float(np.clip(self.cue("seven") - self.now - 0.05, 0.3, 0.7)))
 
         # =========================================================== 2. seven
         self.wait_until("seven")
@@ -481,7 +482,7 @@ class C5Plane(VoiceScene):
 
         # needle glides while the pattern spreads: its two ends never share a colour
         c_start = nd2[0].get_center()
-        t_g0, t_g1 = self.now, self.cue("spindle") - 0.6
+        t_g0, t_g1 = self.now, self.cue("spindle") - 0.5
 
         def glide_pose(x):
             s = smooth(x)
@@ -515,7 +516,7 @@ class C5Plane(VoiceScene):
         n4 = self.note("at least 4", self.hud_toks[3].get_x(), ACC)
         self.play(LaggedStart(self.exclude(1), self.exclude(2), self.exclude(3), lag_ratio=0.25),
                   self.hud_toks[6][0].animate.set_stroke(GREY_, width=2),
-                  FadeIn(pill), FadeTransform(n7, n4), run_time=0.8)
+                  FadeIn(pill), FadeTransform(n7, n4), run_time=0.6)
         self.wait_until(t_g1)
         nd2.clear_updaters()
         self.play_until("spindle", FadeOut(hexes), FadeOut(nd2))
@@ -632,7 +633,6 @@ class C5Plane(VoiceScene):
         self.play_at(self.T("degrey", "L3_end", 0.88), self.exclude(4), Transform(pill, pill5),
                      FadeTransform(n4, n5),
                      web.animate.set_stroke(ACC, opacity=0.75), run_time=0.7)
-        self.play(web.animate.set_stroke(SKY_, opacity=0.5), run_time=0.6)
 
         # =========================================================== 5. the claim
         self.wait_until("claim")

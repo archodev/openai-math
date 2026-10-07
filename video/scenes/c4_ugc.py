@@ -326,7 +326,7 @@ class C4Ugc(VoiceScene):
         mc_head = serif("Max-Cut", 52).to_corner(UL, buff=0.45).shift(DOWN * 0.05)
         self.wait_until("maxcut")
         self.play(FadeOut(VGroup(ubox, ubox_t, ukhot, darrs, opt_lab, *chips_[1:], chips_[0][0])),
-                  ReplacementTransform(chips_[0][1], mc_head), run_time=0.6)
+                  FadeTransform(chips_[0][1], mc_head), run_time=0.6)
         self.play(LaggedStart(*[GrowFromCenter(n) for n in mnodes], lag_ratio=0.05),
                   LaggedStart(*[Create(e) for e in medges], lag_ratio=0.04), run_time=0.8)
 
@@ -441,7 +441,8 @@ class C4Ugc(VoiceScene):
                   Succession(Wait(run_time=0.5), FadeIn(tag, shift=RIGHT * 0.2, run_time=0.8)),
                   run_time=1.3)
         self.play(FadeIn(st_open, shift=UP * 0.1), run_time=0.4)
-        self.play(ReplacementTransform(st_open, st_claim), Circumscribe(card_start, color=ACC, buff=0.06),
+        self.play(FadeOut(st_open, shift=UP * 0.15), FadeIn(st_claim, shift=UP * 0.15),
+                  Circumscribe(card_start[-1], color=ACC, buff=0.08),
                   run_time=min(1.0, max(0.3, self.cue("direct") - self.now - 0.1)))
 
         # "Companions claim direct proofs that Max-Cut's 87.8% ... and factor two ... Vertex Cover"

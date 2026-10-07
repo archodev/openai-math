@@ -297,8 +297,13 @@ class C6Kaplansky(VoiceScene):
             return float(np.clip(1.12 - abs(X[k]) / 6.2, 0.18, 1.0))
 
         ldots = {k: Dot([X[k], yL, 0], radius=0.1, color=WHITE_).set_opacity(op(k)) for k in X}
-        larr = {k: Arrow([X[k], yL, 0], [X[k + 1], yL, 0], buff=0.17, stroke_width=3.5, tip_length=0.16,
-                         color=GREY_).set_opacity(min(op(k), op(k + 1))) for k in range(-4, 6)}
+        def arrow(k):
+            a = Arrow([X[k], yL, 0], [X[k + 1], yL, 0], buff=0.17, stroke_width=3.5, tip_length=0.16, color=GREY_)
+            o = min(op(k), op(k + 1))
+            a.set_stroke(opacity=o)          # stroke only: no fill on the shaft (keeps arc->arrow morph clean)
+            a.tip.set_fill(opacity=o)
+            return a
+        larr = {k: arrow(k) for k in range(-4, 6)}
         names = {-1: "g^{-1}", 0: "1", 1: "g", 2: "g^2", 3: "g^3"}
         llabs = {k: tex(s, 36).set_opacity(op(k)).next_to([X[k], yL, 0], DOWN, buff=0.24) for k, s in names.items()}
         keep, labs, arcs = cy["keep"], cy["labs"], cy["arcs"]

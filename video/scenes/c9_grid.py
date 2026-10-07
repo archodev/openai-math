@@ -70,9 +70,13 @@ def _tri(center, direction, size=0.08, color=AC):
     return _shape(pts, color, 1.0)
 
 
-def _fit(m, w=ICON_W, h=ICON_H):
-    m.scale(min(w / m.width, h / m.height))
-    return m.move_to(ORIGIN)
+def _fit(m, w=ICON_W, h=ICON_H, margin=0.9):
+    """Normalise an icon; an invisible margin keeps it inside its tile even
+    during the grid's 1.12x 'lit' pulse."""
+    m.scale(min(w / m.width, h / m.height)).move_to(ORIGIN)
+    pad = Rectangle(width=m.width / margin, height=m.height / margin)
+    pad.set_stroke(opacity=0).set_fill(opacity=0)
+    return VGroup(pad, m)
 
 
 def _mark(vis):
@@ -95,12 +99,17 @@ def _mapper(vis):
     return f
 
 
-def _adopt(vis, *mobs):
-    """New mobjects created during a feature animation join the big card
-    (so they collapse with it) and draw above it."""
+def _z(*mobs):
+    """New mobjects created during a feature animation draw above the card."""
     for m in mobs:
         m.set_z_index(Z_FEAT)
-        vis.add(m)
+    return mobs
+
+
+def _keep(vis, *mobs):
+    """...and, once they have been animated in, join the big card so they
+    collapse with it."""
+    vis.add(*mobs)
 
 
 # =====================================================================
@@ -294,15 +303,16 @@ def anim_degiorgi(scene, vis, rt):
     form = mp(tex(r"u=\tanh\!\big(x_8/\sqrt2\big)", 26, AC)
               .move_to([-1.2, d["gy"] + 0.52 * d["amp"], 0]))
     form.set_stroke(BG, 4, background=True)
-    _adopt(vis, curve, form)
+    _z(curve, form)
     scene.play(Create(curve), FadeIn(form, shift=UP * 0.1), run_time=0.2 * rt)
+    _keep(vis, curve, form)
     # 3. which dimensions: true up to 8 (the claimed endpoint), false from 9 on
     ok = VGroup(*vis.cells[:7])
     bad = VGroup(*vis.cells[7:])
     leg_ok = txt("always flat", 22, AC).scale(mp.s).next_to(ok, DOWN, buff=0.12 * mp.s)
     leg_bad = txt("not always", 22, RED_).scale(mp.s).next_to(bad, DOWN, buff=0.12 * mp.s)
     ring8 = vis.cells[6].copy().set_stroke(AC, 3.2, 1.0).set_fill(opacity=0)
-    _adopt(vis, leg_ok, leg_bad, ring8)
+    _z(leg_ok, leg_bad, ring8)
     scene.wait(0.04 * rt)
     scene.play(LaggedStart(*[c.animate.set_fill(AC, 0.22).set_stroke(AC, 1.4, 0.8) for c in ok],
                            lag_ratio=0.12),
@@ -312,6 +322,7 @@ def anim_degiorgi(scene, vis, rt):
                *[c.animate.set_stroke(RED_, 1.4, 0.9).set_fill(RED_, 0.12) for c in bad],
                *[nm.animate.set_color(RED_) for nm in vis.nums[7:]],
                FadeIn(leg_bad), run_time=0.14 * rt)
+    _keep(vis, leg_ok, leg_bad, ring8)
 
 
 # =====================================================================
@@ -463,7 +474,7 @@ def anim_fluid(scene, vis, rt):
     nseg = len(STEPS) + 1
     cut = np.linspace(0, n - 1, nseg + 1).astype(int)
     trail = VMobject().set_points_as_corners(route[:2]).set_stroke(AC, 2.6, 0.95)
-    _adopt(vis, trail)
+    _z(trail)
     scene.add(trail)
     vis.dot.set_z_index(Z_FEAT + 1)
     step_t = min(0.95, 0.68 * rt / nseg)
@@ -487,7 +498,7 @@ def anim_fluid(scene, vis, rt):
         head_i += mv
     # last pulse: HALT, and the particle slides into the target region
     halt = chip("HALT", AC, size=16).scale(mp.s).move_to(vis.ph)
-    _adopt(vis, halt)
+    _z(halt)
     scene.play(UpdateFromAlphaFunc(trail, mover(cut[-2], cut[-1]), rate_func=smooth),
                FadeIn(halt, scale=0.8), vis.cells[head_i].animate.set_stroke(AC, 2.4, 1.0),
                run_time=step_t * 1.2)
@@ -495,6 +506,7 @@ def anim_fluid(scene, vis, rt):
     scene.play(vis.tgt[0].animate.set_fill(AC, 0.4), Indicate(vis.dot, color=AC, scale_factor=1.6),
                run_time=min(0.6, rest * 0.5))
     scene.play(Indicate(vis.eq, color=AC, scale_factor=1.06), run_time=min(0.9, rest * 0.5))
+    _keep(vis, trail, halt)
 
 
 # =====================================================================
@@ -587,9 +599,8 @@ def anim_geodesics(scene, vis, rt):
     for i in GEO_FIRST:
         g, _ = _geo_loop(i, v, w=3.0, back_op=0.28)
         loops.append(mp(g.shift(UP * GEO_Y)))
-    _adopt(vis, *loops)
     count = tex("1", 38, AC).next_to(vis.lab, RIGHT, buff=0.18)
-    _adopt(vis, count)
+    _z(*loops, count)
     t_loop = 0.11 * rt
     for k, g in enumerate(loops):
         anims = [Create(g)]
@@ -612,12 +623,13 @@ def anim_geodesics(scene, vis, rt):
         band.add(_line(Ql[seg], WHITE_, 2.6, 0.95))
         taut.add(_line(Qt[seg], YELLOW_, 3.4 if vv else 2.0, 1.0 if vv else 0.3))
     mp(band.shift(UP * GEO_Y)), mp(taut.shift(UP * GEO_Y))
-    _adopt(vis, band)
+    _z(band)
     used = 4 * t_loop + 0.09 * rt
     snap_t = 0.17 * rt
     scene.wait(max(0.0, rt - used - snap_t - 0.13 * rt - 0.05))
     scene.play(Create(band), run_time=0.13 * rt)
     scene.play(Transform(band, taut), run_time=snap_t, rate_func=rush_into)
+    _keep(vis, *loops, count, band)
 
 
 # =====================================================================
