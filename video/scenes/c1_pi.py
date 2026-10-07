@@ -144,23 +144,38 @@ class ZoomTicks(VGroup):
     def rebuild(self):
         w = 10 ** self.lw.get_value()
         A = self.alpha.get_value()
+        ext = (HALF + 0.25) * self.grow.get_value()      # visible half-length of the axis
         sp = [(D / UNIT) / w * HALF for D, _ in LEVELS]
         vis = [i for i in range(len(LEVELS)) if sp[i] >= 0.2]
+        al = [clip01((s - 1.75) / 0.8) for s in sp]       # label alpha per level
+        # All labels share one number of decimals (3.140, 3.145 rather than 3.14,
+        # 3.145). When a finer level brings in an extra decimal, the old labels
+        # cross-fade into the padded ones (common prefix kept in place).
+        lab = [i for i in range(len(LEVELS)) if al[i] > 0]
+        d_lo = d_hi = 0
+        wgt = 1.0
+        if lab:
+            d_hi = LEVELS[lab[-1]][1]
+            full = [i for i in lab if al[i] >= 1]
+            d_lo = LEVELS[full[-1]][1] if full else LEVELS[lab[0]][1]
+            if d_hi > d_lo:
+                wgt = max(al[i] for i in lab if LEVELS[i][1] == d_hi)
         used, shown = 0, set()
         if A > 0.003 and vis:
             fi = vis[-1]
             Df = LEVELS[fi][0]
             lo = math.ceil((C_INT - w * 1.03 * UNIT) / Df)
             hi = math.floor((C_INT + w * 1.03 * UNIT) / Df)
+            ly = NL_Y - 0.36
             for K in range(lo, hi + 1):
                 P = K * Df
                 i = next(j for j in vis if P % LEVELS[j][0] == 0)
                 x = (P - C_INT) / UNIT / w * HALF
-                edge = clip01((HALF - abs(x)) / 0.6)
+                edge = clip01((HALF - abs(x)) / 0.6) * clip01((ext - abs(x)) / 0.3)
                 if edge <= 0:
                     continue
                 a_t = clip01((sp[i] - 0.2) / 0.45)
-                a_l = clip01((sp[i] - 1.75) / 0.8)
+                a_l = al[i]
                 h = 0.05 + 0.09 * clip01((sp[i] - 0.5) / 1.5) + 0.07 * a_l
                 op = a_t * edge * A
                 if op > 0.01:
@@ -170,10 +185,18 @@ class ZoomTicks(VGroup):
                     ln.set_stroke(GREY_, width=2, opacity=op)
                 lo_ = a_l * edge * A
                 if lo_ > 0.01:
-                    s = fmt_pos(P, LEVELS[i][1])
-                    t = self.label(s)
-                    t.move_to([x, NL_Y - 0.36, 0]).set_opacity(lo_)
-                    shown.add(s)
+                    if LEVELS[i][1] >= d_hi or wgt >= 1.0:
+                        s = fmt_pos(P, d_hi)
+                        t = self.label(s)
+                        t.move_to([x, ly, 0]).set_opacity(lo_)
+                        shown.add(s)
+                    else:
+                        s0, s1 = fmt_pos(P, d_lo), fmt_pos(P, d_hi)
+                        t0, t1 = self.label(s0), self.label(s1)
+                        left = (x - t0.width / 2) * (1 - wgt) + (x - t1.width / 2) * wgt
+                        t0.move_to([left + t0.width / 2, ly, 0]).set_opacity(lo_ * (1 - wgt))
+                        t1.move_to([left + t1.width / 2, ly, 0]).set_opacity(lo_ * wgt)
+                        shown.update((s0, s1))
         for ln in self.lines[used:]:
             ln.set_stroke(opacity=0)
         for s, t in self.cache.items():
