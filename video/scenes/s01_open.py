@@ -819,9 +819,8 @@ class S01Open(VoiceScene):
         self.run("families+0.85",
                  (FadeOut(mosaic), 0, "families+0.6"),
                  (rects.animate.set_fill(opacity=0.75), "families+0.1", "families+0.7"),
-                 (FadeOut(num, shift=UP * 0.45), "families", "families+0.45"),
-                 (FadeIn(num372, shift=UP * 0.45), "families+0.15", "families+0.6"),
-                 (FadeTransform(lab_p, lab_f), "families+0.15", "families+0.65"))
+                 (FadeOut(VGroup(num, lab_p), shift=UP * 0.35), "families", "families+0.3"),
+                 (FadeIn(VGroup(num372, lab_f), shift=UP * 0.35), "families+0.25", "families+0.65"))
         num = num372
         self.run("fields-0.02", rects.animate(rate_func=linear).scale(1.02))
 

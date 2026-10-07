@@ -157,10 +157,11 @@ class GridScene(VoiceScene):
         card.set_opacity(0)
         self.play(*t.lit(), FadeIn(dim), Restore(card), run_time=0.55)
         anim = t.spec["feature"].get("animate")
-        avail = end - self.now - 0.5
+        avail = end - self.now - 0.15
         if anim and avail > 0.6:
             anim(self, vis, avail)
-        self.wait_until(max(self.now, end - 0.45))
+        # hold the card until the line's last word has landed, then collapse during the pause
+        self.wait_until(max(self.now, end - 0.08))
         self.play(card.animate.scale(t.frame.width / card[0].width).move_to(t).set_opacity(0),
-                  FadeOut(dim), *t.visited(), run_time=0.45)
+                  FadeOut(dim), *t.visited(), run_time=0.4)
         self.remove(card)

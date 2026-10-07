@@ -213,9 +213,11 @@ def falconer_animate(scene, vis, rt):
     # 2. "more than half the dimension"
     span(0.29, 0.38, Indicate(vis.dimlab[1], color=YELLOW_, scale_factor=1.2))
     # 3. "the distances between its points": segments between pairs of points of E
-    vis.segs.set_stroke(opacity=0.95)
+    at(0.45)
+    vis.segs.set_stroke(opacity=0.95)      # (made visible only once the wait is over)
     span(0.45, 0.59, LaggedStart(*[Create(s) for s in vis.segs], lag_ratio=0.18))
     # 4. each distance is measured: the segment swings rigidly down onto the line
+    at(0.59)
     vis.flyers.set_stroke(opacity=1.0)
     order = list(range(len(vis.flyers)))
     np.random.default_rng(1).shuffle(order)
@@ -227,10 +229,12 @@ def falconer_animate(scene, vis, rt):
     span(0.72, 0.77, LaggedStart(*[Transform(f, t) for f, t in zip(vis.flyers, targets)],
                                  lag_ratio=0.06))
     # 6. "take up a positive length of the number line"
+    at(0.77)
     vis.bar.set_fill(YELLOW_, opacity=0.5)
     vis.lenlab.set_opacity(1.0)
     span(0.77, 0.86, GrowFromEdge(vis.bar, LEFT), FadeIn(vis.lenlab, shift=UP * 0.12))
     # 7. "Claimed in every dimension"
+    at(0.90)
     vis.every.set_opacity(1.0)
     span(0.90, 0.97, FadeIn(vis.every, shift=UP * 0.12))
 
@@ -338,7 +342,7 @@ def koebe_big():
     w.mesh.set_stroke(opacity=0)   # the conformal grid is drawn in on the card
     # "from 1908": tucked into the empty upper-left corner, clear of both the
     # warped and the round outer boundary
-    year = txt("1908", 30, GREY_, weight=SEMIBOLD).move_to([-2.0, 2.0, 0], aligned_edge=UL)
+    year = txt("1908", 30, GREY_, weight=SEMIBOLD).move_to([-2.12, 2.1, 0], aligned_edge=UL)
     year.set_opacity(0)
     vis = VGroup(w, r, year)
     vis.W, vis.R, vis.year = w, r, year
@@ -363,6 +367,7 @@ def koebe_animate(scene, vis, rt):
     W, R = vis.W, vis.R
     at, span = _beats(scene, rt)
     # 0. the conformal grid is drawn on the region; "from 1908"
+    at(0.03)
     W.mesh.set_stroke(opacity=0.38)
     vis.year.set_opacity(1.0)
     span(0.03, 0.20, LaggedStart(*[Create(m) for m in W.mesh], lag_ratio=0.03),

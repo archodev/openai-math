@@ -588,7 +588,6 @@ def big_borsuk():
     strike = Line(n63.get_corner(DL) + P(-0.06, 0.04), n63.get_corner(UR) + P(0.06, -0.04),
                   color=RED_, stroke_width=4)
     start = VGroup(dl, n63).copy().move_to(P(0, -1.75))
-    g.final_63 = n63.get_center().copy()
     dl.move_to(start[0]); n63.move_to(start[1])
     hide(lab); hide(dl); hide(n63); hide(ar); hide(n9); hide(strike)
     g.add(sep, lab, dl, n63, ar, n9, strike)
@@ -680,12 +679,11 @@ def big_tiling():
     dbig = item(r"d \gg 1", False)
     gt = txt("Greenfeld–Tao 2024", 22, GREY_).next_to(dbig, RIGHT, buff=0.25)
     dbig = VGroup(dbig, gt).move_to(P(0, -1.3))
-    dots_ = VGroup()
     row = VGroup(dbig, row)
     box3 = SurroundingRectangle(d3, buff=0.1, corner_radius=0.08, color=RED_, stroke_width=2)
     hide(row); hide(box3)
     g.add(row, box3)
-    g.d1, g.d2, g.d3, g.dots_, g.dbig, g.box3 = d1, d2, d3, dots_, dbig, box3
+    g.d1, g.d2, g.d3, g.dbig, g.box3 = d1, d2, d3, dbig, box3
     g.w0 = g.width
     return g
 
@@ -791,7 +789,6 @@ def big_hadwiger():
     vals = VGroup(tex(r"\chi \ge m/2", 30, RED_), tex(r"h < 0.35\,m", 30, ACC))
     vals[0].next_to(P(x0 + L * 0.5, yb[0]), RIGHT, buff=0.18)
     vals[1].next_to(bars[1], RIGHT, buff=0.18)
-    mlab = VGroup()
     lower = VGroup(head, tracks, bars, names, vals)
     hide(lower)
     g.add(sep, lower)

@@ -119,9 +119,9 @@ class ZoomTicks(VGroup):
     flattened at the start of each play, so replacing children mid-play would
     leave ghosts behind."""
 
-    def __init__(self, lw, alpha):
+    def __init__(self, lw, alpha, grow):
         super().__init__()
-        self.lw, self.alpha = lw, alpha
+        self.lw, self.alpha, self.grow = lw, alpha, grow
         self.cache = {}
         self.lines = []
         self.add_updater(lambda m: m.rebuild())
