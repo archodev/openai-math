@@ -82,6 +82,7 @@ def main():
     ap.add_argument("--music-db", type=float, default=-24.0, help="music level under voice (dB rel. full)")
     ap.add_argument("--no-music", action="store_true")
     ap.add_argument("--crf", default="18")
+    ap.add_argument("--preset", default="slow")
     a = ap.parse_args()
 
     scenes = load_script()
@@ -117,7 +118,7 @@ def main():
     lst.write_text("".join(f"file '{(vdir / f'{sid}.mp4').resolve()}'\n" for sid, _ in starts))
     vid = work / "video.mp4"
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(lst),
-                    "-c:v", "libx264", "-preset", "slow", "-crf", a.crf, "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", a.preset, "-crf", a.crf, "-pix_fmt", "yuv420p",
                     "-movflags", "+faststart", "-an", str(vid)], check=True)
 
     # ---------------------------------------------------------------- narration track
