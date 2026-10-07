@@ -283,8 +283,9 @@ class C1Pi(VoiceScene):
         # ---- zoomable number line
         lw = ValueTracker(math.log10(0.32))
         nl_a = ValueTracker(0.0)
+        nl_g = ValueTracker(0.0)      # axis growth: ticks never stick out past the line
         axis = Line([-HALF - 0.25, NL_Y, 0], [HALF + 0.25, NL_Y, 0], color=GREY_, stroke_width=2.5)
-        ticks = ZoomTicks(lw, nl_a)
+        ticks = ZoomTicks(lw, nl_a, nl_g)
 
         def xval(v):
             x = (v - PI_F) / (10 ** lw.get_value()) * HALF
@@ -309,7 +310,8 @@ class C1Pi(VoiceScene):
                      run_time=0.65)
         self.play(Write(r_pi[1:]), run_time=0.85)
         self.add(ticks)
-        self.play(GrowFromCenter(axis), nl_a.animate(rate_func=lambda t: smooth(clip01(2 * t - 0.6))).set_value(1.0),
+        self.play(GrowFromCenter(axis), nl_g.animate(rate_func=smooth).set_value(1.0),
+                  nl_a.animate(rate_func=lambda t: smooth(clip01(2 * t - 0.6))).set_value(1.0),
                   GrowFromEdge(pi_mark, DOWN), run_time=0.8)
         # first zoom: pi among 3.0 .. 3.4  ->  pi +- 0.0045
         self.play_until("f22", lw.animate.set_value(math.log10(0.0045)),
