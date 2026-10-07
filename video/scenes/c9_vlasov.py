@@ -405,6 +405,9 @@ class C9Vlasov(VoiceScene):
         k = ks[nth - 1]
         return float(np.interp(cum[k] + frac * dur[k], xs, ys))
 
+    def dbg(self, label):
+        print(f"[VoiceScene] c9_vlasov dbg {label}: t={self.now:.2f}")
+
     def span(self, t0, t1, *anims, min_rt=0.3, **kw):
         self.wait_until(t0)
         rt = max(min_rt, self.cue(t1) - self.now)
@@ -505,9 +508,10 @@ class C9Vlasov(VoiceScene):
         self.play(*pl.to(cx=-4.6, cy=0.1, sc=1.1, clipx=-1.85, clipy=3.65), FadeOut(cap), run_time=0.9)
         self.span(self.now, max(self.now + 0.7, wt(1, "maxwell")), FadeIn(lab_f), Write(vl))
         self.play(FadeIn(lab_F), Write(mx), FadeIn(vrow, shift=UP * 0.1), run_time=0.95)
-        self.wait_until(wt(1, "describe") - 0.1)
-        self.play(Create(arcR), FadeIn(labR), run_time=0.4)
-        self.play(Create(arcL), FadeIn(labL), run_time=0.4)
+        self.dbg("eqs written")
+        self.wait_until(wt(1, "describe") - 0.15)
+        self.play(LaggedStart(AnimationGroup(Create(arcR), FadeIn(labR)),
+                              AnimationGroup(Create(arcL), FadeIn(labL)), lag_ratio=0.5), run_time=0.6)
         # a pulse travels round the loop; the plasma answers with a ripple
         path = VMobject().set_points(np.concatenate([arcR.points, arcL.points]))
         pdot = Dot(radius=0.07, color=YELLOW_).move_to(path.get_start())
@@ -515,7 +519,8 @@ class C9Vlasov(VoiceScene):
         self.span(self.now, cue("q") - 0.3, MoveAlongPath(pdot, path, rate_func=linear),
                   pl.trk["ripple"].animate(rate_func=linear).set_value(1.2),
                   vl[5].animate(rate_func=there_and_back).scale(1.3),
-                  vl[7].animate(rate_func=there_and_back).scale(1.3), min_rt=0.5)
+                  vl[7].animate(rate_func=there_and_back).scale(1.3), min_rt=0.4)
+        self.dbg("loop done")
         pl.trk["ripple"].set_value(-1.0)
 
         # ================================================== QUESTION: max |p| over time
@@ -566,11 +571,13 @@ class C9Vlasov(VoiceScene):
 
         self.wait_until(cue("q") - 0.3)
         self.play(FadeOut(eqs, shift=UP * 0.3), FadeOut(pdot), run_time=0.45)
-        self.play(Create(axes), FadeIn(ylab), FadeIn(xlab), run_time=0.7)
+        self.play(Create(axes, lag_ratio=0), FadeIn(ylab), FadeIn(xlab), run_time=0.7)
+        self.dbg("axes in")
         self.add(curve, tip)
         self.span(self.now, wt(1, "forever", frac=0.6), tt.animate.set_value(TB), rate_func=smooth, min_rt=0.8)
         self.play(Create(cont), FadeIn(q_lab), run_time=0.7)
         # '...or can particles get kicked to infinite momentum?'
+        self.dbg("forever drawn")
         self.wait_until(wt(1, "kicked") - 0.25)
         pl.start_kick()
         self.play(pl.trk["kalpha"].animate.set_value(1.0), run_time=0.3)
@@ -603,6 +610,7 @@ class C9Vlasov(VoiceScene):
         shift = np.array([-1.5, -1.5, 0]) - about
         ax_t = axes.copy().scale(k, about_point=about).shift(shift)
         tgt = lab_pos(ax_t)
+        self.dbg("pre-claim")
         self.wait_until("claim")
         self.play(VGroup(axes, cont).animate.scale(k, about_point=about).shift(shift),
                   *[m.animate.move_to(tgt[m]) for m in (ylab, xlab, q_lab)],
@@ -633,6 +641,7 @@ class C9Vlasov(VoiceScene):
                   VGroup(axes, cont).animate.scale(k2, about_point=about2).shift(shift2),
                   *[m.animate.move_to(tgt2[m]) for m in (ylab, xlab, fin_lab)],
                   *pl.to(cx=-4.0, cy=1.95, sc=0.8, clipx=0.3), run_time=0.8)
+        self.dbg("reflow done")
         self.play(FadeIn(banner, shift=UP * 0.15), FadeIn(chips_[0], shift=UP * 0.1), run_time=0.6)
         self.wait_until(wt(2, "uniqueness") - 0.1)
         self.play(FadeIn(chips_[1], shift=UP * 0.1), run_time=0.45)
