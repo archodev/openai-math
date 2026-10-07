@@ -5,3 +5,4 @@ assets/hires/
 __pycache__/
 *.pyc
 media/
+*.tmp.*

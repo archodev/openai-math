@@ -252,7 +252,9 @@ def anim_haldane(scene, mob, T):
     scene.wait_until(at(0.715))
     even = _mtex(r"L\ \text{even}", font_size=36, color=ACC)
     even.scale(k).move_to(VGroup(lhs, nums[2])).set_z_index(_Z_NEW)
-    play_to(0.765, FadeOut(VGroup(lhs, nums[2]), shift=UP * 0.2 * k),
+    # (no FadeOut here: a remover would split the card group out of the scene)
+    play_to(0.765, lhs.animate.shift(UP * 0.2 * k).set_opacity(0),
+            nums[2].animate.shift(UP * 0.2 * k).set_opacity(0),
             FadeIn(even, shift=UP * 0.2 * k))
     adopt(even)
     # 4. ... with an explicit lower bound: written under the text column, which slides up
@@ -342,10 +344,13 @@ def icon_standard_map():
         both = np.concatenate([o, o + [TAU, 0]])
         return np.c_[both[:, 0] * sx - W / 2, both[:, 1] * sy]
 
-    chaos = _std_orbit(K, 0.3, 2.5, 1150)
-    islands = np.concatenate([_std_orbit(K, PI + a, 0.0, 150) for a in (0.1, 0.25, 0.55)])
+    # chaotic sea as fine, half-transparent dust (reads as texture, not noise); the regular
+    # island around (pi, 0) and its period-4 satellite chain as nested white orbits
+    chaos = _std_orbit(K, 0.3, 2.5, 1600)
+    islands = np.concatenate([_std_orbit(K, PI + a, 0.0, 160)
+                              for a in (0.06, 0.153, 0.247, 0.34, 0.5, 0.66)])
     frame = Rectangle(width=W, height=H, stroke_color=DIM, stroke_width=1.2)
-    return VGroup(frame, _cloud(tf(chaos), 0.0085, ACC, 0.78), _cloud(tf(islands), 0.0075, WHITE_, 0.9))
+    return VGroup(frame, _cloud(tf(chaos), 0.0055, ACC, 0.5), _cloud(tf(islands), 0.006, WHITE_, 0.9))
 
 
 # ======================================================================= 150 triangular billiard

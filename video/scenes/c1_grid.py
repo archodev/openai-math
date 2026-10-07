@@ -240,7 +240,6 @@ def icon_modularity():
                          stroke_width=SW),
         ArcBetweenPoints(_P(0.16, -0.01), _P(-0.16, -0.01), angle=0.7 * PI / 2, stroke_color=ACC,
                          stroke_width=SW),
-        Ellipse(width=0.1, height=0.2, stroke_color=GREY_, stroke_width=1.3).move_to(_P(0.36, -0.03)),
     ).move_to(_P(-0.95, 0))
     arr = DoubleArrow(_P(-0.36, 0), _P(0.06, 0), buff=0, stroke_width=1.8, color=GREY_,
                       tip_length=0.08, max_tip_length_to_length_ratio=0.3)
