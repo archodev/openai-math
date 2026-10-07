@@ -164,6 +164,8 @@ def _h_Llabel():
 
 
 def big_haldane():
+    """Ring + level diagram only; the bound formula is added by anim_haldane in the right
+    text column (keeping it out of this group lets the picture sit centred on the card)."""
     c, R = _H["c"], _H["R"]
     ring = Circle(radius=R, stroke_color=GREY_, stroke_width=2, stroke_opacity=0.55).move_to(c)
     spins = _ring_spins(8, c, R, _H_LEN[8], settled=False, width=3.2, tip=0.13)
@@ -176,20 +178,22 @@ def big_haldane():
     e0lab = _mtex("E_0", font_size=32, color=WHITE_).next_to(e0, RIGHT, buff=0.12)
     e1, band = _h_levels(8)
     gap, glab = _h_gap(8)
-    formula = _mtex(r"\liminf_{L\to\infty}\,\gamma_L", r"\ge", r"\frac{\log 20}{784}",
-                      r"\approx 0.0038", r"> 0", font_size=36, color=WHITE_)
-    formula[2].set_color(ACC)
-    formula[3].set_color(ACC)
-    formula.move_to(_p(0.0, -2.0))
-    formula.set_opacity(0)                  # revealed at "explicit lower bound"
-    g = VGroup(ring, spins, s1, Llab, axis, elab, band, e1, e0, e0lab, gap, glab, formula)
-    g.parts = dict(ring=ring, spins=spins, Llab=Llab, band=band, e1=e1, gap=gap, glab=glab,
-                   formula=formula)
+    g = VGroup(ring, spins, s1, Llab, axis, elab, band, e1, e0, e0lab, gap, glab)
+    g.parts = dict(ring=ring, spins=spins, Llab=Llab, band=band, e1=e1, gap=gap, glab=glab)
     g.w0, g.c0 = g.width, g.get_center()
     return g
 
 
+_Z_NEW = 61        # parts created during the feature must draw above the dim layer (z 50)
+
+
 def anim_haldane(scene, mob, T):
+    """Beats are pinned to fractions of the f268 -> f268_end narration window, measured
+    from the phrase pauses of the current audio (robust to small re-synthesis shifts):
+      .12-.29 "a ring of spin-one quantum magnets"   .30-.43 "each pointing against ..."
+      .46-.54 "keeps an energy gap"   .55-.69 "however long the ring grows"
+      .71-.86 "Claimed for even-length rings"        .87-.99 "with an explicit lower bound"
+    """
     P = mob.parts
     k = mob.width / mob.w0
     shift = mob.get_center() - k * mob.c0
@@ -198,56 +202,82 @@ def anim_haldane(scene, mob, T):
         VGroup(m).scale(k, about_point=ORIGIN).shift(shift)
         return m
 
-    c, R = _H["c"], _H["R"]
-    used = 0.0
+    s0, s1 = scene.cue("f268"), scene.cue("f268_end")
+    deadline = s1 - 0.5                     # the card starts collapsing at s1 - 0.45
 
-    def hold(f):
-        nonlocal used
-        if f * T > 1e-3:
-            scene.wait(f * T)
-            used += f * T
+    def at(f):
+        return min(deadline, s0 + f * (s1 - s0))
 
-    def play(f, *anims, **kw):
-        nonlocal used
-        rt = max(0.2, min(f * T, T - used))
+    def play_to(f, *anims, **kw):
+        rt = max(0.2, at(f) - scene.now)
         scene.play(*anims, run_time=rt, **kw)
-        used += rt
 
+    def adopt(*parts):
+        for q in parts:
+            scene.remove(q)
+        mob.add(*parts)                     # collapses together with the card
+
+    c, R = _H["c"], _H["R"]
     spins = P["spins"]
     rng = np.random.default_rng(3)
-    # 0. a ring of quantum magnets, jittering
-    hold(0.03)
-    play(0.14, *[Rotate(a, angle=rng.choice([-1, 1]) * rng.uniform(0.35, 0.7),
-                        about_point=a.get_center(), rate_func=wiggle) for a in spins])
-    hold(0.02)
+    # 0. a ring of spin-one quantum magnets, jittering
+    scene.wait_until(at(0.12))
+    play_to(0.285, *[Rotate(a, angle=rng.choice([-1, 1]) * rng.uniform(0.35, 0.7),
+                            about_point=a.get_center(), rate_func=wiggle) for a in spins])
     # 1. ... each pointing against its neighbours (antiferromagnet)
+    scene.wait_until(at(0.30))
     tgt = place(_ring_spins(8, c, R, _H_LEN[8], settled=True, width=3.2, tip=0.13))
     turns = []
     for arr, new, a0, a1 in zip(spins, tgt, spins.angles, tgt.angles):
         d = (a1 - a0 + PI) % TAU - PI
         turns.append(Transform(arr, new, path_arc=d))
-    play(0.15, LaggedStart(*turns, lag_ratio=0.08), rate_func=smooth)
-    hold(0.02)
+    play_to(0.43, LaggedStart(*turns, lag_ratio=0.08), rate_func=smooth)
     # 2. ... keeps an energy gap, however long the ring grows
-    play(0.09, Indicate(VGroup(P["gap"], P["glab"]), color=ACC, scale_factor=1.12))
+    scene.wait_until(at(0.46))
+    play_to(0.535, Indicate(VGroup(P["gap"], P["glab"]), color=ACC, scale_factor=1.12))
     order = list(range(8))
     lhs, nums = P["Llab"]
-    for i, L in enumerate((16, 32)):
-        hold(0.02)
+    for i, (L, f0, f1) in enumerate(((16, 0.545, 0.61), (32, 0.62, 0.685))):
+        scene.wait_until(at(f0))
         order = _doubled_order(order)
         new_sp = place(_ring_spins(L, c, R, _H_LEN[L], width=3.2 if L < 32 else 2.6,
                                    tip=0.13 if L < 32 else 0.1, order=order))
         e1n, bandn = _h_levels(L)
         gapn, glabn = _h_gap(L)
         place(VGroup(e1n, bandn, gapn, glabn))
-        play(0.10, Transform(spins, new_sp), Transform(P["band"], bandn),
-             Transform(P["e1"], e1n), Transform(P["gap"], gapn), Transform(P["glab"], glabn),
-             nums[i].animate.set_opacity(0), nums[i + 1].animate.set_opacity(1))
-    # 3. claimed for even-length rings, with an explicit lower bound
-    hold(0.02)
-    play(0.07, Indicate(VGroup(lhs, nums[2]), color=ACC, scale_factor=1.15))
-    hold(0.01)
-    play(0.12, P["formula"].animate.set_opacity(1))
+        play_to(f1, Transform(spins, new_sp), Transform(P["band"], bandn),
+                Transform(P["e1"], e1n), Transform(P["gap"], gapn), Transform(P["glab"], glabn),
+                nums[i].animate.set_opacity(0), nums[i + 1].animate.set_opacity(1))
+    # 3. claimed for even-length rings: the examples L = 8, 16, 32 become "L even"
+    scene.wait_until(at(0.715))
+    even = _mtex(r"L\ \text{even}", font_size=36, color=ACC)
+    even.scale(k).move_to(VGroup(lhs, nums[2])).set_z_index(_Z_NEW)
+    play_to(0.765, FadeOut(VGroup(lhs, nums[2]), shift=UP * 0.2 * k),
+            FadeIn(even, shift=UP * 0.2 * k))
+    adopt(even)
+    # 4. ... with an explicit lower bound: written under the text column, which slides up
+    card = next(m for m in scene.mobjects if len(m.submobjects) == 3 and m.submobjects[1] is mob)
+    box, right = card[0], card[2]
+    formula = _mtex(r"\liminf_{L\to\infty}\,\gamma_L", r"\ge", r"\frac{\log 20}{784}",
+                    r"\approx 0.0038", r"> 0", font_size=36, color=WHITE_)
+    formula[2:4].set_color(ACC)
+    room = box.get_right()[0] - 0.35 - right.get_left()[0]
+    if formula.width > room:
+        formula.scale_to_fit_width(room)
+    buff = 0.42
+    block_h = right.height + buff + formula.height
+    dy = (box.get_center()[1] + block_h / 2) - right.get_top()[1]
+    formula.next_to(right.copy().shift(UP * dy), DOWN, buff=buff, aligned_edge=LEFT)
+    formula.set_z_index(_Z_NEW)
+    scene.wait_until(at(0.775))
+    play_to(0.85, right.animate.shift(UP * dy), Write(formula))
+    adopt(formula)
+    # the bound itself, boxed as the narration names it
+    frame = SurroundingRectangle(formula[2:4], color=ACC, buff=0.1, stroke_width=2.4,
+                                 corner_radius=0.08).set_z_index(_Z_NEW)
+    scene.wait_until(at(0.885))
+    play_to(0.955, Create(frame))
+    adopt(frame)
 
 
 # ======================================================================= 145 Rokhlin
