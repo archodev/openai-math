@@ -365,25 +365,28 @@ class C8Fgf(VoiceScene):
         kad.move_to([0, TOP - 0.9, 0])
         self.play_until(h_(0.42), FadeIn(kad, shift=UP * 0.12))
 
-        # timeline: decades pass
-        TL_Y, TL_Y1 = 0.0, 1.05
+        # timeline: decades pass. It sits low while it is the only thing happening
+        # (balances the frame under the question row), then rises at {dichotomy}
+        # to make room for the two rows of factors.
+        TL_Y, TL_Y1 = -0.8, 1.05
         x_of = lambda yr: -6.0 + (yr - 1940) * 12.0 / 90
         tl = Line([x_of(1940), TL_Y, 0], [x_of(2030), TL_Y, 0], stroke_color=DIM, stroke_width=2)
         ticks = VGroup()
         for y_ in range(1950, 2030, 10):
             tk = Line([x_of(y_), TL_Y - 0.08, 0], [x_of(y_), TL_Y + 0.08, 0], stroke_color=GREY_,
                       stroke_width=2)
-            lb = txt(f"{y_}s", size=22, color=GREY_).move_to([x_of(y_), TL_Y - 0.36, 0])
+            lb = txt(f"{y_}s", size=24, color=GREY_).move_to([x_of(y_), TL_Y - 0.4, 0])
             ticks.add(VGroup(tk, lb))
         yr = ValueTracker(1940)
-        rider = tex("?", size=40, color=YELLOW_).move_to([x_of(1940), TL_Y + 0.36, 0])
+        rider = tex("?", size=54, color=YELLOW_).move_to([x_of(1940), TL_Y + 0.46, 0])
         self.play_until(h_(0.6), Create(tl), FadeIn(rider),
                         LaggedStart(*[FadeIn(t, shift=UP * 0.08) for t in ticks], lag_ratio=0.12))
         # fixed mobject updated in place (no always_redraw: avoids Cairo ghosting)
-        bar = Line([x_of(1940), TL_Y, 0], [x_of(1941), TL_Y, 0], stroke_width=5).set_color([BG, ACC])
+        bar = Line([x_of(1940), TL_Y, 0], [x_of(1941), TL_Y, 0], stroke_width=6).set_color(
+            [interpolate_color(BG, ACC, 0.3), ACC])
         bar.add_updater(lambda m: m.set_points_as_corners(
             [[x_of(1940), tl.get_y(), 0], [x_of(yr.get_value()) + 1e-3, tl.get_y(), 0]]))
-        rider.add_updater(lambda m: m.move_to([x_of(yr.get_value()), TL_Y + 0.36, 0]))
+        rider.add_updater(lambda m: m.move_to([x_of(yr.get_value()), TL_Y + 0.46, 0]))
         self.add(bar, rider)
         self.play_until(h_(0.98), yr.animate.set_value(2020), rate_func=smooth)
 
@@ -395,8 +398,9 @@ class C8Fgf(VoiceScene):
         l94.move_to([x94, TL_Y1 + 0.38, 0])
         self.wait_until("dichotomy")
         rider.clear_updaters()
-        self.play_until(d_(0.08), VGroup(tl, ticks, rider).animate.shift(UP * (TL_Y1 - TL_Y)))
-        self.play_until(d_(0.16), FadeIn(m94, scale=0.3), FadeIn(l94, shift=DOWN * 0.1),
+        self.play_until(d_(0.1), VGroup(tl, ticks).animate.shift(UP * (TL_Y1 - TL_Y)),
+                        rider.animate.shift(UP * (TL_Y1 - TL_Y)).scale(0.7, about_edge=DOWN))
+        self.play_until(d_(0.18), FadeIn(m94, scale=0.3), FadeIn(l94, shift=DOWN * 0.1),
                         rider.animate.set_opacity(0.35))
 
         # one row of factors, two possible futures
