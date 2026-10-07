@@ -531,6 +531,8 @@ class Beats:
 
     def play(self, f0, f1, *anims, min_rt=0.35):
         start = max(self.at(f0), self.s.now)
+        if start - self.s.now < 0.12:          # avoid sub-frame waits
+            start = self.s.now
         end = min(max(self.at(f1), start + min_rt), self.t1)
         self.s.wait_until(start)
         rt = end - self.s.now
@@ -693,7 +695,7 @@ def anim_tiling(scene, g, run_time):
     groups = g.copy_groups
     n = len(groups)
     k = g.width / g.w0                       # current scale of the big visual
-    off = (UP * 0.55 + LEFT * 0.12) * k
+    off = (UP * 0.4 + LEFT * 0.1) * k
     for grp in groups:
         for f in grp:
             f._base = f.points.copy()

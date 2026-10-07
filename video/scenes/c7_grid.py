@@ -644,19 +644,20 @@ def icon_penrose():
 
 # ======================================================================= 267 BEC
 def icon_bec():
-    x = np.linspace(-1.0, 1.0, 201)
+    # (flatter than it was, so it keeps its width under a two-line tile name)
+    X = 1.15
+    x = np.linspace(-X, X, 231)
     base = -0.42
-    th = 0.3 * np.exp(-x ** 2 / (2 * 0.33 ** 2))
-    spike = th + 0.86 * np.exp(-x ** 2 / (2 * 0.035 ** 2))
+    th = 0.3 * np.exp(-x ** 2 / (2 * 0.38 ** 2))
     xs = np.linspace(-0.16, 0.16, 81)
-    sp = 0.3 * np.exp(-xs ** 2 / (2 * 0.33 ** 2)) + 0.86 * np.exp(-xs ** 2 / (2 * 0.035 ** 2))
-    therm_fill = Polygon(*[_p(a, base + b) for a, b in zip(x, th)], _p(1.0, base), _p(-1.0, base),
+    sp = 0.3 * np.exp(-xs ** 2 / (2 * 0.38 ** 2)) + 0.72 * np.exp(-xs ** 2 / (2 * 0.035 ** 2))
+    therm_fill = Polygon(*[_p(a, base + b) for a, b in zip(x, th)], _p(X, base), _p(-X, base),
                          stroke_width=0, fill_color=GREY_, fill_opacity=0.22)
     therm = _poly(np.c_[x, base + th], GREY_, 1.6)
     peak_fill = Polygon(*[_p(a, base + b) for a, b in zip(xs, sp)], stroke_width=0,
                         fill_color=ACC, fill_opacity=0.45)
     peak = _poly(np.c_[xs, base + sp], ACC, 2.2)
-    axis = Line(_p(-1.04, base), _p(1.04, base), color=GREY_, stroke_width=1.5)
+    axis = Line(_p(-X - 0.04, base), _p(X + 0.04, base), color=GREY_, stroke_width=1.5)
     return VGroup(therm_fill, peak_fill, therm, peak, axis)
 
 
@@ -733,22 +734,24 @@ _EDGE = 0.07          # closest the pulsed icon may come to the tile border
 def _name_text(name, max_w):
     """Tile.__init__ wraps names at 28 chars, which suits the 4-column tiles; in this
     5-column grid that forces long one-liners to shrink to ~60%.  Pick the wrap (<= 2
-    lines) that keeps the name closest to full size; prefer fewer lines when it costs
-    at most ~5% in size."""
-    cands, seen = [], set()
-    for width in range(34, 8, -1):
-        lines = textwrap.wrap(name, width, break_on_hyphens=False)
-        if len(lines) > 2:
-            break
-        if tuple(lines) in seen:
-            continue
-        seen.add(tuple(lines))
-        t = Text("\n".join(lines), font=SANS, font_size=_NAME_SIZE, color=WHITE_,
-                 weight=SEMIBOLD, line_spacing=0.7)
-        cands.append((min(1.0, max_w / t.width), len(lines), t))
-    s_best = max(c[0] for c in cands)
-    s, _, t = min((c for c in cands if c[0] >= s_best - 0.05), key=lambda c: (c[1], -c[0]))
-    return t.scale(s)
+    lines) that keeps the name closest to full size, mildly preferring one line and
+    breaks at spaces over breaks after a hyphen."""
+    best, seen = None, set()
+    for hyph in (False, True):
+        for width in range(34, 8, -1):
+            lines = textwrap.wrap(name, width, break_on_hyphens=hyph, break_long_words=False)
+            if len(lines) > 2:
+                break
+            if tuple(lines) in seen:
+                continue
+            seen.add(tuple(lines))
+            t = Text("\n".join(lines), font=SANS, font_size=_NAME_SIZE, color=WHITE_,
+                     weight=SEMIBOLD, line_spacing=0.7)
+            s = min(1.0, max_w / t.width)
+            score = s - 0.13 * (len(lines) - 1) - 0.06 * any(l.endswith("-") for l in lines)
+            if best is None or score > best[0] + 1e-6:
+                best = (score, s, t)
+    return best[2].scale(best[1])
 
 
 def _retune_tile(t, pad=0.13):

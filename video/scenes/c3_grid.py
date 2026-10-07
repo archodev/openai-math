@@ -123,9 +123,12 @@ def falconer_big():
                     .move_to(org + [(x + s / 2) * S, (y + s / 2) * S, 0]) for x, y in sqs])
     e_lab = tex("E", 36, ACC).next_to(frame, LEFT, buff=0.18).align_to(frame, UP)
     dim1 = tex(r"\dim E \approx 1.26", 30, WHITE_)
-    dim2 = tex(r">\tfrac{d}{2}=1", 30, ACC)
+    dim2 = tex(r"> d/2 = 1", 30, ACC)
     dimlab = VGroup(dim1, dim2).arrange(DOWN, aligned_edge=LEFT, buff=0.16)
     dimlab.next_to(frame, RIGHT, buff=0.35).shift(UP * 0.35)
+    # "Claimed in every dimension": the picture is d = 2, the claim is every d
+    every = tex(r"d = 2, 3, 4, \dots", 28, YELLOW_)
+    every.next_to(dimlab, DOWN, aligned_edge=LEFT, buff=0.42)
 
     L = np.sqrt(2) * S            # diameter of the square = largest distance
     y0 = -0.62
@@ -153,11 +156,12 @@ def falconer_big():
         m.set_stroke(WHITE_, width=2.0, opacity=0)
     bar.set_fill(opacity=0)
     lenlab.set_opacity(0)
+    every.set_opacity(0)
 
-    vis = VGroup(frame, dust, e_lab, dimlab, axis, end_ticks, n0, n1, d_lab,
+    vis = VGroup(frame, dust, e_lab, dimlab, every, axis, end_ticks, n0, n1, d_lab,
                  bar, segs, rods, ticks, flyers, lenlab)
     vis.segs, vis.flyers, vis.rods, vis.ticks = segs, flyers, rods, ticks
-    vis.bar, vis.lenlab, vis.dimlab = bar, lenlab, dimlab
+    vis.bar, vis.lenlab, vis.dimlab, vis.every, vis.dust = bar, lenlab, dimlab, every, dust
     return vis
 
 
@@ -180,29 +184,54 @@ def _rigid_to(line, target):
     return UpdateFromAlphaFunc(line, upd, rate_func=smooth)
 
 
+def _beats(scene, rt):
+    """Schedule helpers in fractions f of the feature window [now, now + rt]
+    (the window spans one narration line, so fractions track the words)."""
+    t0 = scene.now
+
+    def at(f):
+        scene.wait_until(max(scene.now, t0 + f * rt))
+
+    def span(f0, f1, *anims, **kw):
+        at(f0)
+        scene.play(*anims, run_time=max(0.25, t0 + f1 * rt - scene.now), **kw)
+
+    return at, span
+
+
 def falconer_animate(scene, vis, rt):
-    a, b, c, d = 0.27 * rt, 0.29 * rt, 0.12 * rt, 0.17 * rt
-    # 1. pairs of points of the dust and the segments between them
+    # Beats of L0 ("Falconer's distance conjecture: if a dusty, fractal set has
+    # more than half the dimension of the space it lives in, the distances
+    # between its points take up a positive length of the number line.
+    # Claimed in every dimension."), as fractions of the card's lifetime.
+    at, span = _beats(scene, rt)
+    # 1. "a dusty, fractal set": a shimmer sweeps across the Cantor dust
+    sq = sorted(vis.dust, key=lambda m: m.get_center()[0] + m.get_center()[1])
+    span(0.12, 0.26, LaggedStart(*[m.animate(rate_func=there_and_back).set_fill(WHITE_).scale(1.35)
+                                   for m in sq], lag_ratio=0.04))
+    # 2. "more than half the dimension"
+    span(0.29, 0.38, Indicate(vis.dimlab[1], color=YELLOW_, scale_factor=1.2))
+    # 3. "the distances between its points": segments between pairs of points of E
     vis.segs.set_stroke(opacity=0.95)
-    scene.play(LaggedStart(*[Create(s) for s in vis.segs], lag_ratio=0.18), run_time=a)
-    # 2. "more than half-dimensional"; each distance is measured: the segment
-    #    swings rigidly down onto the number line
+    span(0.45, 0.59, LaggedStart(*[Create(s) for s in vis.segs], lag_ratio=0.18))
+    # 4. each distance is measured: the segment swings rigidly down onto the line
     vis.flyers.set_stroke(opacity=1.0)
     order = list(range(len(vis.flyers)))
     np.random.default_rng(1).shuffle(order)
-    scene.play(AnimationGroup(
-        Indicate(vis.dimlab[1], color=YELLOW_, scale_factor=1.15, run_time=0.45),
-        LaggedStart(*[_rigid_to(vis.flyers[k], vis.rods[k]) for k in order], lag_ratio=0.14,
-                    run_time=1.0)),
-        vis.segs.animate.set_stroke(opacity=0.22), run_time=b)
-    # 3. ... and recorded as a point of the distance set
+    span(0.59, 0.72, LaggedStart(*[_rigid_to(vis.flyers[k], vis.rods[k]) for k in order],
+                                 lag_ratio=0.12),
+         vis.segs.animate.set_stroke(opacity=0.22))
+    # 5. ... and recorded as a point of the distance set
     targets = [t.copy().set_stroke(WHITE_, width=2.2, opacity=1.0) for t in vis.ticks]
-    scene.play(LaggedStart(*[Transform(f, t) for f, t in zip(vis.flyers, targets)], lag_ratio=0.06),
-               run_time=c)
-    # 4. the distances fill a set of positive length
+    span(0.72, 0.77, LaggedStart(*[Transform(f, t) for f, t in zip(vis.flyers, targets)],
+                                 lag_ratio=0.06))
+    # 6. "take up a positive length of the number line"
     vis.bar.set_fill(YELLOW_, opacity=0.5)
     vis.lenlab.set_opacity(1.0)
-    scene.play(GrowFromEdge(vis.bar, LEFT), FadeIn(vis.lenlab, shift=UP * 0.12), run_time=d)
+    span(0.77, 0.86, GrowFromEdge(vis.bar, LEFT), FadeIn(vis.lenlab, shift=UP * 0.12))
+    # 7. "Claimed in every dimension"
+    vis.every.set_opacity(1.0)
+    span(0.90, 0.97, FadeIn(vis.every, shift=UP * 0.12))
 
 
 # ================================================================ 071 Koebe
