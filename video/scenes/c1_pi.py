@@ -437,7 +437,7 @@ class C1Pi(VoiceScene):
         rhsmu[0][max(range(len(rhsmu[0])), key=lambda i: rhsmu[0][i].get_x())].set_color(YELLOW_)
 
         def place_line_label(m):
-            m.move_to(c2p(0.55, -0.55 * mu.get_value()) + UR * 0.3 + RIGHT * 0.12)
+            m.move_to(c2p(0.55, -0.55 * mu.get_value()) + UR * 0.3 + RIGHT * 0.22)
             return m
         place_line_label(rhs2)
 

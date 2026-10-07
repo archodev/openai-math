@@ -468,14 +468,17 @@ class C6Kaplansky(VoiceScene):
         eA, eB = EA[0], EB[0]
         rg = txt("random graphs", 26, GREY_).move_to([1.55, -1.25, 0])
         t_two = self.ph("where two", "claim+5.5")
-        self.at(self.ph("built", "claim+3.4") - 0.1,
-                Create(eA), Create(eB),
-                LaggedStart(*[GrowFromCenter(d) for d in [*dB, *dA]], lag_ratio=0.08), rt=0.9)
-        self.play(FadeIn(rg, shift=UP * 0.1), run_time=0.4)
-        # re-sample twice, then settle on the chosen pair
-        rt = max(0.35, min(0.7, (t_two - 0.1 - self.now) / 2))
+        self.at(self.ph("built", "claim+3.4") - 0.2,
+                LaggedStart(*[GrowFromCenter(d) for d in [*dB, *dA]], lag_ratio=0.08),
+                Create(eA), Create(eB), rt=0.8)
+        self.play(FadeIn(rg, shift=UP * 0.1), run_time=0.35)
+        # re-sample twice (old edges dissolve, new ones are drawn), then keep the last pair
+        rt = max(0.4, min(0.7, (t_two - 0.2 - self.now) / 2))
         for s in (1, 2):
-            self.play(Transform(eA, EA[s]), Transform(eB, EB[s]), run_time=rt)
+            self.play(FadeOut(eA, rate_func=lambda t: early(t, 2.2)), FadeOut(eB, rate_func=lambda t: early(t, 2.2)),
+                      Create(EA[s], rate_func=lambda t: late(t, 0.3)),
+                      Create(EB[s], rate_func=lambda t: late(t, 0.3)), run_time=rt)
+            eA, eB = EA[s], EB[s]
 
         # "where two nonzero elements": the vertices become the terms of alpha and beta
         GX, GY, cs = 1.45, -0.6, 0.68
@@ -484,11 +487,12 @@ class C6Kaplansky(VoiceScene):
         ya, xb = rowy[0] + 0.83, colx[0] - 0.9
         la = tex(r"\alpha\neq 0", 44, color=ACC).next_to([colx[-1], ya, 0], RIGHT, buff=0.45)
         lb = tex(r"\beta\neq 0", 44, color=BCOL).next_to([xb, GY, 0], LEFT, buff=0.4)
-        self.wait_until(t_two - 0.25)
-        self.play(FadeOut(eA), FadeOut(eB), FadeOut(rg), run_time=0.3)
-        self.play(*[d.animate.move_to([x, ya, 0]) for d, x in zip(dA, colx)],
-                  *[d.animate.move_to([xb, y, 0]) for d, y in zip(dB, rowy)], run_time=0.75)
-        self.play(FadeIn(la, shift=LEFT * 0.15), FadeIn(lb, shift=RIGHT * 0.15), run_time=0.5)
+        self.wait_until(t_two - 0.2)
+        fast = dict(rate_func=lambda t: early(t, 3))
+        self.play(FadeOut(eA, **fast), FadeOut(eB, **fast), FadeOut(rg, **fast),
+                  *[d.animate.move_to([x, ya, 0]) for d, x in zip(dA, colx)],
+                  *[d.animate.move_to([xb, y, 0]) for d, y in zip(dB, rowy)], run_time=0.9)
+        self.play(FadeIn(la, shift=LEFT * 0.15), FadeIn(lb, shift=RIGHT * 0.15), run_time=0.45)
 
         # "with coefficients mod two": the product table; equal products pile up in pairs
         frame, cells = VGroup(), {}
@@ -513,6 +517,12 @@ class C6Kaplansky(VoiceScene):
                 moves.append(cells[q].animate.scale(0.36 / 0.58).move_to(tgt))
                 st.add(cells[q])
             stacks.append(st)
+        counts, zeros = VGroup(), VGroup()
+        for b, (k_, colr) in enumerate(CLASSES):
+            n_ = sum(row.count(k_) for row in CLASS_GRID)
+            spot = [bx0 + b * bw, by - 0.33, 0]
+            counts.add(tex(str(n_), 32, color=colr).move_to(spot))
+            zeros.add(tex("0", 32, color=GREY_).move_to(spot))
         mod2 = VGroup(txt("mod 2:", 26, GREY_), tex(r"1+1=0", 46)).arrange(RIGHT, buff=0.25)
         mod2.move_to([bx0 + 2.5 * bw, 0.4, 0]).align_to(RIGHT * 6.35, RIGHT)
         schem = txt("schematic illustration", 22, GREY_, slant=ITALIC).move_to([GX + 0.3, by - 0.42, 0])
@@ -522,14 +532,17 @@ class C6Kaplansky(VoiceScene):
                 FadeIn(schem), rt=0.8)
         t_mul = self.ph("multiply to", "claim+8.7")
         self.go(max(self.now + 0.7, t_mul - 0.05), LaggedStart(*moves, lag_ratio=0.04), Create(base),
-                FadeIn(mod2, shift=LEFT * 0.15), lo=0.7)
+                FadeIn(mod2, shift=LEFT * 0.15), FadeIn(counts, shift=UP * 0.1, rate_func=late), lo=0.7)
+        self.remove(counts)
+        self.add(*counts)          # each count is replaced on its own below
 
         # "multiply to exactly zero": every pile is even, so everything cancels
         self.play(Indicate(mod2[1], color=PCOL, scale_factor=1.12),
-                  LaggedStart(*[FadeOut(st, scale=0.2) for st in stacks], lag_ratio=0.18), run_time=1.1)
+                  LaggedStart(*[AnimationGroup(FadeOut(st, scale=0.2), ReplacementTransform(c_, z_))
+                                for st, c_, z_ in zip(stacks, counts, zeros)], lag_ratio=0.18), run_time=1.1)
         abz = MathTex(r"\alpha\beta", "=", "0", font_size=76, color=WHITE_).move_to([GX, GY, 0])
         abz[2].set_color(PCOL)
-        self.play(FadeOut(frame), FadeOut(base), Write(abz), run_time=0.6)
+        self.play(FadeOut(frame), FadeOut(base), FadeOut(zeros), Write(abz), run_time=0.6)
         t_c = self.ph("A companion", "companion+0.4") - 0.1
         if t_c - self.now > 0.5:
             self.go(t_c, Indicate(abz[2], color=PCOL, scale_factor=1.3))
@@ -537,7 +550,7 @@ class C6Kaplansky(VoiceScene):
         # result banner
         banner = result_banner(r"\text{torsion-free } G \text{ and nonzero } \alpha,\beta\in\mathbb{F}_2[G]"
                                r"\text{ with } \alpha\beta=0", lean=CATALOG["196"]["lean"], is_tex=True, size=38)
-        banner.move_to([0, -0.55, 0])
+        banner.move_to([0, -0.4, 0])
         # the big "alpha beta = 0" flies into its place at the end of the banner statement
         slot = banner[1][1][0][-4:].copy()
         self.play(FadeOut(card, rate_func=early), FadeOut(VGroup(dA, dB, la, lb, mod2, schem, grow), rate_func=early),

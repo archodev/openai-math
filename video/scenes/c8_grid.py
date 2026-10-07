@@ -174,22 +174,28 @@ def anim_288(scene, mob, T):
 
 # ====================================================================== 293 hyperinvariant
 def icon_293():
-    """A shift S keeps the tail subspace; a commuting V pushes it out (red X)."""
-    xs = [-1.0, -0.5, 0.0, 0.5, 1.0]
-    y = 0.0
+    """Mini version of the big card's ladder: the shift S (blue arcs) keeps every tail
+    K_{>=h} (staircase of bars); a commuting V (white arcs) pushes each tail one rung
+    down (red extension), so no tail is hyperinvariant (red X)."""
+    Y, d = 0.45, 0.36
+    X = {j: d * j for j in range(-2, 4)}
     g = VGroup()
-    bar = Rectangle(width=1.6, height=0.4).set_stroke(ACC, 1.8).set_fill(ACC, 0.18)
-    bar.move_to(P(-0.22 + 0.8, y))
-    g.add(bar)
-    g.add(*[Dot(P(x, y), radius=0.06, color=WHITE_) for x in xs if x != -0.5])
-    g.add(dots_ellipsis(P(-1.32, y), r=0.022, gap=0.075), dots_ellipsis(P(1.22, y), r=0.022, gap=0.06))
-    for x in (0.0, 0.5):
-        g.add(arc_arrow(P(x + 0.07, y + 0.09), P(x + 0.43, y + 0.09), -PI / 1.4, ACC, 2.2, 0.12))
-    g.add(tex("S", 28, ACC).move_to(P(0.5, y + 0.5)))
-    v = arc_arrow(P(-0.07, y - 0.09), P(-0.43, y - 0.09), -PI / 1.4, WHITE_, 2.2, 0.12)
-    g.add(v, tex("V", 28, WHITE_).move_to(P(-0.25, y - 0.5)))
-    g.add(xmark(P(-0.5, y + 0.02), 0.11, RED_, 3.2))
-    g.add(tex(r"K_{\ge 0}", 26, ACC).next_to(bar, RIGHT, buff=0.1))
+    rungs = {2: 0.1, 1: -0.16, 0: -0.42}
+    R = X[3] + 0.27
+    for h, y in rungs.items():
+        g.add(Rectangle(width=X[h] - X[h - 1], height=0.18).move_to(P((X[h - 1] + X[h]) / 2 - 0.13, y))
+              .set_stroke(RED_, 1.4).set_fill(RED_, 0.3))
+        g.add(Rectangle(width=R - X[h] + 0.13, height=0.18).move_to(P((X[h] - 0.13 + R) / 2, y))
+              .set_stroke(ACC, 1.4).set_fill(ACC, 0.18))
+        g.add(xmark(P(R - 0.14, y), 0.055, RED_, 2.6))
+    g.add(*[Dot(P(X[j], Y), radius=0.045, color=WHITE_) for j in X])
+    g.add(dots_ellipsis(P(X[-2] - 0.2, Y), r=0.018, gap=0.055), dots_ellipsis(P(X[3] + 0.2, Y), r=0.018, gap=0.055))
+    g.add(*[arc_arrow(P(X[j] + 0.06, Y + 0.06), P(X[j + 1] - 0.06, Y + 0.06), -PI / 1.6, ACC, 1.8, 0.08)
+            for j in range(-2, 3)])
+    g.add(*[arc_arrow(P(X[j] - 0.06, Y - 0.06), P(X[j - 1] + 0.06, Y - 0.06), -PI / 1.6, WHITE_, 1.5, 0.07)
+            for j in range(-1, 4)])
+    g.add(tex("S", 32, ACC).move_to(P(X[-2] - 0.62, Y + 0.15)),
+          tex("V", 32, WHITE_).move_to(P(X[-2] - 0.62, Y - 0.19)))
     return g
 
 

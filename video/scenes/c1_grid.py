@@ -446,13 +446,14 @@ def _adopt(scene, mob, *parts):
     mob.add(*parts)
 
 
-def _beats(scene, num):
+def _beats(scene, num, rt):
     """u in [0, 1] along the feature's narration line (cue f<num> -> f<num>_end) ->
-    absolute time, clamped to just before the grid template collapses the card
-    (it starts at f<num>_end - 0.45).  The beats below were read off the voice
-    track as fractions of the line, so they follow the words if it is re-timed."""
+    absolute time, clamped to the slot the grid template gives the animation
+    (now .. now + rt; it collapses the card after that).  The beats below were read
+    off the voice track as fractions of the line, so they follow the words if the
+    narration is re-timed."""
     c0, c1 = scene.cue(f"f{num}"), scene.cue(f"f{num}_end")
-    stop = c1 - 0.5
+    stop = scene.now + rt
     return (lambda u: min(c0 + u * (c1 - c0), stop)), stop
 
 
@@ -496,7 +497,7 @@ def big_catalan():
 
 
 def animate_catalan(scene, mob, rt):
-    T, _ = _beats(scene, "005")
+    T, _ = _beats(scene, "005", rt)
     pts = mob._pts
     dots = [_dot(p, 0.055) for p in pts]
     segs = [Line(pts[i - 1], pts[i], stroke_color=ACC, stroke_width=3) for i in range(1, len(pts))]
@@ -510,7 +511,7 @@ def animate_catalan(scene, mob, rt):
         Indicate(mob._gl, color=ACC, scale_factor=1.25))
     # "one, minus a ninth, plus a twenty-fifth, minus a forty-ninth": each term lights
     # up as it is spoken and adds its point to the partial-sum zig-zag
-    for i, (u0, u1) in enumerate(((0.285, 0.335), (0.345, 0.42), (0.47, 0.55), (0.60, 0.67))):
+    for i, (u0, u1) in enumerate(((0.285, 0.335), (0.35, 0.43), (0.475, 0.555), (0.605, 0.685))):
         a = [FadeIn(dots[i], scale=0.3), terms[i].animate.set_color(ACC)]
         if i:
             a.append(Create(segs[i - 1]))
@@ -520,10 +521,10 @@ def animate_catalan(scene, mob, rt):
     # dissolve the card (Scene.add extracts families).
     rest = [AnimationGroup(Create(segs[i - 1]), FadeIn(dots[i], scale=0.3), group=mob)
             for i in range(4, len(pts))]
-    _go(scene, T(0.68), T(0.79), terms[4].animate.set_color(ACC),
+    _go(scene, T(0.72), T(0.83), terms[4].animate.set_color(ACC),
         LaggedStart(*rest, lag_ratio=0.55, group=mob), Write(approx))
-    # "is irrational" (lands with the first syllable, so it holds before the collapse)
-    _go(scene, T(0.80), T(0.86), FadeIn(res, scale=1.25),
+    # "is irrational": lands just as the words start, then holds until the collapse
+    _go(scene, T(0.84), T(0.89), FadeIn(res, scale=1.25),
         Indicate(mob._gl, color=YELLOW_, scale_factor=1.3))
     _adopt(scene, mob, *segs, *dots, approx, res)
 
@@ -571,7 +572,7 @@ def _flashes(mobs, color, width=4, lag=0.0):
 
 
 def animate_h10(scene, mob, rt):
-    T, stop = _beats(scene, "004")
+    T, stop = _beats(scene, "004", rt)
     box, gear, lab, eqs = mob._box, mob._gear, mob._lab, mob._eqs
     q, cross = mob._q.copy(), mob._cross.copy()
     _late(mob, q, cross)
@@ -593,7 +594,7 @@ def animate_h10(scene, mob, rt):
                                                 e[1].animate.set_color(ACC), group=e) for e in eqs],
                                lag_ratio=0.5, group=mob))
     # "whether it has a solution in fractions"
-    go(0.80, 0.90, Indicate(mob._ask, color=YELLOW_, scale_factor=1.12),
+    go(0.81, 0.93, Indicate(mob._ask, color=YELLOW_, scale_factor=1.12),
        Indicate(q, color=YELLOW_, scale_factor=1.25))
     if stop - scene.now > 0.1:
         scene.play(spin(stop - scene.now), run_time=stop - scene.now)

@@ -552,13 +552,27 @@ def _cannon_parts():
                   font_size=40, color=WHITE_)
     lab[0].set_color(ACC)
     lab.move_to(P(0, -1.82))
+    # "seen from infinitely far away": geodesic rays from e (diameters of the disk) run
+    # out to the boundary at infinity
+    angs = [np.pi / 2 + np.pi / 10 + k * np.pi / 5 for k in range(10)]
+    c0 = P(*C)
+    rays = VGroup(*[Line(c0, c0 + 0.985 * R * np.array([np.cos(a), np.sin(a), 0]),
+                         stroke_color=ACC, stroke_width=2.2, stroke_opacity=0.9) for a in angs])
+    ray_dots = VGroup(*[Dot(c0, radius=0.055, color=ACC) for _ in angs])
+    # The {5,4} picture is literally an equatorial slice of H^3 tiled by right-angled
+    # dodecahedra {5,3,4} (each face-plane of that honeycomb is tiled as {5,4}), and the
+    # quarter-turn about a vertex below is a symmetry of the 3D tiling too.
+    slice_lab = VGroup(txt("slice of", 22, GREY_), tex(r"\mathbb{H}^3", 30, GREY_))
+    slice_lab.arrange(RIGHT, buff=0.1, aligned_edge=DOWN)
+    slice_lab.move_to(P(1.98, -0.92))
     return dict(layers=layers, e_dot=e_dot, faint=faint, rim=rim, rim_glow=rim_glow, lat=lat,
-                til=til, fund=fund, lab=lab)
+                til=til, fund=fund, lab=lab, rays=rays, ray_dots=ray_dots, slice_lab=slice_lab)
 
 
 def big_246():
+    # arrives already showing e and its neighbours, so the card is never empty
     p = _cannon_parts()
-    return VGroup(_frame(), p["faint"], p["e_dot"])
+    return VGroup(_frame(), p["faint"], p["layers"][0], p["e_dot"])
 
 
 def _place(m, mob):
@@ -576,39 +590,62 @@ def _adopt(scene, mob, *parts):
     mob.add(*parts)
 
 
+def _at(scene, t0, rt, f):
+    """Wait until fraction f of the feature window (robust to re-timed narration)."""
+    scene.wait_until(t0 + f * rt)
+
+
+def _until(scene, t0, rt, f, lo=0.25):
+    """Run time that ends the next play() at fraction f of the window."""
+    return max(lo, t0 + f * rt - scene.now)
+
+
 def anim_246(scene, mob, rt):
+    t0 = scene.now
     p = _cannon_parts()
     s = mob[0].width / FW
-    for k in ("layers", "rim", "rim_glow", "lat", "til", "fund", "lab"):
+    for k in ("layers", "rim", "rim_glow", "lat", "til", "fund", "lab", "rays", "ray_dots",
+              "slice_lab"):
         if isinstance(p[k], list):
-            for q in p[k]:
+            for q in p[k][1:]:              # layer 0 is already on the card (mob[2])
                 _place(q, mob)
         else:
             _place(p[k], mob)
-    layers = VGroup(*p["layers"])
-    e_dot = mob[2]                       # identity vertex: drawn above the graph edges
+    outer = VGroup(*p["layers"][1:])
+    all_layers = [mob[2], *outer]
+    e_dot = mob[3]                       # identity vertex: drawn above the graph edges
     e_dot.set_z_index(Z_FEAT + 1)
-    # 1) the group, seen from further and further away: Cayley graph grows outward
-    t1 = 0.33 * rt
+    # 1) "if a negatively curved group": its Cayley graph grows outward from e
     scene.play(LaggedStart(*[AnimationGroup(Create(L[0], lag_ratio=0), FadeIn(L[1], scale=0.5))
-                             for L in p["layers"]], lag_ratio=0.75),
-               run_time=t1, rate_func=linear)
-    _adopt(scene, mob, layers)
-    # 2) ... its boundary at infinity is a 2-sphere
-    t2 = 0.22 * rt
-    scene.play(FadeIn(p["rim_glow"]), Create(p["rim"]), Create(p["lat"], lag_ratio=0.3),
-               Write(p["lab"][0]), run_time=t2)
-    _adopt(scene, mob, p["rim_glow"], p["rim"], p["lat"], p["lab"][0])
-    # 3) ... and the group comes from hyperbolic geometry: tiles appear, a symmetry acts
-    t3a, t3b = 0.17 * rt, 0.26 * rt
-    scene.play(Create(p["til"]), FadeIn(p["fund"]), layers.animate.set_stroke(opacity=0.5),
-               Write(p["lab"][1:]), run_time=t3a)
-    _adopt(scene, mob, p["til"], p["fund"], p["lab"][1:])
+                             for L in outer], lag_ratio=0.6),
+               run_time=_until(scene, t0, rt, 0.32), rate_func=linear)
+    _adopt(scene, mob, outer)
+    # 2) "seen from infinitely far away": geodesic rays from e escape to infinity
+    _at(scene, t0, rt, 0.345)
+    rays, rdots = p["rays"], p["ray_dots"]
+    scene.play(LaggedStart(*[AnimationGroup(Create(r), MoveAlongPath(d, r))
+                             for r, d in zip(rays, rdots)], lag_ratio=0.09),
+               FadeIn(p["rim_glow"]), run_time=_until(scene, t0, rt, 0.53))
+    _adopt(scene, mob, p["rim_glow"])
+    # 3) "looks like a sphere": the boundary lights up as a 2-sphere
+    _at(scene, t0, rt, 0.555)
+    scene.play(Create(p["rim"]), Create(p["lat"], lag_ratio=0.3), Write(p["lab"][0]),
+               FadeOut(rays), FadeOut(rdots), run_time=_until(scene, t0, rt, 0.69))
+    _adopt(scene, mob, p["rim"], p["lat"], p["lab"][0])
+    # 4) "then it comes from hyperbolic 3D geometry": the disk is a slice of H^3, tiled by
+    #    the group; a quarter-turn about a vertex is one of its symmetries
+    _at(scene, t0, rt, 0.715)
+    scene.play(Create(p["til"]), FadeIn(p["fund"]), Write(p["lab"][1:]),
+               FadeIn(p["slice_lab"], shift=LEFT * 0.12),
+               p["lat"].animate.set_stroke(opacity=0.22),
+               *[L.animate.set_stroke(opacity=0.5) for L in all_layers],
+               run_time=_until(scene, t0, rt, 0.82))
+    _adopt(scene, mob, p["til"], p["fund"], p["lab"][1:], p["slice_lab"])
     Cx = mob[0].get_center()[0] + s * CAN_C[0]
     Cy = mob[0].get_center()[1] + s * CAN_C[1]
     Rs = s * CAN_R
     v = CAN_V
-    moving = VGroup(p["til"], p["fund"], layers, e_dot)   # e rides along with its tile
+    moving = VGroup(p["til"], p["fund"], *all_layers, e_dot)   # e rides along with its tile
     orig = [(m, m.points.copy()) for m in moving.family_members_with_points()]
 
     def swirl(_, a):
@@ -623,7 +660,10 @@ def anim_246(scene, mob, rt):
             new[:, 1] = Cy + Rs * w.imag
             m.points = new
 
-    scene.play(UpdateFromAlphaFunc(moving, swirl), run_time=t3b, rate_func=smooth)
+    _at(scene, t0, rt, 0.83)
+    # animate the card itself (not an ad-hoc group of its parts) so nothing is re-parented
+    scene.play(UpdateFromAlphaFunc(mob, swirl), run_time=_until(scene, t0, rt, 1.0),
+               rate_func=smooth)
 
 
 # =====================================================================
@@ -694,11 +734,19 @@ def _pp_parts():
     bg = Rectangle(width=lt.width + 0.2, height=lt.height + 0.1, stroke_width=0,
                    fill_color=CARD, fill_opacity=1).move_to(lt)
     boxl = VGroup(bg, lt)
-    verdict = VGroup(txt("PP holds", 24, GREEN_, weight=SEMIBOLD),
-                     txt("AC fails", 24, RED_, weight=SEMIBOLD)).arrange(RIGHT, buff=0.4)
-    verdict.move_to(box.get_corner(DR) + P(-verdict.width / 2 - 0.22, verdict.height / 2 + 0.2))
+    # choice = pick one element inside every piece; in the paper's universe such picks
+    # cannot be made in general (shown schematically: the picks get struck out), while the
+    # PP injections above survive
+    rings, crosses = VGroup(), VGroup()
+    for j in PP_PICKS:
+        c = dots[j].get_center()
+        rings.add(Circle(radius=0.15, stroke_color=YELLOW_, stroke_width=2.6).move_to(c))
+        d = 0.13
+        crosses.add(_path([[c + P(-d, -d), c + P(d, d)], [c + P(-d, d), c + P(d, -d)]],
+                          RED_, sw=3.4))
     return dict(pieces=pieces, X=X, Xl=Xl, dots=dots, nodes=nodes, surj=surj, Yl=Yl, inj=inj,
-                title=title, title_no=title_no, levi=levi, box=box, boxl=boxl, verdict=verdict)
+                title=title, title_no=title_no, levi=levi, box=box, boxl=boxl, rings=rings,
+                crosses=crosses)
 
 
 def big_244():
