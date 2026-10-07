@@ -251,9 +251,10 @@ def anim_293(scene, mob, T):
     flash = mob.s_arcs.copy().set_stroke(YELLOW_, 4)
     # 1. shift S moves e_j -> e_{j+1}: every tail K_{>=h} is invariant (a ladder)
     scene.play(ShowPassingFlash(flash, time_width=0.5),
-               LaggedStart(*[AnimationGroup(GrowFromEdge(b, RIGHT), FadeIn(lb, shift=RIGHT * 0.1))
-                             for b, lb in zip(bars, labs)], lag_ratio=0.18),
-               LaggedStart(*[Create(c) for c in checks], lag_ratio=0.15),
+               LaggedStart(*[AnimationGroup(GrowFromEdge(b, RIGHT), FadeIn(lb, shift=RIGHT * 0.1),
+                                            group=mob)
+                             for b, lb in zip(bars, labs)], lag_ratio=0.18, group=mob),
+               LaggedStart(*[Create(c) for c in checks], lag_ratio=0.15, group=mob),
                FadeIn(b1, shift=UP * 0.1), run_time=0.34 * T)
     # 2. a commuting operator V pushes every tail one rung down
     v_arcs = _bring(mob, L["v_arcs"])
@@ -264,18 +265,18 @@ def anim_293(scene, mob, T):
         mob.remove(c)
     b2 = _bring(mob, L["b2"])
     scene.play(AnimationGroup(
-        AnimationGroup(Create(v_arcs, lag_ratio=0.1), FadeIn(v_lab)),
-        AnimationGroup(LaggedStart(*[GrowFromEdge(s, RIGHT) for s in segs], lag_ratio=0.12),
+        AnimationGroup(Create(v_arcs, lag_ratio=0.1), FadeIn(v_lab), group=mob),
+        AnimationGroup(LaggedStart(*[GrowFromEdge(s, RIGHT) for s in segs], lag_ratio=0.12, group=mob),
                        *[Transform(ck, cr) for ck, cr in zip(checks, crosses)],
-                       *_swap(b1, b2)),
-        lag_ratio=0.45), run_time=0.33 * T)
+                       *_swap(b1, b2), group=mob),
+        lag_ratio=0.45, group=mob), run_time=0.33 * T)
     # 3. no rung survives every commuting operator (the classical problem is untouched)
     b3 = _bring(mob, L["b3"])
     b4 = _bring(mob, L["b4"])
     flash2 = v_arcs.copy().set_stroke(RED_, 4)
     scene.play(*_swap(b2, b3), ShowPassingFlash(flash2, time_width=0.5),
                LaggedStart(*[Indicate(c, color=RED_, scale_factor=1.3) for c in checks],
-                           lag_ratio=0.1),
+                           lag_ratio=0.1, group=mob),
                FadeIn(b4, rate_func=lambda t: smooth(max(0.0, (t - 0.45) / 0.55))),
                run_time=0.33 * T)
 
@@ -343,6 +344,12 @@ def _delayed(t0, t1, f=smooth):
     return lambda t: f(_clip01((t - t0) / (t1 - t0)))
 
 
+def at(mob, anim, t0, t1):
+    """Run `anim` (keeping its own easing and lag) during the fraction [t0, t1] of the
+    enclosing play. group=mob keeps the card intact in the scene list."""
+    return AnimationGroup(anim, group=mob, rate_func=lambda t: _clip01((t - t0) / (t1 - t0)))
+
+
 def big_304():
     vis = VGroup(_ref())
     vis.ref = vis[0]
@@ -408,7 +415,7 @@ def anim_304(scene, mob, T):
     mob.top.add(lie)                              # moves with the manifold
     d1 = 0.36 * T
     scene.play(flow(d1), LaggedStart(*[Indicate(o, color=ACC, scale_factor=1.0) for o in mob.orbs],
-                                     lag_ratio=0.3),
+                                     lag_ratio=0.3, group=mob),
                FadeIn(lie, shift=UP * 0.1, rate_func=_delayed(0.35, 0.75)), run_time=d1)
     # 2. make room; the p-adic integers cannot act faithfully
     tree, zp, arr, x, no = [_bring(mob, L[k]) for k in ("tree", "zp", "arr", "x", "no")]
@@ -416,11 +423,11 @@ def anim_304(scene, mob, T):
     mv = _delayed(0.0, 0.3)
     k = mob.ref.width / BIG_W
     scene.play(flow(d2, mv), mob.top.animate(rate_func=mv).shift(k * (B304["c1"] - B304["c0"])),
-               Create(tree[0], lag_ratio=0.05, rate_func=_delayed(0.25, 0.6)),
-               FadeIn(tree[1], lag_ratio=0.05, rate_func=_delayed(0.3, 0.62)),
+               at(mob, Create(tree[0], lag_ratio=0.05), 0.25, 0.6),
+               at(mob, FadeIn(tree[1], lag_ratio=0.05), 0.3, 0.62),
                FadeIn(zp, rate_func=_delayed(0.3, 0.55)),
                GrowArrow(arr, rate_func=_delayed(0.45, 0.68)),
-               Create(x, rate_func=_delayed(0.7, 0.85)),
+               at(mob, Create(x), 0.7, 0.85),
                FadeIn(no, shift=RIGHT * 0.1, rate_func=_delayed(0.72, 0.95)), run_time=d2)
     # 3. claimed in every dimension (1-3 were already known)
     ev, dim, kn, nw = [_bring(mob, L[k]) for k in ("every", "dim", "known", "new")]
@@ -556,13 +563,13 @@ def anim_325(scene, mob, T):
     wlab = _bring(mob, L["wlab"])
     eiglab = _bring(mob, L["eiglab"])
     # 1. the numerical range: all values x*Ax with |x| = 1; it contains the eigenvalues
-    scene.play(LaggedStart(*[FadeIn(d, scale=0.5) for d in cloud], lag_ratio=0.012),
+    scene.play(LaggedStart(*[FadeIn(d, scale=0.5) for d in cloud], lag_ratio=0.012, group=mob),
                Create(reg, rate_func=_delayed(0.3, 1.0)),
                FadeIn(wlab, rate_func=_delayed(0.5, 1.0)),
                FadeIn(eiglab, rate_func=_delayed(0.6, 1.0)), run_time=0.27 * T)
     # 2. plug the matrix into a polynomial (coefficients may be matrices too)
     formula, sbar, slab, gbar, glab = [_bring(mob, L[n]) for n in ("formula", "sbar", "slab", "gbar", "glab")]
-    scene.play(Write(formula, rate_func=_delayed(0.0, 0.45)),
+    scene.play(at(mob, Write(formula), 0.0, 0.45),
                GrowFromEdge(sbar, LEFT, rate_func=_delayed(0.35, 0.7)),
                FadeIn(slab, rate_func=_delayed(0.35, 0.6)),
                GrowFromEdge(gbar, LEFT, rate_func=_delayed(0.6, 0.95)),
@@ -578,7 +585,7 @@ def anim_325(scene, mob, T):
         m.stretch_to_fit_width(r * Lb)
         m.move_to(left + RIGHT * r * Lb / 2)
 
-    scene.play(Create(ceil, rate_func=_delayed(0.0, 0.18)), FadeIn(two, rate_func=_delayed(0.05, 0.2)),
+    scene.play(at(mob, Create(ceil), 0.0, 0.18), FadeIn(two, rate_func=_delayed(0.05, 0.2)),
                UpdateFromAlphaFunc(sbar, upd, rate_func=_delayed(0.12, 1.0)), run_time=0.46 * T)
 
 

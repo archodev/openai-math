@@ -192,9 +192,12 @@ class C5Erdos(VoiceScene):
 
         self.wait_until("erdos")
         lift = UP * (Y_TOP - Y_INTRO)
-        self.play(FadeOut(title, shift=UP * 0.3), *self.outs(terms, arcs, shift=lift),
-                  row1.animate.shift(UP * (Y_TOP - Y_INTRO)),
-                  Succession(Wait(0.3), Write(head, run_time=0.9)), run_time=1.2)
+        # title leaves first, the row climbs to the top (its labels ride along and
+        # fade), and only then is the heading written into the cleared space
+        self.play(FadeOut(title, shift=UP * 0.5, run_time=0.35),
+                  *self.outs(terms, arcs, shift=lift, run_time=0.9),
+                  row1.animate(run_time=0.9).shift(lift),
+                  Succession(Wait(0.7), Write(head, run_time=0.85)))
         self.at("wholeset", FadeIn(aset, shift=DOWN * 0.15), rt=0.7)
         self.at("adding", Write(F[0]), rt=1.0, before="infinity")
         self.at("infinity", Write(F[1]), rt=0.5)
@@ -295,10 +298,10 @@ class C5Erdos(VoiceScene):
         ksq.arrange(RIGHT, buff=0.12)
         kmore = tex(r"\cdots", 36, GREY_)
         krow = VGroup(klab, ksq, kmore).arrange(RIGHT, buff=0.22)
-        krow.align_to(hdr, LEFT).set_y(1.28)
+        krow.align_to(hdr, LEFT).set_y(1.38)
 
         dfn = textex(r"If $A\subseteq\{1,\dots,N\}$ has no $k$-term progression:", 32, GREY_)
-        dfn.align_to(hdr, LEFT).set_y(0.28)
+        dfn.align_to(hdr, LEFT).set_y(0.08)
         b_old = tex(r"|A|\le C_k\,N\exp\!\big(-(\log\log N)^{c_k}\big)", 42, GREY_)
         b_new = tex(r"|A|\le C_k\,N\exp\!\big(-c_k(\log N)^{\varepsilon_k}\big)", 42, WHITE_)
         assert len(b_old[0]) == 24 and len(b_new[0]) == 23
@@ -306,7 +309,7 @@ class C5Erdos(VoiceScene):
         x_new.set_color(ACC)
         l_old = bold("before (k ≥ 5)", 24, GREY_)
         l_new = bold("this paper", 24, ACC)
-        for lab, b, y in ((l_old, b_old, -0.72), (l_new, b_new, -1.75)):
+        for lab, b, y in ((l_old, b_old, -0.88), (l_new, b_new, -1.9)):
             lab.align_to(hdr, LEFT).set_y(y)
             b.set_x(-3.62 + b.width / 2).set_y(y)
         ul_new = Underline(x_new, color=ACC, stroke_width=3, buff=0.06)

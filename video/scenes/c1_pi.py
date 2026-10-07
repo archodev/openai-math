@@ -297,7 +297,7 @@ class C1Pi(VoiceScene):
         src22 = r_22[0].copy()
         self.play(FadeIn(r_22[1:], shift=RIGHT * 0.15), FadeIn(r_22[0]),
                   FadeIn(m22[0]), FadeIn(m22[1]), ReplacementTransform(src22, m22[2]),
-                  run_time=min(0.9, self.cue("f355") - self.now - 0.05))
+                  run_time=max(0.4, min(0.9, self.cue("f355") - self.now - 0.05)))
         self.remove(*m22)
         self.add(m22)
         self.wait_until("f355")
@@ -385,7 +385,7 @@ class C1Pi(VoiceScene):
         # "... compared to the size of the denominator"
         self.play_at(self.cue("measure") + 2.3, FadeIn(x_title, shift=UP * 0.1),
                      ShowPassingFlash(x_ax.copy().set_stroke(ACC, width=6), time_width=0.5),
-                     run_time=min(1.0, self.cue("dirichlet") - self.now - 0.2))
+                     run_time=max(0.5, min(1.0, self.cue("dirichlet") - self.now - 0.2)))
 
         # ---- Dirichlet: the 1/q^2 line
         mu = ValueTracker(2.0)
@@ -476,7 +476,7 @@ class C1Pi(VoiceScene):
         self.play(Indicate(d22, color=YELLOW_, scale_factor=1.8),
                   Indicate(d355, color=YELLOW_, scale_factor=1.8),
                   Indicate(lab22, color=YELLOW_), Indicate(lab355, color=YELLOW_),
-                  run_time=min(0.9, self.cue("record") - self.now - 0.05))
+                  run_time=max(0.5, min(0.9, self.cue("record") - self.now - 0.05)))
 
         self.plot = VGroup(axes, x_title, y_title, mu_line, shade, rhsmu, lab22, lab355,
                            *dots.values(), cap1b, f_lhs, f_rmu, cap2b, mu_lab)
@@ -522,7 +522,7 @@ class C1Pi(VoiceScene):
 
         self.play(FadeOut(self.plot), FadeIn(title, shift=DOWN * 0.1), Create(base), run_time=0.6)
         self.play(LaggedStart(*grows, lag_ratio=0.33),
-                  run_time=min(2.6, self.cue("L2_end") - 1.0 - self.now))
+                  run_time=max(1.5, min(2.6, self.cue("L2_end") - 1.0 - self.now)))
         # "... about seven point one"
         zz = rows[-1]
         hl = SurroundingRectangle(VGroup(zz[1], zz[2]), color=WHITE_, buff=0.1,
