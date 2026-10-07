@@ -725,7 +725,63 @@ def _tiles():
     return out
 
 
+_NAME_SIZE = 17       # lib Tile default
+_PULSE = 1.12         # lib/grid.py pulses a lit tile's icon to 1.12x about its centre
+_EDGE = 0.07          # closest the pulsed icon may come to the tile border
+
+
+def _name_text(name, max_w):
+    """Tile.__init__ wraps names at 28 chars, which suits the 4-column tiles; in this
+    5-column grid that forces long one-liners to shrink to ~60%.  Pick the wrap (<= 2
+    lines) that keeps the name closest to full size; prefer fewer lines when it costs
+    at most ~5% in size."""
+    cands, seen = [], set()
+    for width in range(34, 8, -1):
+        lines = textwrap.wrap(name, width, break_on_hyphens=False)
+        if len(lines) > 2:
+            break
+        if tuple(lines) in seen:
+            continue
+        seen.add(tuple(lines))
+        t = Text("\n".join(lines), font=SANS, font_size=_NAME_SIZE, color=WHITE_,
+                 weight=SEMIBOLD, line_spacing=0.7)
+        cands.append((min(1.0, max_w / t.width), len(lines), t))
+    s_best = max(c[0] for c in cands)
+    s, _, t = min((c for c in cands if c[0] >= s_best - 0.05), key=lambda c: (c[1], -c[0]))
+    return t.scale(s)
+
+
+def _retune_tile(t, pad=0.13):
+    """Re-wrap the name, then refit the icon so that its 1.12x highlight pulse stays clear
+    of the tile border and of the name."""
+    f = t.frame
+    nm = _name_text(t.name, f.width - 2 * pad)
+    nm.next_to(t.chips, UP, buff=0.09, aligned_edge=LEFT)
+    t.submobjects[t.submobjects.index(t.label)] = nm
+    t.label = nm
+    top, bottom = f.get_top()[1] - _EDGE, nm.get_top()[1] + 0.04
+    left, right = f.get_left()[0] + _EDGE, f.get_right()[0] - _EDGE
+    bw = min((right - left) / _PULSE, f.width - 2 * pad)
+    bh = (top - bottom) / _PULSE
+    ic = t.icon
+    if ic.width > 0 and ic.height > 0:
+        ic.scale(min(bw / ic.width, bh / ic.height))
+        ic.move_to([f.get_center()[0], (top + bottom) / 2, 0])
+
+
 class C7Grid(GridScene):
     CHAPTER = "dp"
     COLS, ROWS = 5, 3
     TILES = _tiles()
+
+    def build_tiles(self):
+        tiles = super().build_tiles()
+        for t in tiles:
+            _retune_tile(t)
+        # 14 tiles in a 5x3 grid: centre the short last row instead of leaving a hole
+        last = len(tiles) % self.COLS
+        if last:
+            step = tiles[1].get_center()[0] - tiles[0].get_center()[0]
+            for t in tiles[-last:]:
+                t.shift(RIGHT * step * (self.COLS - last) / 2)
+        return tiles

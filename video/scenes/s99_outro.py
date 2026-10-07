@@ -241,7 +241,7 @@ class S99Outro(VoiceScene):
         T = self.narr_end
         t_mos, t_cav, t_test = C["mosaic"], C["caveat"], C["test"]
         t_lean, t_pub, t_end, t_link = C["lean"], C["public"], C["end"], C["link"]
-        L0, L0e, L1e, L3e = C["L0"], C["L0_end"], C["L1_end"], C["L3_end"]
+        L0, L0e, L1e, L2e, L3e = C["L0"], C["L0_end"], C["L1_end"], C["L2_end"], C["L3_end"]
 
         # ---------------------------------------------------------- data
         cat = load_catalog()
@@ -282,6 +282,7 @@ class S99Outro(VoiceScene):
         V_lean = make_variant(base, [dict(b=0.97, tint=TL, ta=0.30, border=TL) if is_lean[i]
                                      else dict(b=dimb) for i in range(N)])
         V_all = make_variant(base, [dict(b=0.86)] * N)
+        V_survive = make_variant(base, [dict(b=0.86) if is_frac[i] else dict(b=0.2) for i in range(N)])
         V_frac = make_variant(base, [dict(b=1.0, tint=Y, ta=0.38, border=Y) if is_frac[i]
                                      else dict(b=0.2) for i in range(N)])
         V_frac_lo = make_variant(base, [dict(b=0.72, tint=Y, ta=0.38, border=Y) if is_frac[i]
@@ -300,22 +301,26 @@ class S99Outro(VoiceScene):
         q_t0 = t_cav + 0.75
         q_dur = max(1.5, min(4.4, (t_test - 0.9) - q_t0))
         M.wave(q_t0, q_dur, V_q, q_delay, tau=0.4)                      # 1: question marks
-        M.wave(t_lean + 0.3, 2.0, V_lean, cols_sweep)                   # 2: Lean
+        M.wave(t_lean + 0.3, 1.5, V_lean, cols_sweep)                   # 2: Lean (lands just after "...thirty-five")
         M.wave(t_pub + 0.1, 1.6, V_all, radial)                         # 3: all public
-        M.wave(t_end + 0.05, 1.2, V_frac, rng.uniform(0, 1, N), tau=0.5)  # 4: a fraction
-        M.wave(t_link, 0.9, V_dim, tau=0.9)                             # 5: end-card wall
-        M.glint(t_end + 1.6, t_link, V_frac_lo - V_frac, rng.uniform(0, 2 * np.pi, N))
+        # "If even a fraction...": the room dims almost uniformly (no random flicker under
+        # the closing line), then on "fraction" the 40 survivors warm to gold.
+        M.wave(t_end + 0.05, 0.6, V_survive, radial, tau=0.45)          # 4a: lights down
+        M.wave(t_end + 0.68, 0.9, V_frac, rng.uniform(0, 1, N), tau=0.35)  # 4b: a fraction
+        M.wave(t_link - 0.15, 0.9, V_dim, tau=0.9)                      # 5: end-card wall
+        M.glint(t_end + 1.7, t_link - 0.15, V_frac_lo - V_frac, rng.uniform(0, 2 * np.pi, N))
 
-        M.alpha_keys = [(0, 0.0, smooth), (0.8, 1.0, smooth), (t_link, 1.0, smooth),
-                        (t_link + 1.0, 0.12, smooth), (T, 0.12, smooth)]
+        M.alpha_keys = [(0, 0.0, smooth), (0.8, 1.0, smooth), (t_link - 0.15, 1.0, smooth),
+                        (t_link + 0.85, 0.12, smooth), (T, 0.12, smooth)]
         rest = (1.0, REST_C[0], REST_C[1])
         push = (1.24, 0.0, 0.03)
         wall = (1.62, 0.0, 0.0)       # full-bleed (mosaic is wider than 16:9)
         wall_out = (1.5, 0.0, 0.0)
+        t_wall = min(2.6, 0.6 * (t_link - t_end))   # slow push to full-bleed under the closing line
         M.pose_keys = [(0, (1.65, 0.9, -0.2), smooth), (t_mos + 2.3, rest, ease_out),
                        (t_cav, rest, smooth), (t_cav + 1.6, push, smooth),
-                       (t_test, push, smooth), (t_test + 1.0, rest, smooth),
-                       (t_end, rest, smooth), (t_end + 1.5, wall, smooth),
+                       (t_test - 0.2, push, smooth), (t_test + 0.8, rest, smooth),
+                       (t_end, rest, smooth), (t_end + t_wall, wall, smooth),
                        (T, wall_out, lambda x: np.clip(x, 0, 1))]
         M.drift = lambda t: 1.0 + 0.06 * (1 - t / T)
         M.update(0)
@@ -429,7 +434,7 @@ class S99Outro(VoiceScene):
         # ---------------------------------------------------------- beat 3: the real test
         span = L1e - t_test
         t_expert = t_test + 0.40 * span
-        t_formal = t_test + 0.73 * span
+        t_formal = t_test + 0.70 * span
 
         mag = VGroup(Circle(radius=0.12, stroke_color=BLUE_, stroke_width=3.5),
                      Line(ORIGIN, DR * 0.12, stroke_color=BLUE_, stroke_width=4))
@@ -452,7 +457,7 @@ class S99Outro(VoiceScene):
         chips.move_to([0, BAND_Y - 0.14, 0])
         head.next_to(chips, UP, buff=0.2)
 
-        self.play_at(t_test + 0.95, FadeIn(head, shift=UP * 0.1), run_time=0.5)
+        self.play_at(t_test + 0.55, FadeIn(head, shift=UP * 0.1), run_time=0.5)
         self.play_at(t_expert, GrowFromCenter(chip1[0]), FadeIn(chip1[1], scale=0.9), run_time=0.5)
         self.play_at(t_formal, FadeIn(plus), GrowFromCenter(chip2[0]), FadeIn(chip2[1], scale=0.9),
                      run_time=0.5)
@@ -469,16 +474,18 @@ class S99Outro(VoiceScene):
 
         # ---------------------------------------------------------- beat 5: public
         self.play_at(t_pub + 0.1, FadeOut(lab3, shift=UP * 0.15), run_time=0.3)
-        self.play(FadeIn(lab4, shift=UP * 0.15), run_time=0.45)
+        t_public = max(self.now + 0.1, t_pub + 0.40 * (L2e - t_pub))   # "...every paper is public"
+        self.play_at(t_public, FadeIn(lab4, shift=UP * 0.15), run_time=0.45)
 
         # ---------------------------------------------------------- beat 6: closing line
         line = Text("If even a fraction hold up…", font=SERIF, font_size=56, weight=BOLD,
                     color=WHITE_, t2c={"fraction": YELLOW_})
         shade = Rectangle(width=config.frame_width + 1, height=line.height + 1.2, stroke_width=0,
                           fill_color=BG, fill_opacity=0.82)
-        self.play_at(t_end, FadeOut(lab4, shift=DOWN * 0.12), FadeOut(D3, shift=DOWN * 0.12),
-                     run_time=0.35)
-        self.play(FadeIn(shade, run_time=0.6), Write(line, run_time=1.45))
+        self.wait_until(t_end)
+        self.play(FadeOut(lab4, shift=DOWN * 0.12, run_time=0.35),
+                  FadeOut(D3, shift=DOWN * 0.12, run_time=0.35),
+                  FadeIn(shade, run_time=0.5), Write(line, run_time=1.35))
 
         # ---------------------------------------------------------- beat 7: end card
         title = Text("4,000 Problems", font=SERIF, font_size=40, weight=BOLD, color=WHITE_)
@@ -494,13 +501,15 @@ class S99Outro(VoiceScene):
         rule = Line(LEFT, RIGHT, color=BLUE_, stroke_width=2.5).set_width(title.width * 0.5)
         rule.next_to(title, DOWN, buff=0.16)
 
-        self.wait_until(t_link)
-        self.play(FadeOut(line, shift=UP * 0.3), FadeOut(shade), run_time=0.35)
-        self.play(FadeIn(title, shift=DOWN * 0.2), GrowFromCenter(rule), FadeIn(url_box, scale=0.96),
-                  run_time=0.45)
+        self.wait_until(t_link - 0.15)   # "...about to change." has ended; card lands on "repository"
+        self.play(LaggedStart(
+            AnimationGroup(FadeOut(line, shift=UP * 0.35), FadeOut(shade)),
+            AnimationGroup(FadeIn(title, shift=UP * 0.2), GrowFromCenter(rule),
+                           FadeIn(url_box, scale=0.96)),
+            lag_ratio=0.45), run_time=0.85)
         self.play(AddTextLetterByLetter(url, time_per_char=0.03), run_time=0.65)
         self.play(FadeIn(hint, shift=UP * 0.1), run_time=0.4)
-        t_look = t_link + 0.68 * (L3e - t_link)   # "Go take a look."
+        t_look = t_link + 0.73 * (L3e - t_link)   # "Go take a look."
         flash = url_box.copy().set_fill(opacity=0).set_stroke(YELLOW_, width=5)
         self.play_at(t_look, ShowPassingFlash(flash, time_width=0.35), run_time=1.3)
 

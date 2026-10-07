@@ -133,6 +133,12 @@ class C1Qrh(VoiceScene):
     def Y(self, t):
         return Y0 + (t - self.tb.get_value()) * SY
 
+    @staticmethod
+    def swap(old, new, **kw):
+        """Fade `old` out in the first half, `new` in during the second half."""
+        return [FadeOut(old, rate_func=lambda a: smooth(min(1.0, 2 * a))),
+                FadeIn(new, rate_func=lambda a: smooth(max(0.0, 2 * a - 1)), **kw)]
+
     def phase(self):
         return RC * np.log1p(SY * self.tb.get_value() / RC)
 
@@ -274,8 +280,8 @@ class C1Qrh(VoiceScene):
         self.remove(full[0], rest)
         self.add(full)
         self.play(LaggedStart(*[FadeIn(p, shift=DOWN * 0.15) for p in exp], lag_ratio=0.2),
+                  Indicate(full[2], color=ACC, scale_factor=1.12),
                   run_time=self.rt(1.8, "complex"))
-        self.play(Indicate(full[2], color=ACC, scale_factor=1.12), run_time=self.rt(0.9, "complex"))
         self.full, self.exp = full, exp
 
     # ------------------------------------------------------------ 2. complex plane
@@ -348,7 +354,9 @@ class C1Qrh(VoiceScene):
         self.ax, self.rdata = ax, R
 
         t_inset = max(self.cue("complex") + 2.4, self.cue("L1_end") - 3.9)
-        self.play(u.animate(rate_func=linear).set_value(0.45), run_time=max(0.3, t_inset - self.now))
+        t0, t1 = self.now, self.cue("strip")
+        u_mid = float(np.clip((t_inset - t0) / max(t1 - t0, 1e-3), 0.05, 0.6))
+        self.play(u.animate(rate_func=linear).set_value(u_mid), run_time=max(0.2, t_inset - self.now))
         rest = self.cue("strip") - self.now
         self.play(u.animate(rate_func=linear).set_value(1.0),
                   Succession(AnimationGroup(Create(ax), FadeIn(pi_lab), FadeIn(xl), run_time=0.7),
@@ -525,7 +533,7 @@ class C1Qrh(VoiceScene):
         self.play_at("sliver", FadeOut(hz), FadeOut(hm), FadeOut(blab), FadeOut(band), FadeOut(err),
                      FadeOut(self.inset), run_time=self.rt(0.5, "L3_end"))
         self.add(self.mb_fill, self.mb_edge)
-        self.play(self.drive(grow_sl), FadeIn(self.mbox), run_time=self.rt(1.1, "L3_end"))
+        self.play(self.drive(grow_sl), FadeIn(self.mbox), run_time=self.rt(1.8, "L3_end"))
 
         cz = VGroup(bold("Classical zero-free zone", 28, color=GREEN_),
                     MathTex(r"\sigma>1-\frac{c}{\log t}", font_size=42, color=WHITE_),
@@ -536,14 +544,14 @@ class C1Qrh(VoiceScene):
         self.counter = self.counter_tex(52).copy().move_to(self.counter_anchor, aligned_edge=LEFT)
         self.update_counter()
         self.cz, self.cz_arr = cz, cz_arr
-        self.play(FadeIn(cz, shift=LEFT * 0.2), GrowArrow(cz_arr), FadeOut(self.t_lab), FadeIn(self.counter),
+        self.play(FadeIn(cz, shift=LEFT * 0.2), GrowArrow(cz_arr), *self.swap(self.t_lab, self.counter),
                   run_time=self.rt(0.8, "L3_end"))
 
         # climb: window base tb from 0 to 10^12 (exponential), sliver thins
         lam = 25.0
         A = CLIMB_TOP / (math.exp(lam) - 1)
         self.climbF = lambda a: A * (math.exp(lam * a) - 1)
-        self.wait_until(max(self.now, self.cue("L3_end") - 5.6 - 0.05))
+        self.wait_until(max(self.now, self.cue("L3_end") - 3.4))
         self.play(self.drive(lambda a: self.tb.set_value(self.climbF(a))),
                   run_time=self.rt(5.6, "quasi", pad=0.3))
 
@@ -569,6 +577,8 @@ class C1Qrh(VoiceScene):
                      run_time=self.rt(0.8, "claim"))
         mb_wall = Line([mbx(self.wsig), MB_Y0 + MB_H, 0], [mbx(self.wsig), MB_Y0, 0],
                        stroke_color=WHITE_, stroke_width=4)
+        q0, q1 = self.cue("quasi"), self.cue("L4_end")
+        self.wait_until(max(self.now, q0 + 0.3 * (q1 - q0)))
         self.play(Create(wall_draw), Create(mb_wall), FadeIn(wlab, shift=DOWN * 0.15),
                   run_time=self.rt(0.7, "claim"))
         self.remove(wall_draw)
@@ -583,19 +593,20 @@ class C1Qrh(VoiceScene):
             f = smooth(a * 3 - seg)
             self.wsig = keys[seg] + (keys[seg + 1] - keys[seg]) * f
 
-        self.play(self.drive(wig, rate_func=linear), run_time=self.rt(2.0, "claim", pad=4.0))
+        self.wait_until(max(self.now, q0 + 0.44 * (q1 - q0)))
+        self.play(self.drive(wig, rate_func=linear), run_time=max(0.5, q0 + 0.62 * (q1 - q0) - self.now))
 
         # descend back to the real axis: the wall is the same at every height,
         # the classical sliver is not; the zeros come back, all left of the wall
         self.play(self.drive(lambda a: self.tb.set_value(self.climbF(1 - a))),
-                  run_time=self.rt(4.0, "claim", pad=0.35))
+                  run_time=max(0.5, q1 - 0.05 - self.now))
         self.tb.set_value(0.0)
         self.relayout()
 
         # {claim}: the wall is at 7/8
         s0 = self.wsig
         lab78 = MathTex(r"\tfrac78", font_size=44, color=YELLOW_).move_to([sx(7 / 8) - 0.4, 3.35, 0])
-        card = paper_card("003", width=3.0).move_to([PANEL_CX, 0.1, 0]).set_z_index(6)
+        card = paper_card("003", width=3.3).move_to([PANEL_CX, 0.12, 0]).set_z_index(6)
         card_target = card.get_center()
         card.shift(RIGHT * 6.5)
         tag = paper_tag("003", color=ACC)
@@ -607,8 +618,8 @@ class C1Qrh(VoiceScene):
         counter, self.counter = self.counter, None
         self.xatt = []
         self.mb_on, mb_wall, self.mb_wall = False, self.mb_wall, None
-        self.play_at("claim", self.drive(to78), FadeOut(q), FadeOut(counter), FadeIn(self.t_lab),
-                     FadeOut(wlab), FadeIn(lab78, shift=DOWN * 0.15),
+        self.play_at("claim", self.drive(to78), FadeOut(q), *self.swap(counter, self.t_lab),
+                     *self.swap(wlab, lab78, shift=DOWN * 0.15),
                      FadeOut(VGroup(self.mbox, mb_wall, self.mb_fill, self.mb_edge)),
                      card.animate.move_to(card_target), run_time=self.rt(0.8, "cousins"))
         self.vlines = [v for v in self.vlines if v[0] is not wall]
@@ -719,7 +730,8 @@ class C1Qrh(VoiceScene):
         sl = VGroup(bold("Landau–Siegel zero", 28, color=RED_),
                     txt("hypothetical real zero of L(s,χ)", 22, GREY_))
         sl.arrange(DOWN, aligned_edge=LEFT, buff=0.14).move_to([RIGHT_X + 0.2, -0.8, 0], aligned_edge=UL)
-        s_arr = self.arrow_to(sl.get_left() + LEFT * 0.1, sz.get_center() + RIGHT * 0.02, color=RED_)
+        s_arr = Arrow(sl.get_left() + LEFT * 0.1, sz.get_center(), buff=0.22, stroke_width=3, color=RED_,
+                      max_tip_length_to_length_ratio=0.08, tip_length=0.18)
         self.play_at("siegel", FadeOut(rh), FadeOut(arr), FadeOut(still),
                      GrowFromCenter(sz), FadeIn(sl, shift=LEFT * 0.2), GrowArrow(s_arr),
                      run_time=self.rt(0.7, "L6_end"))
@@ -728,8 +740,8 @@ class C1Qrh(VoiceScene):
         self.play(sz.animate.move_to([sx(0.965), Y0, 0]), Flash(sz, color=RED_, line_length=0.15,
                                                                  flash_radius=0.2),
                   run_time=self.rt(0.8, "L6_end"))
-        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.13).move_to([sx(0.965), Y0, 0])
-        cross.set_stroke(YELLOW_, width=6).set_z_index(6)
+        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.16).move_to([sx(0.965), Y0, 0])
+        cross.set_stroke(RED_, width=7).set_z_index(6)
         self.wait_until(max(self.now, self.cue("L6_end") - 2.4))
-        self.play(Create(cross), sz.animate.set_opacity(0.35), banner[0].animate(rate_func=there_and_back).set_stroke(width=5),
+        self.play(Create(cross), sz.animate.set_opacity(0.25), banner[0].animate(rate_func=there_and_back).set_stroke(width=5),
                   run_time=self.rt(0.6, "end", pad=0.6))
