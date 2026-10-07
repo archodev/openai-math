@@ -190,7 +190,8 @@ def _beats(scene, rt):
     t0 = scene.now
 
     def at(f):
-        scene.wait_until(max(scene.now, t0 + f * rt))
+        if t0 + f * rt - scene.now > 1.0 / config.frame_rate:   # skip sub-frame waits
+            scene.wait_until(t0 + f * rt)
 
     def span(f0, f1, *anims, **kw):
         at(f0)
