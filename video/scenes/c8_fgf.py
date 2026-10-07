@@ -374,9 +374,10 @@ class C8Fgf(VoiceScene):
         rider = tex("?", size=40, color=YELLOW_).move_to([x_of(1940), TL_Y + 0.36, 0])
         self.play_until(h_(0.6), Create(tl), FadeIn(rider),
                         LaggedStart(*[FadeIn(t, shift=UP * 0.08) for t in ticks], lag_ratio=0.12))
-        bar = always_redraw(lambda: Line([x_of(1940), tl.get_y(), 0],
-                                         [x_of(yr.get_value()) + 1e-3, tl.get_y(), 0],
-                                         stroke_width=5).set_color([BG, ACC]))
+        # fixed mobject updated in place (no always_redraw: avoids Cairo ghosting)
+        bar = Line([x_of(1940), TL_Y, 0], [x_of(1941), TL_Y, 0], stroke_width=5).set_color([BG, ACC])
+        bar.add_updater(lambda m: m.set_points_as_corners(
+            [[x_of(1940), tl.get_y(), 0], [x_of(yr.get_value()) + 1e-3, tl.get_y(), 0]]))
         rider.add_updater(lambda m: m.move_to([x_of(yr.get_value()), TL_Y + 0.36, 0]))
         self.add(bar, rider)
         self.play_until(h_(0.98), yr.animate.set_value(2020), rate_func=smooth)

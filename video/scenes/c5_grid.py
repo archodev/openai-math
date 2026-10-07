@@ -659,8 +659,8 @@ def big_tiling():
     yl = org[1] + u * (1.0 + 0.3 * 0.5)
     per = Arrow(P(xr, yl), P(xr, yl + 2 * u), buff=0, color=WHITE_, stroke_width=3.5,
                 tip_length=0.16, max_tip_length_to_length_ratio=0.3)
-    q = txt("period?", 24, WHITE_).next_to(per, RIGHT, buff=0.12)
-    cross = red_x(per.get_center() + LEFT * 0.0, s=0.14, w=5)
+    q = txt("period?", 24, WHITE_).next_to(per, RIGHT, buff=0.34)
+    cross = red_x(per.get_center(), s=0.13, w=5)
     hide(per); hide(q); hide(cross)
     g.add(per, q, cross)
     g.per, g.q, g.cross = per, q, cross
@@ -704,8 +704,9 @@ def anim_tiling(scene, g, run_time):
             e = smooth(float(np.clip((a - i * lag) / (1 - lag * (n - 1)), 0, 1)))
             for f in grp:
                 f.points = f._base + off * (1 - e)
-                f.set_fill(opacity=e, family=False)
-                f.set_stroke(opacity=e, family=False)
+                o = min(1.0, 2.5 * e)
+                f.set_fill(opacity=o, family=False)
+                f.set_stroke(opacity=o, family=False)
     # 1) "if a shape tiles space by sliding copies around, there's always a repeating pattern"
     b.play(0.15, 0.46, Succession(
         UpdateFromAlphaFunc(g, slide, rate_func=linear, run_time=2.7),
@@ -724,7 +725,7 @@ def anim_tiling(scene, g, run_time):
 
 
 # ---------------------------------------------------------------- 157 Hadwiger
-COLORS4 = [GOLD_, BLUE_, PINK_, PURPLE_]
+COLORS4 = [GREEN_, BLUE_, PINK_, PURPLE_]
 
 
 def big_hadwiger():
@@ -775,7 +776,7 @@ def big_hadwiger():
         xx = x0 + f_ * L
         ruler.add(Line(P(xx, yr - 0.06), P(xx, yr + 0.06), color=GREY_, stroke_width=1.5))
         ticks.add(tex(lab, 24, GREY_).next_to(P(xx, yr + 0.06), UP, buff=0.05))
-    guide = DashedLine(P(x0 + L / 2, yr - 0.06), P(x0 + L / 2, yb[1] - 0.2), color=GREY_,
+    guide = DashedLine(P(x0 + L / 2, yr - 0.06), P(x0 + L / 2, yb[0] - 0.17), color=GREY_,
                        stroke_width=1.3, dash_length=0.06).set_stroke(opacity=0.6)
     tracks = VGroup(ruler, ticks, guide)
     bars = VGroup(

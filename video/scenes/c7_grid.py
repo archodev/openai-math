@@ -1,5 +1,6 @@
 import sys; sys.path.insert(0, __file__.rsplit('/scenes/', 1)[0])
 import json
+import textwrap
 
 import numpy as np
 
@@ -12,22 +13,10 @@ ACC = YELLOW_          # chapter accent ("dp")
 
 
 # ======================================================================= helpers
-# Many agents render at once and share one Tex cache dir; manim's post-compile cleanup
-# deletes other processes' .dvi files mid-flight.  Don't clean up after ourselves, and
-# retry a failed compile (the svg cache makes the retry cheap and the race rare).
-config.no_latex_cleanup = True
-
-
 def _mtex(*s, **kw):
-    import random
-    import time
-    for attempt in range(8):
-        try:
-            return MathTex(*s, **kw)
-        except Exception:
-            if attempt == 7:
-                raise
-            time.sleep(0.3 + random.random())
+    # (lib/voice.py now keeps LaTeX output per scene and never cleans it up, so the
+    # old compile-retry workaround is no longer needed)
+    return MathTex(*s, **kw)
 
 
 def _p(x, y):

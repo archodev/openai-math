@@ -292,12 +292,12 @@ class C4Ugc(VoiceScene):
                                 stroke_width=2.2, fill_color=CARD, fill_opacity=1).move_to([-4.2, 0, 0])
         ubox_t = bold("Unique Games\nConjecture", 32, WHITE_, line_spacing=0.85).move_to(ubox)
         ukhot = txt("Khot, 2002", 24, GREY_).next_to(ubox, DOWN, buff=0.22)
-        names = ["Max-Cut", "Vertex Cover", "Max-2-SAT", "… and many more"]
+        names = ["Max-Cut", "Vertex Cover", "Ordering problems", "… and many more"]
         chip_ys = [1.35, 0.45, -0.45, -1.35]
         chips_ = VGroup()
         for nm, y in zip(names, chip_ys):
-            frm = RoundedRectangle(width=3.4, height=0.7, corner_radius=0.12, stroke_color=GREY_,
-                                   stroke_width=1.4, fill_color=CARD, fill_opacity=1).move_to([3.4, y, 0])
+            frm = RoundedRectangle(width=3.95, height=0.7, corner_radius=0.12, stroke_color=GREY_,
+                                   stroke_width=1.4, fill_color=CARD, fill_opacity=1).move_to([3.55, y, 0])
             t = txt(nm, 28, WHITE_ if not nm.startswith("…") else GREY_).move_to(frm)
             chips_.add(VGroup(frm, t))
         darrs = VGroup(*[Arrow(ubox.get_right(), c[0].get_left(), buff=0.12, stroke_width=3,

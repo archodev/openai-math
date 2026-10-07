@@ -291,7 +291,7 @@ class C9Hotspots(VoiceScene):
         P1 = (-0.9, -0.25, 2.1)
         P2 = (-3.45, -0.35, 1.42)
         P3 = (-2.15, 0.4, 1.75)
-        P4 = (-4.6, 0.55, 1.25)
+        P4 = (-4.6, 0.45, 1.4)
         moves = [(t_holes + 0.1, t_holes + 1.1, P1, P2), (t_claim, t_claim + 0.9, P2, P3),
                  (t_ban, t_ban + 0.8, P3, P4)]
 
@@ -457,22 +457,28 @@ class C9Hotspots(VoiceScene):
         cold_l = bold("cold", 24, BLUE_).next_to(cbar, DOWN, buff=0.14)
         cb = VGroup(cbar, cbar_frame, hot_l, cold_l).move_to([4.15, -0.15, 0])
 
-        contrast = VGroup()
-
-        def make_contrast(v):
-            n = int(round(v))
-            g = VGroup(txt("contrast", 22, GREY_), txt(f"×{n}", 26, WHITE_, weight=SEMIBOLD)).arrange(DOWN, buff=0.1)
-            g.next_to(cbar_frame, RIGHT, buff=0.35)
-            return g
-
-        contrast.add(*make_contrast(1))
-        cstate = {"n": 1}
+        c_lab = txt("contrast", 22, GREY_)
+        ref = txt("×000", 26, WHITE_, weight=SEMIBOLD)
+        ref.next_to(c_lab, DOWN, buff=0.14, aligned_edge=LEFT)
+        c_x = ref[0]
+        pool = VGroup()
+        for i in range(3):
+            for d in range(10):
+                pool.add(txt(str(d), 26, WHITE_, weight=SEMIBOLD).move_to(ref[i + 1]))
+        contrast = VGroup(c_lab, c_x, pool)
+        contrast.next_to(cbar_frame, RIGHT, buff=0.35)
+        cstate = {"n": None}
 
         def upd_contrast(mob, dt=0):
             n = int(round(state()["contrast"]))
             if n != cstate["n"]:
                 cstate["n"] = n
-                mob.become(make_contrast(n))
+                digs = str(n)
+                for i in range(3):
+                    for d in range(10):
+                        pool[10 * i + d].set_opacity(1.0 if i < len(digs) and int(digs[i]) == d else 0.0)
+
+        upd_contrast(contrast)
 
         self.play(FadeOut(ins_lab), FadeOut(leader), FadeIn(cb, shift=LEFT * 0.2),
                   run_time=max(0.3, min(0.8, t_mag0 - self.now - 0.5)))
@@ -561,24 +567,23 @@ class C9Hotspots(VoiceScene):
         self.play(FadeIn(rauch, shift=DOWN * 0.15), FadeOut(contrast), FadeOut(cb), run_time=0.8)
         t_bnd = fr("rauch", "L1_end", 0.45)
         self.wait_until(t_bnd)
-        flash = outline.copy().clear_updaters().set_stroke(YELLOW_, width=7)
-        self.play(FadeIn(q_line, shift=UP * 0.1),
-                  ShowPassingFlash(flash, time_width=0.5), run_time=1.4)
-        flash2 = outline.copy().clear_updaters().set_stroke(YELLOW_, width=7)
+        hl = outline.copy().clear_updaters().set_stroke(YELLOW_, width=5.5)
+        hl_glow = outline.copy().clear_updaters().set_stroke(YELLOW_, width=16, opacity=0.18)
+        self.play(FadeIn(q_line, shift=UP * 0.1), Create(hl), Create(hl_glow), run_time=1.4)
         self.play_until(max(self.now + 0.6, c("L1_end") - 0.1),
-                        ShowPassingFlash(flash2, time_width=0.5),
                         Indicate(lab_hot, color=YELLOW_, scale_factor=1.12),
-                        Indicate(lab_cold, color=YELLOW_, scale_factor=1.12))
+                        Indicate(lab_cold, color=YELLOW_, scale_factor=1.12),
+                        hl_glow.animate.set_stroke(opacity=0.32))
         self.wait_until("holes")
 
         # ============================================== 5. counterexample with holes {holes}
         self.play(FadeOut(head), FadeOut(lab_hot), FadeOut(lab_cold), FadeOut(trails["hot"]),
-                  FadeOut(trails["cold"]), run_time=0.5)
+                  FadeOut(trails["cold"]), FadeOut(hl), FadeOut(hl_glow), run_time=0.4)
         # schematic holed domain (right)
         hc = np.array([3.35, -0.35, 0])
         thh = np.linspace(0, 2 * np.pi, 240, endpoint=False)
         rr = 1.0 + 0.10 * np.cos(2 * thh) + 0.05 * np.cos(3 * thh + 0.6)
-        outer_pts = np.column_stack([2.05 * rr * np.cos(thh), 1.55 * rr * np.sin(thh), 0 * thh]) + hc
+        outer_pts = np.column_stack([2.1 * rr * np.cos(thh), 1.7 * rr * np.sin(thh), 0 * thh]) + hc
         outer = VMobject().set_points_smoothly(np.vstack([outer_pts, outer_pts[:1]]))
         hole1 = Ellipse(width=0.95, height=0.78).move_to(hc + np.array([-0.95, 0.05, 0]))
         hole2 = Ellipse(width=0.85, height=0.72).move_to(hc + np.array([0.95, -0.05, 0]))
@@ -587,7 +592,7 @@ class C9Hotspots(VoiceScene):
         hot_in = make_spot(acc).move_to(hc + np.array([0.0, 0.0, 0]))
         glow_in = VGroup(*[Circle(radius=r, stroke_width=0, fill_color=acc, fill_opacity=0.07)
                            for r in np.linspace(0.18, 0.62, 6)]).move_to(hot_in)
-        in_lab = bold("hottest point inside", 24, acc).next_to(hc, DOWN, buff=0.62)
+        in_lab = bold("hottest point: inside", 24, acc).next_to(hc, DOWN, buff=0.5)
 
         hdr_l = bold("no holes", 30, WHITE_).move_to([P2[0], 2.35, 0])
         hdr_r = bold("with holes", 30, WHITE_).move_to([hc[0], 2.35, 0])
@@ -620,8 +625,9 @@ class C9Hotspots(VoiceScene):
         tag = paper_tag("369", color=acc)
         every = txt("any smooth shape without holes", 26, GREY_)
         every.move_to([P3[0], P3[1] - 2.2, 0])
-        self.play_until(t_claim + 0.9, FadeOut(right, shift=RIGHT * 0.6), FadeOut(hdr_l), FadeOut(open_chip),
-                        FadeIn(card, shift=LEFT * 1.2), FadeIn(tag, shift=UP * 0.15), rate_func=smooth)
+        self.play_until(t_claim + 1.0, LaggedStart(
+            AnimationGroup(FadeOut(right, shift=RIGHT * 0.5), FadeOut(hdr_l), FadeOut(open_chip)),
+            AnimationGroup(FadeIn(card, shift=LEFT * 1.0), FadeIn(tag, shift=UP * 0.15)), lag_ratio=0.5))
         # every smooth simply connected shape: the extremes ride the edge as the shape morphs
         self.play_until(t_m0 + 0.6, FadeIn(every, shift=UP * 0.1))
         banner = result_banner("Smooth simply connected planar domains:\nhot & cold spots lie on the boundary",

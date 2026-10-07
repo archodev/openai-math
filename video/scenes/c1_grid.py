@@ -465,7 +465,7 @@ def big_catalan():
     S = _catalan_sums(13)
     g._pts = [ax.c2p(i, s) for i, s in enumerate(S)]
     g._terms = [f[2], f[3], f[4], f[5], f[6]]
-    approx = _m(r"G \approx 0.9159656\ldots", 36)
+    approx = _m(r"G = 0.9159655\ldots", 36)
     res = _m(r"G \notin \mathbb{Q}", 42, YELLOW_)
     row = VGroup(approx, res).arrange(RIGHT, buff=0.55).move_to(DOWN * 1.92)
     g._row = row

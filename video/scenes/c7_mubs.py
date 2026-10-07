@@ -75,8 +75,9 @@ class C7Mubs(VoiceScene):
             fy = O + R * np.sin(t) * UP
             s1 = Line(O, fx, stroke_color=ACCENT, stroke_width=15, stroke_opacity=0.45 * o)
             s2 = Line(O, fy, stroke_color=ACCENT, stroke_width=15, stroke_opacity=0.45 * o)
-            d1 = DashedLine(tip, fx, dash_length=0.09, stroke_width=2.5, color=GREY_)
-            d2 = DashedLine(tip, fy, dash_length=0.09, stroke_width=2.5, color=GREY_)
+            # fixed dash count: the redraw keeps the same sub-mobject structure (no ghosts)
+            d1 = DashedVMobject(Line(tip, fx, stroke_width=2.5, color=GREY_), num_dashes=9)
+            d2 = DashedVMobject(Line(tip, fy, stroke_width=2.5, color=GREY_), num_dashes=9)
             d1.set_stroke(opacity=o)
             d2.set_stroke(opacity=o)
             return VGroup(s1, s2, d1, d2)

@@ -374,7 +374,7 @@ def icon_128():
                       .move_to([(col0 + i) * pitch, -row * 0.29, 0]) for i, c in enumerate(w)])
         for l in ls:
             l.set_y(-row * 0.29)
-        box = RoundedRectangle(width=len(w) * pitch - 0.04, height=0.24, corner_radius=0.06,
+        box = RoundedRectangle(width=len(w) * pitch - 0.07, height=0.24, corner_radius=0.06,
                                stroke_color=color, stroke_width=sw, fill_color=color, fill_opacity=fo)
         box.move_to([(col0 + (len(w) - 1) / 2) * pitch, -row * 0.29, 0])
         return VGroup(box, ls)
@@ -395,9 +395,9 @@ def icon_142():
     leaves = VGroup(MathTex(r"x+1", font_size=fs, color=A), MathTex(r"x+3", font_size=fs, color=A),
                     MathTex(r"x^2+2", font_size=fs, color=A)).arrange(RIGHT, buff=0.42)
     leaves.move_to(DOWN * 0.26)
-    edges = VGroup(*[Line(root.get_bottom() + DOWN * 0.03 + RIGHT * (i - 1) * 0.25,
-                          l.get_top() + UP * 0.04, stroke_color=GREY_, stroke_width=1.3)
-                     for i, l in enumerate(leaves)])
+    edges = VGroup(*[Line(root.get_bottom() + DOWN * 0.03, l.get_top() + UP * 0.04,
+                          stroke_color=GREY_, stroke_width=1.3)
+                     for l in leaves])
     fp = MathTex(r"\mathbb{F}_5", font_size=24, color=GREY_).next_to(root, RIGHT, buff=0.25)
     return _pad(VGroup(edges, root, leaves, fp))
 
@@ -550,7 +550,7 @@ def big_109():
         MathTex(r"n^2", font_size=30, color=WHITE_).next_to([-2.2, L[0], 0], UR, buff=0.08),
         MathTex(r"n^{1.58}", font_size=30, color=WHITE_).next_to([X(1962) - 0.06, L[1], 0], LEFT, buff=0.04),
         MathTex(r"n^{1+\varepsilon}", font_size=30, color=WHITE_).next_to([X(1963), L[2], 0], UR, buff=0.08),
-        MathTex(r"n\log n\,\log\log n", font_size=30, color=WHITE_).move_to([(X(1971) + X(2007)) / 2, L[3] + 0.27, 0]),
+        MathTex(r"n\log n\,\log\log n", font_size=30, color=WHITE_).move_to([(X(1971) + X(2007)) / 2 + 0.12, L[3] + 0.27, 0]),
     )
     limit = DashedLine([X(1971), L[5], 0], [2.55, L[5], 0], dash_length=0.1, stroke_width=3,
                        stroke_color=A)
@@ -659,11 +659,12 @@ def big_138():
     c49 = f(0.49).set_stroke(YELLOW_, 3.4)
     l50 = MathTex(r"2^{n/2}", font_size=32, color=WHITE_).move_to([ox + 0.5, oy + H - 0.1, 0])
     l49 = MathTex(r"2^{0.49n}", font_size=32, color=YELLOW_).move_to([ox + 0.62, oy + H * 0.5 - 0.05, 0])
+    axes = VGroup(xax, yax, nl, tl)
     root.add(pad, boxes, div, target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs,
-             xax, yax, nl, tl, c50, c49, l50, l49)
-    _hide(target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs, c50, c49, l50, l49)
+             axes, c50, c49, l50, l49)
+    _hide(target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs, c50, c49, l50, l49, xax, yax, nl, tl)
     root.parts = dict(boxes=boxes, ca=ca, cb=cb, ha=ha, hb=hb, match=match, cnt_a=cnt_a, cnt_b=cnt_b,
-                      hs=hs, target=target, target2=target2, c50=c50, c49=c49, l50=l50, l49=l49)
+                      hs=hs, target=target, target2=target2, axes=axes, c50=c50, c49=c49, l50=l50, l49=l49)
     return root
 
 
@@ -688,9 +689,11 @@ def anim_138(scene, mob, rt):
                run_time=0.14 * rt)
     scene.wait(0.06 * rt)
     # 3) the claimed running time drops below the 2^{n/2} curve
+    _show(*p["axes"])
+    scene.play(LaggedStart(*[FadeIn(m) for m in p["axes"]], lag_ratio=0.15), run_time=0.07 * rt)
     _show(p["c50"], p["c49"], p["l50"], p["l49"])
     scene.play(Create(p["c50"]), Create(p["c49"]), FadeIn(p["l50"]), FadeIn(p["l49"]),
-               rate_func=smooth, run_time=0.32 * rt)
+               rate_func=smooth, run_time=0.27 * rt)
 
 
 # ================================================================ scene

@@ -27,9 +27,12 @@ def X(w):
 
 # zoom inset: omega in [2.370, 2.377]
 IW0, IW1 = 2.3700, 2.3770
-IX0, IX1 = -5.6, 1.1
-IY = -1.55
-BOX_C, BOX_W, BOX_H = np.array([-2.25, -1.45, 0]), 7.7, 2.0
+# The inset is centred under the line (balanced frame).  The magnifier hangs a
+# little below the axis so the zoom connectors pass under the "2.5" label.
+IX0, IX1 = -4.0, 4.0
+IY = -2.2
+BOX_C, BOX_W, BOX_H = np.array([0.0, -2.15, 0]), 9.4, 1.9
+MAG_DN, MAG_UP = 0.3, 0.15     # magnifier extent below / above the axis
 
 
 def XI(w):
@@ -105,6 +108,12 @@ def put_on(t, x, y):
     return t
 
 
+def win(a, b, f=smooth):
+    """Rate function that runs f over the sub-interval [a, b] of an animation
+    (stagger parts of one play() so cross-fades do not pile up)."""
+    return lambda t: f(min(1.0, max(0.0, (t - a) / (b - a))))
+
+
 def note(label, color, size=24):
     """Quiet caveat pill (mixed case, thin outline)."""
     t = txt(label, size, color, weight=MEDIUM)
@@ -177,29 +186,29 @@ class C4Matmul(VoiceScene):
                                     FadeIn(eq), FadeIn(Cgrp, shift=RIGHT * 0.2), lag_ratio=0.18),
                         FadeIn(nlab, shift=UP * 0.1), FadeIn(nlabB, shift=UP * 0.1))
 
-        # one row meets one column -> one entry
-        parts = []
-        for j in range(4):
-            parts += [str(A_VALS[0][j]), r"\cdot", str(B_VALS[j][0])]
-            parts += ["+"] if j < 3 else []
-        parts += ["=", str(C_VALS[0][0])]
-        expr = MathTex(*parts, font_size=44, color=WHITE_).move_to(v3(0, ROW_Y))
-        expr[-1].set_color(ACC)
+        # one row meets one column -> one entry.  Same Inter digits as the
+        # matrices, so the copied numbers glide into place instead of morphing.
+        s_expr = " + ".join(f"{A_VALS[0][j]} · {B_VALS[j][0]}" for j in range(4)) + f" = {C_VALS[0][0]}"
+        expr = txt(s_expr, 40, WHITE_).move_to(v3(0, ROW_Y))
+        # glyphs (spaces dropped): a·b + a·b + a·b + a·b = 2 7
         a_ix = [4 * j for j in range(4)]
         b_ix = [4 * j + 2 for j in range(4)]
-        ops = [k for k in range(len(parts) - 2) if k not in a_ix + b_ix]
+        ops = [4 * j + 1 for j in range(4)] + [4 * j + 3 for j in range(3)]
+        for k in ops + [15]:
+            expr[k].set_color(GREY_)
+        res = VGroup(expr[16], expr[17]).set_color(ACC)
         self.go(M(0.15), M(0.24),
                 FadeIn(rowrect, scale=1.05), FadeIn(colrect, scale=1.05), FadeIn(crect, scale=1.05))
         self.go(M(0.24), M(0.43),
                 LaggedStart(*[AnimationGroup(TransformFromCopy(A[0][j], expr[a_ix[j]]),
                                              TransformFromCopy(B[0][4 * j], expr[b_ix[j]]))
                               for j in range(4)], lag_ratio=0.25),
-                LaggedStart(*[FadeIn(expr[k]) for k in ops], lag_ratio=0.15))
-        self.go(M(0.43), M(0.52), FadeIn(expr[-2]), FadeIn(expr[-1], shift=LEFT * 0.1))
-        self.remove(*expr)
+                LaggedStart(*[FadeIn(expr[k]) for k in sorted(ops)], lag_ratio=0.15))
+        self.go(M(0.43), M(0.52), FadeIn(expr[15]), FadeIn(res, shift=LEFT * 0.1))
+        self.remove(*expr, res)
         self.add(expr)
         c00 = Cm[0][0]
-        c00_src = expr[-1].copy()
+        c00_src = res.copy()
         self.add(c00_src)
 
         # counter (Inter digits, one Text per value) replaces the expression
@@ -220,9 +229,12 @@ class C4Matmul(VoiceScene):
         left = VGroup(counts, mult)
         left_full = left.get_center()
         left.shift(v3(-VGroup(counts, mult).get_center()[0], 0))     # centred until "= n^3" arrives
-        self.go(M(0.52), M(0.58),
-                c00_src.animate.scale_to_fit_height(c00.height).move_to(c00), FadeOut(Cdots[0]),
-                FadeOut(expr, shift=UP * 0.15), FadeIn(VGroup(counts[0], mult), shift=UP * 0.15))
+        # hand-off: the sum lifts away first, then the counter rises into its place
+        self.go(M(0.52), M(0.60),
+                c00_src.animate(rate_func=win(0, 0.8)).scale_to_fit_height(c00.height).move_to(c00),
+                FadeOut(Cdots[0], rate_func=win(0.5, 0.8)),
+                FadeOut(expr, shift=UP * 0.3, rate_func=win(0, 0.55)),
+                FadeIn(VGroup(counts[0], mult), shift=UP * 0.2, rate_func=win(0.45, 1)))
         c00.set_fill(opacity=1)
         self.remove(c00_src)
         self.add(counts)
@@ -248,7 +260,7 @@ class C4Matmul(VoiceScene):
                 counts[q].set_fill(opacity=1.0 if q == shown - 1 else 0.0)
             return mob
 
-        self.go(M(0.58), M(0.81), UpdateFromAlphaFunc(sweep_grp, sweep, rate_func=linear))
+        self.go(M(0.60), M(0.81), UpdateFromAlphaFunc(sweep_grp, sweep, rate_func=linear))
         # "... about n cubed steps"
         cbox = RoundedRectangle(width=Cm[0].width + 0.24, height=Cm[0].height + 0.26, corner_radius=0.14,
                                 stroke_color=ACC, stroke_width=2.5, fill_color=ACC,
@@ -332,28 +344,43 @@ class C4Matmul(VoiceScene):
         n3l.align_to(sname, DOWN)
         n3l.set_x(min(X(3), 6.62 - n3l.width / 2))
         sname.set_x(min(X(STRASSEN), n3l.get_left()[0] - 0.4 - sname.width / 2))
-        self.go(S(0.58), S(0.65),
-                FadeOut(stage, shift=UP * 0.3), FadeOut(cap, shift=UP * 0.3),
-                ReplacementTransform(n3, t_n3), ReplacementTransform(arrow1, t_ar),
-                ReplacementTransform(sf[0][7:], t_n2[0]), FadeOut(sf[0][:7], shift=UP * 0.5))
+        # the finished cost row holds while the matrices clear away ...
+        self.go(S(0.58), S(0.63),
+                FadeOut(stage, shift=UP * 0.3), FadeOut(cap, shift=UP * 0.3))
+        # ... then rises to become the title of the race while the omega line is drawn
+        self.go(S(0.63), S(0.71),
+                ReplacementTransform(n3, t_n3, rate_func=win(0, 0.7)),
+                ReplacementTransform(arrow1, t_ar, rate_func=win(0, 0.7)),
+                ReplacementTransform(sf[0][7:], t_n2[0], rate_func=win(0, 0.7)),
+                FadeOut(sf[0][:7], shift=UP * 0.5, rate_func=win(0, 0.4)),
+                Create(line, rate_func=win(0.35, 1)),
+                LaggedStart(*[Create(t) for t in ticks], lag_ratio=0.06, rate_func=win(0.4, 1)),
+                FadeIn(VGroup(tl2, tl25), rate_func=win(0.6, 1)))
         self.remove(sf)
-        self.go(S(0.65), S(0.725),
-                Create(line), LaggedStart(*[Create(t) for t in ticks], lag_ratio=0.06),
-                FadeIn(tl2), FadeIn(tl25))
-        self.go(S(0.725), S(0.785),
-                TransformFromCopy(t_n3[0][1], v3l), FadeIn(g3, shift=DOWN * 0.2), FadeIn(n3l),
-                TransformFromCopy(t_n2[0][1:], pval), FadeIn(ptri, shift=DOWN * 0.2), FadeIn(sname))
+        # values drop onto the line first; their names follow once the path is clear
+        self.go(S(0.71), S(0.79),
+                TransformFromCopy(t_n3[0][1], v3l, rate_func=win(0, 0.65)),
+                TransformFromCopy(t_n2[0][1:], pval, rate_func=win(0, 0.65)),
+                FadeIn(VGroup(g3, ptri), shift=DOWN * 0.2, rate_func=win(0.15, 0.7)),
+                FadeIn(VGroup(n3l, sname), shift=DOWN * 0.1, rate_func=win(0.6, 1)))
 
         # "... pin down omega: the true exponent"
         head = tex(r"\text{cost}\approx n^{\omega}", 52, WHITE_).move_to(v3(0, top_y))
         head[0][-1].set_color(ACC)
-        self.go(S(0.785), S(0.85), FadeTransform(toprow, head))
+        # n^3 -> n^2.807 clears out, its last power turns into n^omega, "cost ~" slides in
+        self.go(S(0.79), S(0.87),
+                FadeOut(VGroup(t_n3, t_ar), shift=LEFT * 0.4, rate_func=win(0, 0.45)),
+                ReplacementTransform(t_n2[0][0], head[0][-2], rate_func=win(0.1, 0.75)),
+                FadeTransform(t_n2[0][1:], head[0][-1], rate_func=win(0.1, 0.75)),
+                FadeIn(head[0][:-2], shift=RIGHT * 0.3, rate_func=win(0.4, 1)))
+        self.remove(t_n2, *head[0])
+        self.add(head)
         self.go(S(0.88), S(0.99), TransformFromCopy(head[0][-1], omega_ax),
                 Circumscribe(head[0][-1], color=ACC, shape=Circle, buff=0.06, stroke_width=3))
 
         # ============================================================ 4. decades of records
-        mag = Rectangle(width=X(2.3778) - X(2.3692), height=0.3, stroke_color=WHITE_,
-                        stroke_width=1.5).move_to(v3((X(2.3778) + X(2.3692)) / 2, LY))
+        mag = Rectangle(width=X(2.3778) - X(2.3692), height=MAG_DN + MAG_UP, stroke_color=WHITE_,
+                        stroke_width=1.5).move_to(v3((X(2.3778) + X(2.3692)) / 2, LY + (MAG_UP - MAG_DN) / 2))
         box = Rectangle(width=BOX_W, height=BOX_H, stroke_color=GREY_, stroke_width=1.5,
                         fill_color=CARD, fill_opacity=0.92).move_to(BOX_C)
         conn = VGroup(Line(mag.get_corner(DL), box.get_corner(UL)),
@@ -382,7 +409,7 @@ class C4Matmul(VoiceScene):
                 ptri.animate.move_to(v3(X(w0), ptri.get_y())), Transform(pval, nv))
         self.go("r1+0.35", "r1+1.0",
                 FadeIn(itri[0], shift=DOWN * 0.2), FadeIn(ival[0], shift=DOWN * 0.1),
-                FadeIn(iera[0], shift=UP * 0.1), Flash(mag.get_center(), color=ACC, flash_radius=0.3))
+                FadeIn(iera[0], shift=UP * 0.1), Flash(v3(mag.get_x(), LY), color=ACC, flash_radius=0.3))
 
         def step(k, cue):
             w, s, _ = RECORDS[k]
@@ -402,10 +429,6 @@ class C4Matmul(VoiceScene):
         # ============================================================ 5. the claim: 9/4
         card = paper_card(NUM, width=2.9).move_to(v3(4.95, -1.6))
         tag = paper_tag(NUM, color=ACC)
-        old_t = tag[1][1]          # catalog title has raw LaTeX ("\mathbb C"); re-set it
-        new_t = Text("Exponent at most 9/4 over ℂ", font=SANS, font_size=17, color=WHITE_, slant=ITALIC)
-        new_t.move_to(old_t, aligned_edge=LEFT)
-        tag[1].submobjects[1] = new_t
 
         seg = ("This paper", "It's a")
         t_94 = self.tw("nine fourths", "claim", seg[0], "caveat", seg[1], 0.33, lag=-0.15)
@@ -413,9 +436,11 @@ class C4Matmul(VoiceScene):
         t_C = self.tw("over the complex", "claim", seg[0], "caveat", seg[1], 0.75, lag=0.25)
 
         self.wait_until("claim")
+        # the zoom clears first, then the paper slides into the space it leaves
         self.play_until(min(self.cue("claim+1.0"), t_94 - 0.05),
-                        FadeOut(VGroup(inset, conn, mag, *itri, *ival, *iera)),
-                        FadeIn(card, shift=LEFT * 0.8), FadeIn(tag, shift=RIGHT * 0.2))
+                        FadeOut(VGroup(inset, conn, mag, *itri, *ival, *iera), rate_func=win(0, 0.5)),
+                        FadeIn(card, shift=LEFT * 0.8, rate_func=win(0.25, 1)),
+                        FadeIn(tag, shift=RIGHT * 0.2, rate_func=win(0.25, 1)))
 
         # the leap: 2.371 -> 2.25
         x_old, x_new = X(RECORDS[2][0]), X(NINE4)
@@ -453,14 +478,15 @@ class C4Matmul(VoiceScene):
         self.go(t_225, t_225 + 0.6, FadeIn(t225, shift=UP * 0.15))
 
         banner = result_banner(r"\omega \le \tfrac{9}{4}\;\;\text{over } \mathbb{C}", color=YELLOW_,
-                               label="CLAIMED RESULT", lean=CATALOG[NUM]["lean"], size=52, is_tex=True)
-        banner.move_to(v3(-1.45, -1.25))
+                               label="CLAIMED RESULT", lean=CATALOG[NUM]["lean"], size=48, is_tex=True)
+        banner.move_to(v3(-1.45, -0.45 - banner.height / 2))     # top edge at y = -0.45
         self.go(t_C, min(t_C + 0.9, self.cue("caveat") + 0.4), FadeIn(banner, shift=UP * 0.2))
 
         # ============================================================ 6. caveat
         ch1 = note("asymptotic: n → ∞", BLUE_)
         ch2 = note("not a practical algorithm", ORANGE_)
-        chips = VGroup(ch1, ch2).arrange(RIGHT, buff=0.3).move_to(v3(banner.get_x(), -2.52))
+        chips = VGroup(ch1, ch2).arrange(RIGHT, buff=0.3)
+        chips.move_to(v3(banner.get_x(), banner.get_bottom()[1] - 0.16 - chips.height / 2))
         t_not = self.tw("not a faster", "caveat", "It's a", "jump", "But as", 0.6, lag=0.1)
         t_cost = self.tw("cost grows", "caveat", "It's a", "jump", "But as", 0.25, lag=0.0)
         t_big = self.tw("enormous", "caveat", "It's a", "jump", "But as", 0.4, lag=0.0)

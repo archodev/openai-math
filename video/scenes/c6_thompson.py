@@ -374,7 +374,7 @@ class C6Thompson(VoiceScene):
         gridp = VGroup(lattice, fill, dots, stubs)
         self.add(gridp)
         t_grid_end = min(w(1, "on a grid") + 0.1, self.cue("tree") - 0.55)
-        step_t = (t_grid_end - self.now) / (len(sizes) - 1)
+        step_t = max(0.3, (t_grid_end - self.now) / (len(sizes) - 1))
         for n in sizes[1:]:
             nf, ns, nr = chunk_parts(n)
             self.play(Transform(fill, nf), *[Transform(a, b) for a, b in zip(stubs, ns)],

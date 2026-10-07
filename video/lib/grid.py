@@ -76,6 +76,10 @@ class GridScene(VoiceScene):
         grid_center = grid.get_center()
         rate = 0.035 / max(self.narr_end, 1.0)          # total ~3.5% growth over the scene
         grid.add_updater(lambda m, dt: m.scale(1 + rate * dt, about_point=grid_center))
+        # the tiles were added individually by the intro; re-parent them under `grid`
+        # (an updater only runs on a mobject that is in the scene)
+        self.remove(*tiles)
+        self.add(grid)
         current = None
         for t in events:
             if t.spec.get("feature") and self.has_cue(f"f{t.num}"):

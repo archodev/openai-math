@@ -232,15 +232,20 @@ class Plasma(VGroup):
         self.alive[k] = False
 
     # -------------------------------------------------------------- per frame
-    def tween(self, key, dur, v1, rate=smooth):
-        """Animate a tracker in the background (non-blocking), driven by the clock."""
-        self.tweens.append((key, self.clock, self.clock + dur, self.v(key), v1, rate))
+    def tween(self, key, dur, v1, rate=smooth, delay=0.0, v0=None):
+        """Animate a tracker in the background (non-blocking), driven by the clock.
+        The start value is read when the tween begins (unless v0 is given)."""
+        self.tweens.append([key, self.clock + delay, self.clock + delay + dur, v0, v1, rate])
 
     def step(self, dt):
         self.clock += dt
         t = self.clock
         for tw in list(self.tweens):
             key, t0, t1, v0, v1, rf = tw
+            if t < t0:
+                continue
+            if v0 is None:
+                v0 = tw[3] = self.v(key)
             a = float(np.clip((t - t0) / (t1 - t0), 0, 1))
             self.trk[key].set_value(v0 + (v1 - v0) * rf(a))
             if a >= 1:
@@ -450,7 +455,7 @@ class C9Vlasov(VoiceScene):
                   *pl.to(w=1.0), sun.animate.shift(LEFT * 3.2).set_opacity(0),
                   FadeOut(wind_lab), rate_func=linear)
         self.remove(sun)
-        self.play(pl.trk["pulse"].animate(rate_func=there_and_back).set_value(1.0), run_time=0.8)
+        pl.tween("pulse", 0.8, 1.0, rate=there_and_back)
         cap = caps("collisionless plasma", 22, GREY_).move_to([0, 3.42, 0])
         pl.trk["clipy"].set_value(2.95)
         self.span(wt(0, "rarely") - 0.1, wt(0, "collide", frac=0.9), FadeIn(cap, shift=DOWN * 0.1))
@@ -464,15 +469,15 @@ class C9Vlasov(VoiceScene):
                           .set_opacity(pl.v("b") * pl.v("alpha")))
         self.add(e_lab, b_lab)
         self.wait_until(wt(0, "electric") - 0.1)
-        self.play(LaggedStart(*[pl.trk[f"e{i}"].animate.set_value(1.0) for i in range(3)], lag_ratio=0.35),
-                  run_time=1.0)
+        for i in range(3):     # the E field appears band by band, outward
+            pl.tween(f"e{i}", 0.6, 1.0, delay=0.22 * i)
         self.wait_until(wt(0, "magnetic") - 0.1)
-        self.play(*pl.to(b=1.0, bdraw=1.0), run_time=0.9, rate_func=smooth)
+        pl.tween("b", 0.9, 1.0)
+        pl.tween("bdraw", 0.9, 1.0)
         # 'they create themselves': a ripple runs outward from the particles
         self.wait_until(wt(0, "create") - 0.2)
-        self.play(pl.trk["pulse"].animate(rate_func=there_and_back).set_value(0.8),
-                  pl.trk["ripple"].animate(rate_func=linear).set_value(1.2), run_time=1.3)
-        pl.trk["ripple"].set_value(-1.0)
+        pl.tween("pulse", 1.3, 0.8, rate=there_and_back)
+        pl.tween("ripple", 1.3, 1.2, rate=linear, v0=-1.0)
 
         # ================================================== EQUATIONS + feedback loop
         FS = 36
@@ -524,6 +529,7 @@ class C9Vlasov(VoiceScene):
         path = VMobject().set_points(np.concatenate([arcR.points, arcL.points]))
         pdot = Dot(radius=0.07, color=YELLOW_).move_to(path.get_start())
         self.add(pdot)
+        pl.trk["ripple"].set_value(-1.0)
         self.span(self.now, cue("q") - 0.3, MoveAlongPath(pdot, path, rate_func=linear),
                   pl.trk["ripple"].animate(rate_func=linear).set_value(1.2),
                   vl[5].animate(rate_func=there_and_back).scale(1.3),
@@ -588,16 +594,17 @@ class C9Vlasov(VoiceScene):
         self.dbg("forever drawn")
         self.wait_until(wt(1, "kicked") - 0.25)
         pl.start_kick()
-        self.play(pl.trk["kalpha"].animate.set_value(1.0), run_time=0.3)
+        pl.tween("kalpha", 0.3, 1.0)
         self.span(self.now, max(self.now + 1.0, wt(1, "momentum", frac=1.0)),
                   Create(bad, rate_func=linear),
                   pl.trk["kick"].animate(rate_func=rush_into).set_value(1.0))
-        self.play(FadeIn(inf_lab, scale=1.4), Create(tline), FadeIn(tlab), run_time=0.5)
+        self.play(FadeIn(inf_lab, scale=1.4), Create(tline), FadeIn(tlab), run_time=0.4)
 
         # ================================================== OPEN since the 1980s, in 3D
         chip3 = chip("3D", ACC, size=22).move_to([-4.6, -2.75, 0])
         self.wait_until(wt(1, "three") - 0.3)
-        self.play(pl.trk["kalpha"].animate.set_value(0.0), FadeIn(chip3, shift=UP * 0.1), run_time=0.6)
+        pl.tween("kalpha", 0.6, 0.0)
+        self.play(FadeIn(chip3, shift=UP * 0.1), run_time=0.5)
         pl.tween("inc", max(1.6, wt(1, "since") + 0.3 - self.now), 26 * DEGREES, rate=there_and_back)
         openchip = chip("OPEN SINCE THE 1980s", ACC, size=22).move_to([2.65, 3.3, 0])
         gs = VGroup(bold("Glassey–Strauss (1986):", 24, WHITE_), txt("bounded momentum", 24, GREY_),
@@ -624,7 +631,7 @@ class C9Vlasov(VoiceScene):
                   *[m.animate.move_to(tgt[m]) for m in (ylab, xlab, q_lab)],
                   Uncreate(bad), FadeOut(tline), FadeOut(tlab), FadeOut(inf_lab),
                   FadeOut(openchip), FadeOut(gs), FadeOut(chip3),
-                  FadeIn(card, shift=LEFT * 2.5), FadeIn(tag), run_time=0.9)
+                  FadeIn(card, shift=LEFT * 2.5), FadeIn(tag), run_time=0.75)
         fin_lab.move_to(lab_pos(axes)[fin_lab])
         title = serif("smooth forever", 50, YELLOW_).move_to([0.8, 3.0, 0])
         self.wait_until(wt(2, "smooth") - 0.45)
@@ -654,8 +661,8 @@ class C9Vlasov(VoiceScene):
         self.wait_until(wt(2, "uniqueness") - 0.1)
         self.play(FadeIn(chips_[1], shift=UP * 0.1), run_time=0.45)
         self.wait_until(wt(2, "made") - 0.1)
-        self.play(FadeIn(fine, shift=UP * 0.1),
-                  pl.trk["pulse"].animate(rate_func=there_and_back).set_value(1.0), run_time=0.9)
+        pl.tween("pulse", 1.0, 1.0, rate=there_and_back)
+        self.play(FadeIn(fine, shift=UP * 0.1), run_time=0.7)
         for word, ch in (("smallness", chips_[2]), ("symmetry", chips_[3])):
             self.wait_until(wt(2, word) - 0.15)
             self.play(FadeIn(ch, shift=UP * 0.1, scale=1.15), run_time=0.45)
@@ -666,5 +673,5 @@ class C9Vlasov(VoiceScene):
         others = [m for m in self.mobjects if m is not pl and not isinstance(m, ValueTracker)]
         self.play(pl.trk["alpha"].animate.set_value(0.0), *[FadeOut(m) for m in others],
                   run_time=end - self.now)
-        self.remove(pl)
+        self.remove(*self.mobjects)
         self.finish()

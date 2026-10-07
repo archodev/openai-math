@@ -221,6 +221,12 @@ class C3Mahler(VoiceScene):
         q[:, 0] += self.px.get_value()
         return q
 
+    def fr(self, a, b, f):
+        """Time at fraction f of the way from cue a to cue b (keeps word sync
+        proportional if the narration is re-timed)."""
+        ta, tb = self.cue(a), self.cue(b)
+        return ta + f * (tb - ta)
+
     def closed(self, pts):
         q = self.scr(pts)
         return np.vstack([q, q[:1]])
@@ -329,7 +335,7 @@ class C3Mahler(VoiceScene):
         mahler.move_to([0, -0.55, 0]).align_to([SX + 0.42, 0, 0], LEFT)
 
         card = paper_card("087", width=3.3)
-        card.move_to([4.45, -1.08, 0])
+        card.move_to([4.45, -1.18, 0])
         tag = paper_tag("087", color=ACC)
 
         banner = result_banner(
@@ -350,18 +356,18 @@ class C3Mahler(VoiceScene):
 
         # ================================================================ 0: shape
         self.play_until("shape", FadeIn(axes), FadeIn(origin))
-        self.play_until("shape+1.05", DrawBorderThenFill(Kpoly))
-        self.play_until("shape+1.35", FadeIn(Klab, scale=0.7))
+        self.play_until(self.fr("shape", "stretch", 0.25), DrawBorderThenFill(Kpoly))
+        self.play_until(self.fr("shape", "stretch", 0.32), FadeIn(Klab, scale=0.7))
         Klab.add_updater(place_K)
         # "centered at the origin"
-        self.play_between("shape+1.4", "shape+2.05",
+        self.play_between(self.fr("shape", "stretch", 0.335), self.fr("shape", "stretch", 0.49),
                           Flash(origin, color=WHITE_, line_length=0.22, flash_radius=0.22, num_lines=10),
                           Indicate(origin, color=WHITE_, scale_factor=1.8))
         # make room for the dual
-        self.play_until("shape+2.65", self.px.animate.set_value(0.0),
+        self.play_until(self.fr("shape", "stretch", 0.63), self.px.animate.set_value(0.0),
                         VGroup(axes, origin).animate.shift(LEFT * self.px.get_value()))
         # "and build its dual": every vertex x of K gives a line x.y = 1
-        self.play_until("shape+3.7",
+        self.play_until(self.fr("shape", "stretch", 0.88),
                         LaggedStart(*[AnimationGroup(FadeIn(d, scale=0.4), GrowFromCenter(l))
                                       for d, l in zip(vdots, vlines)], lag_ratio=0.28),
                         Write(defn, rate_func=delayed(0.05, 1.0)))
@@ -371,32 +377,32 @@ class C3Mahler(VoiceScene):
         Plab.add_updater(place_P)
 
         # ================================================================ 1: stretch
-        self.play_until("stretch+0.7", FadeIn(readout, shift=UP * 0.2))
-        self.play_until("stretch+2.3", self.t.animate.set_value(1.65))
+        self.play_until(self.fr("stretch", "max", 0.13), FadeIn(readout, shift=UP * 0.2))
+        self.play_until(self.fr("stretch", "max", 0.43), self.t.animate.set_value(1.65))
         Plab.clear_updaters()
-        self.play_until("stretch+3.85", self.t.animate.set_value(0.62),
+        self.play_until(self.fr("stretch", "max", 0.72), self.t.animate.set_value(0.62),
                         FadeOut(Plab, rate_func=delayed(0.0, 0.3)))
-        self.play_until("stretch+4.95", self.t.animate.set_value(1.0),
+        self.play_until(self.fr("stretch", "max", 0.93), self.t.animate.set_value(1.0),
                         Circumscribe(pnum, color=YELLOW_, buff=0.08, stroke_width=3,
                                      rate_func=delayed(0.1, 0.95, linear)))
 
         # ================================================================ 2: max (ball)
         Klab.clear_updaters()
-        self.play_between("max", "max+0.8",
+        self.play_between("max", self.fr("max", "mahler", 0.23),
                           FadeOut(defn, shift=UP * 0.3),
                           readout.animate.move_to([3.5, 3.05, 0]),
                           FadeOut(Klab),
                           Create(scale), FadeIn(ptr))
-        self.play_until("max+2.1", self.m.animate.set_value(1.0))
-        self.play_until("max+2.7", FadeIn(R1[0]), FadeIn(R1[1], shift=RIGHT * 0.15),
+        self.play_until(self.fr("max", "mahler", 0.61), self.m.animate.set_value(1.0))
+        self.play_until(self.fr("max", "mahler", 0.78), FadeIn(R1[0]), FadeIn(R1[1], shift=RIGHT * 0.15),
                         FadeIn(R1[2], shift=LEFT * 0.15), FadeIn(KeqP, scale=0.8))
-        self.play_until("max+3.35", FadeIn(R1[3], shift=UP * 0.1))
+        self.play_until(self.fr("max", "mahler", 0.97), FadeIn(R1[3], shift=UP * 0.1))
 
         # ================================================================ 3: Mahler's question
-        self.play_between("mahler", "mahler+0.6", FadeOut(KeqP), FadeIn(mh1, shift=UP * 0.15))
-        self.play_until("mahler+1.8", self.m.animate.set_value(2.0))
-        self.play_until("mahler+3.0", self.m.animate.set_value(3.0))
-        self.play_until("mahler+4.25", self.m.animate.set_value(4.0),
+        self.play_between("mahler", self.fr("mahler", "claim", 0.13), FadeOut(KeqP), FadeIn(mh1, shift=UP * 0.15))
+        self.play_until(self.fr("mahler", "claim", 0.39), self.m.animate.set_value(2.0))
+        self.play_until(self.fr("mahler", "claim", 0.66), self.m.animate.set_value(3.0))
+        self.play_until(self.fr("mahler", "claim", 0.93), self.m.animate.set_value(4.0),
                         FadeIn(mh2, shift=UP * 0.15, rate_func=delayed(0.3, 0.75)))
 
         # ================================================================ 4: the papers
@@ -409,27 +415,27 @@ class C3Mahler(VoiceScene):
         self.rot.clear_updaters()
 
         # ================================================================ 5: symmetric minimum
-        self.play_until("cube+1.1", FadeOut(card, shift=RIGHT * 2.0, rate_func=delayed(0, 0.5)),
+        self.play_until(self.fr("cube", "simplex", 0.34), FadeOut(card, shift=RIGHT * 2.0, rate_func=delayed(0, 0.5)),
                         self.m.animate.set_value(5.0), self.rot.animate.set_value(0.0))
-        self.play_until("cube+1.75", FadeIn(R2[0]), FadeIn(R2[1], shift=RIGHT * 0.15),
+        self.play_until(self.fr("cube", "simplex", 0.54), FadeIn(R2[0]), FadeIn(R2[1], shift=RIGHT * 0.15),
                         FadeIn(R2[2], shift=LEFT * 0.15), FadeIn(R2[3], shift=UP * 0.1))
         kc = Kpoly.copy().clear_updaters()
-        self.play_between("cube+1.85", "cube+2.45", FadeTransform(kc, cube_ic))
+        self.play_between(self.fr("cube", "simplex", 0.57), self.fr("cube", "simplex", 0.755), FadeTransform(kc, cube_ic))
         cube_ic.spin()
         pc = Ppoly.copy().clear_updaters()
-        self.play_until("cube+3.1", FadeTransform(pc, octa_ic))
+        self.play_until(self.fr("cube", "simplex", 0.955), FadeTransform(pc, octa_ic))
         octa_ic.spin()
 
         # ================================================================ 6: general minimum
-        self.play_between("simplex", "simplex+1.25", self.m.animate.set_value(6.0))
+        self.play_between("simplex", self.fr("simplex", "L2_end", 0.205), self.m.animate.set_value(6.0))
         self.rot.add_updater(spin)
-        self.play_until("simplex+1.8", FadeIn(R3[0]), FadeIn(R3[1], shift=RIGHT * 0.15),
+        self.play_until(self.fr("simplex", "L2_end", 0.296), FadeIn(R3[0]), FadeIn(R3[1], shift=RIGHT * 0.15),
                         FadeIn(R3[2], shift=LEFT * 0.15), FadeIn(R3[3], shift=UP * 0.1))
-        self.play_until("simplex+2.5", FadeIn(banner, shift=UP * 0.25))
+        self.play_until(self.fr("simplex", "L2_end", 0.41), FadeIn(banner, shift=UP * 0.25))
         kc = Kpoly.copy().clear_updaters()
-        self.play_between("simplex+2.6", "simplex+3.25", FadeTransform(kc, tri_ic))
-        self.play_between("simplex+3.5", "simplex+4.1", FadeIn(tet_ic, scale=0.6))
+        self.play_between(self.fr("simplex", "L2_end", 0.427), self.fr("simplex", "L2_end", 0.534), FadeTransform(kc, tri_ic))
+        self.play_between(self.fr("simplex", "L2_end", 0.575), self.fr("simplex", "L2_end", 0.673), FadeIn(tet_ic, scale=0.6))
         tet_ic.spin()
-        self.play_between("simplex+4.45", "simplex+5.05", FadeIn(s4_ic, scale=0.6))
+        self.play_between(self.fr("simplex", "L2_end", 0.731), self.fr("simplex", "L2_end", 0.829), FadeIn(s4_ic, scale=0.6))
         s4_ic.spin()
         self.finish()
