@@ -71,6 +71,11 @@ class GridScene(VoiceScene):
                   LaggedStart(*[FadeIn(t, shift=UP * 0.25, scale=0.94) for t in tiles],
                               lag_ratio=0.05), run_time=intro_time)
         events = sorted([t for t in tiles if self._cue_time(t) is not None], key=self._cue_time)
+        # slow push-in so the frame is never static during long name lists
+        grid = VGroup(*tiles)
+        grid_center = grid.get_center()
+        rate = 0.035 / max(self.narr_end, 1.0)          # total ~3.5% growth over the scene
+        grid.add_updater(lambda m, dt: m.scale(1 + rate * dt, about_point=grid_center))
         current = None
         for t in events:
             if t.spec.get("feature") and self.has_cue(f"f{t.num}"):
@@ -81,17 +86,20 @@ class GridScene(VoiceScene):
             else:
                 self.wait_until(max(self.now, self._cue_time(t) - 0.12))
                 anims = t.lit() + [Indicate(t.label, color=color, scale_factor=1.06)]
+                if len(t.icon) or t.icon.points.size:
+                    anims.append(t.icon.animate(rate_func=there_and_back).scale(1.12))
                 if current is not None:
                     anims += current.visited()
-                self.play(*anims, run_time=0.3)
+                self.play(*anims, run_time=0.35)
                 current = t
         if current is not None:
             self.play(*current.visited(), run_time=0.25)
         rest = n_total - len(tiles)
         if self.MORE_TEXT and rest > 0 and self.narr_end - self.now > 1.2:
             more = Text(f"+ {rest} more families in this field", font=SANS, font_size=18,
-                        color=color, weight=SEMIBOLD).to_corner(DR, buff=0.22)
-            self.play(FadeIn(more, shift=LEFT * 0.2), run_time=0.5)
+                        color=color, weight=SEMIBOLD).move_to(counter, aligned_edge=RIGHT)
+            self.play(FadeOut(counter, shift=UP * 0.2), FadeIn(more, shift=UP * 0.2), run_time=0.5)
+        grid.clear_updaters()
         self.finish()
 
     def _cue_time(self, t):

@@ -104,8 +104,7 @@ def paper_card(num, width=3.0, hires=True, shadow=True, border_color=GREY_):
 def paper_tag(num, color=BLUE_, size=17):
     """Lower-left source tag shown during spotlights (Two-Minute-Papers style)."""
     e = CATALOG[num]
-    title = e["papers"][0]["title"] if e["papers"] else e["title"]
-    title = title.replace("$", "")
+    title = (e["papers"][0].get("title_plain") or e["papers"][0]["title"]) if e["papers"] else e.get("title_plain", e["title"])
     if len(title) > 70:
         title = title[:67].rstrip() + "…"
     label = Text(f"Family {num}", font=SANS, font_size=size - 3, color=GREY_, weight=SEMIBOLD)
