@@ -94,7 +94,7 @@ class VoiceScene(Scene):
 
     def wait_until(self, t, **kw):
         dt = self.cue(t) - self.now
-        if dt > 1e-3:
+        if dt > 0.5 / config.frame_rate:   # sub-frame waits would round up a whole frame
             self.wait(dt, **kw)
 
     def play_until(self, t, *anims, min_time=0.2, **kw):

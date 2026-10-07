@@ -392,7 +392,7 @@ def koebe_animate(scene, vis, rt):
     span(0.84, 0.92, LaggedStart(*[AnimationGroup(_flash(h, tw=0.8),
                                                   h.animate.set_stroke(YELLOW_, width=2.6))
                                    for h in W.holes], lag_ratio=0.15))
-    span(0.93, 1.0, W.dust.animate.set_color(YELLOW_).scale(1.12))
+    span(0.93, 1.0, *[d.animate.set_color(YELLOW_).scale(1.6) for d in W.dust])
 
 
 # ================================================================ 072 Brennan

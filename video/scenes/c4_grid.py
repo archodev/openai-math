@@ -436,6 +436,7 @@ def big_103():
     coin[0].set_opacity(0)                         # face-on: hide the rim
     coin.next_to(box, RIGHT, buff=0.32)
     coin_lab = Text("coin flips", font=SANS, font_size=22, color=GREY_).next_to(coin, DOWN, buff=0.14)
+    coin_lab.shift(RIGHT * 0.2)                    # keep clear of the memory cells
     cart = VGroup(head, stem, box, mlab, link, mem, mem_lab, mem_lab2, coin, coin_lab)
 
     # known inclusions -> claimed equalities

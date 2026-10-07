@@ -258,7 +258,6 @@ def anim_haldane(scene, mob, T):
             FadeIn(even, shift=UP * 0.2 * k))
     adopt(even)
     # 4. ... with an explicit lower bound: written under the text column, which slides up
-    print('DBG', [(type(m).__name__, len(m.submobjects), any(x is mob for x in m.get_family())) for m in scene.mobjects])
     card = next(m for m in scene.mobjects if len(m.submobjects) == 3 and m.submobjects[1] is mob)
     box, right = card[0], card[2]
     formula = _mtex(r"\liminf_{L\to\infty}\,\gamma_L", r"\ge", r"\frac{\log 20}{784}",

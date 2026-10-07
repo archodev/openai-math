@@ -107,3 +107,6 @@ preview.sh — fix those too (they mean an animation was squeezed).
   `group=mob` to any AnimationGroup/LaggedStart/Succession that animates parts of `mob`,
   and attach newly created pieces to `mob` (mob.add) between play() calls — otherwise
   manim re-parents them and they won't collapse with the card.
+* Updater-driven "camera" moves (a ValueTracker whose updaters move many mobjects): keep
+  the tracker/driver mobject first in drawing order (e.g. z_index -100) or the Cairo
+  renderer may freeze everything drawn behind it.
