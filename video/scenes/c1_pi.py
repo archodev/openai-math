@@ -520,7 +520,7 @@ class C1Pi(VoiceScene):
         self.wait_until("record")
 
         # ---- ladder of proven upper bounds (horizontal bars)
-        X0 = -2.75
+        X0 = -3.1           # leaves a clear gutter between the dimmed values and the claim column
         S = 5.25 / 42
         ROW_Y = [1.85, 1.07, 0.29, -0.49, -1.27, -2.05]
         BH = 0.42
@@ -591,7 +591,7 @@ class C1Pi(VoiceScene):
                          .next_to(bar6, RIGHT, buff=0.14))
         self.add(bar6, num6)
 
-        card = paper_card("017", width=2.95).move_to([5.05, 0.0, 0])
+        card = paper_card("017", width=2.8).move_to([5.25, 0.0, 0])
         tag = paper_tag("017", color=ACC)
         self.play(tr.animate.set_value(1.0), FadeOut(hl), FadeIn(lab6, shift=DOWN * 0.15),
                   FadeIn(card, shift=LEFT * 1.6), run_time=1.3)
@@ -600,7 +600,7 @@ class C1Pi(VoiceScene):
         two = tex("2", 36, YELLOW_).move_to(num6, aligned_edge=LEFT)
 
         # big statement in the free space
-        COLX = 1.2
+        COLX = 1.6
         claim = tex(r"\mu(\pi) = 2", 72, YELLOW_).move_to([COLX, -0.2, 0])
         self.play(Write(claim), FadeIn(tag, shift=RIGHT * 0.2), ReplacementTransform(num6, two),
                   run_time=0.8)
@@ -629,7 +629,8 @@ class C1Pi(VoiceScene):
         typ = VGroup(txt("same as almost every", 26, WHITE_),
                      txt("real number", 26, WHITE_)).arrange(DOWN, buff=0.12)
         typ.next_to(claim, DOWN, buff=0.45)
-        self.play_at(self.cue("L3_end") - 1.8, FadeIn(typ, shift=UP * 0.15), run_time=0.9)
+        # lands on "...than a typical number" (spoken ~1 s before the line ends)
+        self.play_at(self.cue("L3_end") - 1.4, FadeIn(typ, shift=UP * 0.15), run_time=0.6)
         self.wait_until("flint")
         card.clear_updaters()
 
@@ -654,10 +655,13 @@ class C1Pi(VoiceScene):
 
         # ---- Flint Hills series (left)
         LX = -3.55
-        fh_title = bold("Flint Hills series", 32, WHITE_).move_to([LX, 1.15, 0])
-        series = tex(r"\sum_{n\ge 1}\frac{1}{n^{3}\sin^{2} n}", 60, WHITE_).move_to([LX, -0.15, 0])
+        fh_title = bold("Flint Hills series", 32, WHITE_).move_to([LX, 1.42, 0])
+        # the Lean formalization covers mu(pi) = 2 only, not this corollary
+        fh_sub = caps("corollary \u00b7 not lean-checked", 20, GREY_, spacing=0.03)
+        fh_sub.next_to(fh_title, DOWN, buff=0.14)
+        series = tex(r"\sum_{n\ge 1}\frac{1}{n^{3}\sin^{2} n}", 60, WHITE_).move_to([LX, -0.25, 0])
         conv = VGroup(check_mark(GREEN_, size=0.32, width=5), bold("converges", 36, GREEN_))
-        conv.arrange(RIGHT, buff=0.18).move_to([LX, -1.55, 0])
+        conv.arrange(RIGHT, buff=0.18).move_to([LX, -1.65, 0])
 
         # ---- partial sums plot (right)
         AX0, AX1 = 0.85, 6.15
@@ -694,7 +698,8 @@ class C1Pi(VoiceScene):
 
         self.play(Write(series), run_time=1.1)
         self.wait_until(self.cue("flint") + 2.7)
-        self.play(FadeIn(fh_title, shift=DOWN * 0.1), Create(VGroup(fx_ax, fy_ax)), FadeIn(xlab),
+        self.play(FadeIn(fh_title, shift=DOWN * 0.1), FadeIn(fh_sub, shift=DOWN * 0.1),
+                  Create(VGroup(fx_ax, fy_ax)), FadeIn(xlab),
                   FadeIn(xticks), FadeIn(ylab), run_time=0.6)
         self.play_until(self.cue("L4_end") - 1.5, Create(curve, rate_func=linear),
                         Succession(Wait(run_time=1.0),

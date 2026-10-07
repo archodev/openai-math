@@ -563,35 +563,48 @@ def big_h10():
     return _seal(g)
 
 
+def _flashes(mobs, color, width=4, lag=0.0):
+    """ShowPassingFlash along copies of `mobs` (top-level helpers, removed afterwards)."""
+    cps = [m.copy().set_stroke(color, width=width).set_z_index(63) for m in mobs]
+    fl = [ShowPassingFlash(c, time_width=0.6) for c in cps]
+    return LaggedStart(*fl, lag_ratio=lag, group=VGroup(*cps)) if lag else AnimationGroup(*fl, group=VGroup(*cps))
+
+
 def animate_h10(scene, mob, rt):
-    box, gear, lab = mob._box, mob._gear, mob._lab
+    T, stop = _beats(scene, "004")
+    box, gear, lab, eqs = mob._box, mob._gear, mob._lab, mob._eqs
     q, cross = mob._q.copy(), mob._cross.copy()
     _late(mob, q, cross)
-    drops = [e[1].copy().set_color(ACC).set_z_index(62) for e in mob._eqs]
-    spin = lambda a: Rotate(gear, angle=a, about_point=gear.get_center(), rate_func=linear)
-    scene.wait(0.04 * rt)
-    # 1. every equation goes into the would-be algorithm
-    scene.play(LaggedStart(*[d.animate.move_to(box.get_center()).scale(0.3).set_opacity(0) for d in drops],
-                           lag_ratio=0.3), spin(-0.9 * PI), run_time=0.22 * rt)
-    scene.remove(*drops)
-    scene.play(spin(-0.15 * PI), run_time=0.04 * rt)
-    # 2. ... it would have to answer YES or NO
-    scene.play(spin(-0.55 * PI),
-               *[ShowPassingFlash(o.copy().set_stroke(YELLOW_, width=4).set_z_index(63), time_width=0.6)
-                 for o in mob._outs],
-               FadeIn(q, scale=0.4), run_time=0.14 * rt)
-    scene.play(spin(-0.25 * PI), run_time=0.06 * rt)
-    # 3. no such algorithm exists (the gear keeps turning: the search never settles it)
-    scene.play(Create(cross, lag_ratio=0.4), box.animate.set_stroke(RED_), spin(-0.6 * PI),
-               lab.animate.set_opacity(0.45), run_time=0.16 * rt)
-    scene.play(spin(-0.9 * PI), run_time=0.30 * rt)
+    # the gear never stops turning: a search can run forever without settling anything
+    spin = lambda dt: Rotate(gear, angle=-0.4 * PI * dt, about_point=gear.get_center(), rate_func=linear)
+    go = lambda u0, u1, *a: _go(scene, T(u0), T(u1), *a, filler=spin)
+    # group=mob on Lagged/AnimationGroups of card parts (else the card dissolves)
+    # "Hilbert's tenth problem, for fractions": equations are fed to one algorithm
+    go(0.06, 0.24, LaggedStart(*[e[1].animate(rate_func=there_and_back).set_color(ACC) for e in eqs],
+                               lag_ratio=0.35, group=mob),
+       _flashes(mob._ins, ACC, lag=0.35))
+    # "no single algorithm": struck out
+    go(0.295, 0.375, Create(cross, lag_ratio=0.4), box.animate.set_stroke(RED_),
+       lab.animate.set_opacity(0.45))
+    # "can tell": it cannot commit to YES or NO
+    go(0.385, 0.47, _flashes(mob._outs, YELLOW_), FadeIn(q, scale=0.4))
+    # "for every whole-number polynomial equation": all of them, the '...' included
+    go(0.51, 0.70, LaggedStart(*[AnimationGroup(e[0].animate.set_stroke(ACC, width=2.2),
+                                                e[1].animate.set_color(ACC), group=e) for e in eqs],
+                               lag_ratio=0.5, group=mob))
+    # "whether it has a solution in fractions"
+    go(0.80, 0.90, Indicate(mob._ask, color=YELLOW_, scale_factor=1.12),
+       Indicate(q, color=YELLOW_, scale_factor=1.25))
+    if stop - scene.now > 0.1:
+        scene.play(spin(stop - scene.now), run_time=stop - scene.now)
     _adopt(scene, mob, q, cross)
 
 
 # ================================================================== SCENE
-def _padded(fn, kx=1.07):
-    """Invisible side margins, so the 1.12x 'lit' pulse of the grid stays inside
-    the tile frame for icons that fill the tile's full width."""
+def _padded(fn, kx=1.02):
+    """Small invisible side margins: with the grid's 1.06x 'lit' pulse, an icon that
+    fills the tile's full width still stays well inside the tile frame (the tile
+    already keeps a 0.13 inner pad)."""
     def make():
         ic = fn()
         pad = Rectangle(width=ic.width * kx, height=ic.height, stroke_width=0, fill_opacity=0)
@@ -611,13 +624,21 @@ FEATURES = {
 }
 
 
+# Scene-level caption overrides.  004: the claim is that no SINGLE algorithm handles
+# every equation (specific equations can be settled); "no algorithm decides whether
+# a polynomial equation has ..." reads like the flagged overclaim.
+CAPTIONS = {
+    "004": "No single algorithm decides, for every polynomial equation, whether it has a rational solution.",
+}
+
+
 def _tiles():
     spec = json.loads((VIDEO / "data" / "grids.json").read_text())["c1_grid"]
     out = []
     for d in spec:
         t = dict(num=d["num"], name=d["name"], verdict=d["verdict"], icon=ICONS[d["num"]])
         if d.get("caption"):
-            t["feature"] = dict(caption=d["caption"], **FEATURES.get(d["num"], {}))
+            t["feature"] = dict(caption=CAPTIONS.get(d["num"], d["caption"]), **FEATURES.get(d["num"], {}))
         out.append(t)
     return out
 
