@@ -221,13 +221,16 @@ def icon_goldfeld():
     return VGroup(twists, arr, base, bars, flat, labs, half)
 
 
-def _dome(cx, cy, r, color=ACC, width=SW):
+def _dome(cx, cy, r, color=ACC, width=SW, tint=0.2):
     """Hemisphere over the complex plane seen in perspective: silhouette arc plus
-    the front half of its base circle, filled so nearer domes hide farther ones."""
+    the front half of its base circle, filled so nearer domes hide farther ones.
+    The fill is an opaque accent tint (not the tile colour), so the domes read as
+    solids and don't turn into dark holes when the tile lights up (CARD_HI)."""
     b = 0.3 * r
     pts = [_P(cx + r * math.cos(t), cy + r * math.sin(t)) for t in np.linspace(0, PI, 28)]
     pts += [_P(cx + r * math.cos(t), cy + b * math.sin(t)) for t in np.linspace(PI, TAU, 22)]
-    return Polygon(*pts, stroke_color=color, stroke_width=width, fill_color=CARD, fill_opacity=1)
+    fill = interpolate_color(ManimColor(CARD_HI), ManimColor(color), tint)
+    return Polygon(*pts, stroke_color=color, stroke_width=width, fill_color=fill, fill_opacity=1)
 
 
 def icon_modularity():
@@ -235,7 +238,8 @@ def icon_modularity():
     <->  the modular side: hemispheres over lattice points of C in hyperbolic
     3-space (Bianchi picture, the 3-D analogue of the Farey arcs)."""
     torus = VGroup(
-        Ellipse(width=0.98, height=0.58, stroke_color=ACC, stroke_width=SW),
+        Ellipse(width=0.98, height=0.58, stroke_color=ACC, stroke_width=SW, fill_color=ACC,
+                fill_opacity=0.16),
         ArcBetweenPoints(_P(-0.24, 0.04), _P(0.24, 0.04), angle=0.9 * PI / 2, stroke_color=ACC,
                          stroke_width=SW),
         ArcBetweenPoints(_P(0.16, -0.01), _P(-0.16, -0.01), angle=0.7 * PI / 2, stroke_color=ACC,
@@ -246,7 +250,7 @@ def icon_modularity():
     yb, yf, r = -0.08, -0.3, 0.24
     plane = Polygon(_P(0.14, -0.42), _P(1.62, -0.42), _P(1.78, -0.02), _P(0.3, -0.02),
                     stroke_color=GREY_, stroke_width=1.1, stroke_opacity=0.6, fill_opacity=0)
-    back = VGroup(*[_dome(x, yb, r * 0.88, width=1.6) for x in (0.68, 1.12, 1.56)])
+    back = VGroup(*[_dome(x, yb, r * 0.88, width=1.6, tint=0.12) for x in (0.68, 1.12, 1.56)])
     front = VGroup(*[_dome(x, yf, r) for x in (0.46, 0.94, 1.42)])
     return VGroup(torus, arr, plane, back, front)
 

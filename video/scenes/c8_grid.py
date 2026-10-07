@@ -177,25 +177,25 @@ def icon_293():
     """Mini version of the big card's ladder: the shift S (blue arcs) keeps every tail
     K_{>=h} (staircase of bars); a commuting V (white arcs) pushes each tail one rung
     down (red extension), so no tail is hyperinvariant (red X)."""
-    Y, d = 0.45, 0.36
+    Y, d = 0.3, 0.36
     X = {j: d * j for j in range(-2, 4)}
     g = VGroup()
-    rungs = {2: 0.1, 1: -0.16, 0: -0.42}
+    rungs = {1: -0.02, 0: -0.25}          # two rungs: wide enough for a 2-line tile name
     R = X[3] + 0.27
     for h, y in rungs.items():
-        g.add(Rectangle(width=X[h] - X[h - 1], height=0.18).move_to(P((X[h - 1] + X[h]) / 2 - 0.13, y))
+        g.add(Rectangle(width=X[h] - X[h - 1], height=0.17).move_to(P((X[h - 1] + X[h]) / 2 - 0.13, y))
               .set_stroke(RED_, 1.4).set_fill(RED_, 0.3))
-        g.add(Rectangle(width=R - X[h] + 0.13, height=0.18).move_to(P((X[h] - 0.13 + R) / 2, y))
+        g.add(Rectangle(width=R - X[h] + 0.13, height=0.17).move_to(P((X[h] - 0.13 + R) / 2, y))
               .set_stroke(ACC, 1.4).set_fill(ACC, 0.18))
-        g.add(xmark(P(R - 0.14, y), 0.055, RED_, 2.6))
+        g.add(xmark(P(R - 0.14, y), 0.05, RED_, 2.6))
     g.add(*[Dot(P(X[j], Y), radius=0.045, color=WHITE_) for j in X])
     g.add(dots_ellipsis(P(X[-2] - 0.2, Y), r=0.018, gap=0.055), dots_ellipsis(P(X[3] + 0.2, Y), r=0.018, gap=0.055))
     g.add(*[arc_arrow(P(X[j] + 0.06, Y + 0.06), P(X[j + 1] - 0.06, Y + 0.06), -PI / 1.6, ACC, 1.8, 0.08)
             for j in range(-2, 3)])
     g.add(*[arc_arrow(P(X[j] - 0.06, Y - 0.06), P(X[j - 1] + 0.06, Y - 0.06), -PI / 1.6, WHITE_, 1.5, 0.07)
             for j in range(-1, 4)])
-    g.add(tex("S", 32, ACC).move_to(P(X[-2] - 0.62, Y + 0.15)),
-          tex("V", 32, WHITE_).move_to(P(X[-2] - 0.62, Y - 0.19)))
+    g.add(tex("S", 30, ACC).move_to(P(X[-2] - 0.6, Y + 0.13)),
+          tex("V", 30, WHITE_).move_to(P(X[-2] - 0.6, Y - 0.17)))
     return g
 
 
@@ -682,7 +682,7 @@ def icon_309():
     alive = [True, False, True, True, False]
     # lay the stem numbers out by their own widths (tile width is the binding constraint:
     # this keeps them at ~22pt on screen instead of ~13pt)
-    labs = VGroup(*[txt(str(s), 24, WHITE_ if ok else GREY_, weight=SEMIBOLD if ok else NORMAL)
+    labs = VGroup(*[txt(str(s), 24, WHITE_ if ok else GREY_, weight=MEDIUM if ok else NORMAL)
                     for s, ok in zip(stems, alive)]).arrange(RIGHT, buff=0.12)
     labs.move_to(P(0, -0.44), aligned_edge=DOWN)
     marks = VGroup()

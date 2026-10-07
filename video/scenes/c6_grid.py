@@ -678,6 +678,7 @@ PP_DOTS = [  # (x, y) relative to the centre of X, three per band (top to bottom
     (-0.35, -0.98), (0.15, -1.08), (0.55, -0.85),
 ]
 PP_INJ = [4, 7, 11, 9]     # piece i -> a distinct point of X (order preserving, no crossings)
+PP_PICKS = [0, 3, 6, 10]   # a would-be choice: one point inside each piece
 PP_NODE_X = 1.75
 
 
@@ -755,34 +756,52 @@ def big_244():
 
 
 def anim_244(scene, mob, rt):
+    t0 = scene.now
     p = _pp_parts()
-    for k in ("pieces", "nodes", "surj", "Yl", "inj", "title_no", "box", "boxl", "verdict"):
+    for k in ("pieces", "nodes", "surj", "Yl", "inj", "title_no", "box", "boxl", "rings",
+              "crosses"):
         _place(p[k], mob)
-    title = mob[1]
+    title, levi = mob[1], mob[2]
     X, dots = mob[3], mob[5]
     for m in (X, dots):
         m.set_z_index(Z_FEAT + 1)
-    # 1) partition X into pieces; the set of pieces X/~ is a surjective image of X
-    t1 = 0.28 * rt
+    for m in (p["rings"], p["crosses"]):
+        m.set_z_index(Z_FEAT + 2)
+    # 1) "the partition principle": split X into pieces; X maps onto the set of pieces
+    _at(scene, t0, rt, 0.02)
     scene.play(FadeIn(p["pieces"], lag_ratio=0.25), FadeIn(p["nodes"], lag_ratio=0.25),
                LaggedStart(*[GrowArrow(a) for a in p["surj"]], lag_ratio=0.2),
                FadeIn(p["Yl"]),
-               run_time=t1)
+               run_time=_until(scene, t0, rt, 0.165))
     # keep X and the dots above the tinted pieces
     _adopt(scene, mob, p["pieces"], p["nodes"], p["surj"], p["Yl"])
-    # 2) partition principle: the pieces inject back into X
-    t2 = 0.26 * rt
+    # "from 1902"
+    _at(scene, t0, rt, 0.175)
+    scene.play(Indicate(levi, color=YELLOW_, scale_factor=1.1),
+               run_time=_until(scene, t0, rt, 0.255))
+    # 2) "splitting a set never gives more pieces than elements": pieces inject back into X
+    _at(scene, t0, rt, 0.30)
     scene.play(LaggedStart(*[Create(a) for a in p["inj"]], lag_ratio=0.3),
-               p["surj"].animate.set_opacity(0.22), run_time=t2)
+               p["surj"].animate.set_opacity(0.22), run_time=_until(scene, t0, rt, 0.52))
     _adopt(scene, mob, p["inj"])
-    scene.wait(0.14 * rt)
-    # 3) the paper's universe of sets: PP holds, AC fails
-    t3 = 0.28 * rt
-    scene.play(Create(p["box"]), FadeIn(p["boxl"]), Transform(title[1], p["title_no"][1]),
-               LaggedStart(FadeIn(p["verdict"][0], shift=UP * 0.1),
-                           FadeIn(p["verdict"][1], shift=UP * 0.1), lag_ratio=0.5),
-               run_time=t3)
-    _adopt(scene, mob, p["box"], p["boxl"], p["verdict"])
+    # 3) "Does it imply the axiom of choice?": choice = one pick inside every piece
+    _at(scene, t0, rt, 0.60)
+    scene.play(LaggedStart(*[Create(r) for r in p["rings"]], lag_ratio=0.35),
+               title[2].animate.set_color(YELLOW_), run_time=_until(scene, t0, rt, 0.72))
+    _adopt(scene, mob, p["rings"])
+    # 4) "The paper builds a universe of sets ..."
+    _at(scene, t0, rt, 0.775)
+    scene.play(Create(p["box"]), FadeIn(p["boxl"]), run_time=_until(scene, t0, rt, 0.855))
+    _adopt(scene, mob, p["box"], p["boxl"])
+    # "... where it doesn't": PP's injections survive (green), the picks are impossible (red)
+    _at(scene, t0, rt, 0.865)
+    scene.play(Transform(title[1], p["title_no"][1]),
+               title[0].animate.set_color(GREEN_), title[2].animate.set_color(RED_),
+               p["inj"].animate.set_color(GREEN_),
+               p["rings"].animate.set_stroke(RED_, opacity=0.45),
+               LaggedStart(*[Create(c) for c in p["crosses"]], lag_ratio=0.2),
+               run_time=_until(scene, t0, rt, 0.94))
+    _adopt(scene, mob, p["crosses"])
 
 
 # =====================================================================
@@ -798,7 +817,10 @@ def _tiles():
     spec = json.loads((VIDEO / "data" / "grids.json").read_text())["c6_grid"]
     out = []
     for d in spec:
-        t = dict(num=d["num"], name=d["name"], verdict=d["verdict"], icon=ICONS[d["num"]])
+        # keep "⇏ choice" together when the big-card title wraps ("Partition principle /
+        # ⇏ choice" instead of a dangling arrow); textwrap does not break at U+00A0
+        name = d["name"].replace("⇏ ", "⇏ ")
+        t = dict(num=d["num"], name=name, verdict=d["verdict"], icon=ICONS[d["num"]])
         if d.get("caption"):
             big, anim = FEATURE[d["num"]]
             t["feature"] = dict(caption=d["caption"], big=big, animate=anim)

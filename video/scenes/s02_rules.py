@@ -21,6 +21,13 @@ CODE_LINES = [
 ]
 
 
+def win(a, b, f=smooth):
+    """Rate function that runs f only within [a, b] of the animation's time.
+    Used instead of LaggedStart where the animated mobjects already exist (a
+    LaggedStart group would be re-added on top and change the z-order)."""
+    return lambda t: f(min(1.0, max(0.0, (t - a) / (b - a))))
+
+
 def _esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
@@ -173,16 +180,19 @@ class S02Rules(VoiceScene):
         # --- transition from the fan
         self.wait_until("L0_end")
         self.remove(self.fan_drv)
-        quick = lambda t: smooth(min(1.0, t / 0.25))
         self.play_until(self.frac("procedure", "exceptions", 0.97),
-                        FadeOut(stamp, scale=0.9, rate_func=quick),
-                        FadeOut(self.intro_caps, shift=DOWN * 0.2, rate_func=quick),
-                        LaggedStart(AnimationGroup(*[c.animate.scale(scale).move_to(t)
-                                                     for c, t in zip(cards, targets)],
-                                                   Create(box), FadeIn(box_lbl), FadeIn(most)),
-                                    AnimationGroup(GrowFromCenter(prob_g), FadeIn(prob_lbl)),
-                                    GrowArrow(a1), FadeIn(model, scale=0.9), GrowArrow(a2),
-                                    FadeIn(paper_lbl), lag_ratio=0.3, rate_func=linear),
+                        FadeOut(stamp, scale=0.9, rate_func=win(0, 0.22)),
+                        FadeOut(self.intro_caps, shift=DOWN * 0.2, rate_func=win(0, 0.22)),
+                        *[c.animate(rate_func=win(0, 0.5)).scale(scale).move_to(t)
+                          for c, t in zip(cards, targets)],
+                        Create(box, rate_func=win(0.05, 0.5)),
+                        FadeIn(box_lbl, rate_func=win(0.15, 0.5)), FadeIn(most, rate_func=win(0.2, 0.55)),
+                        GrowFromCenter(prob_g, rate_func=win(0.3, 0.6)),
+                        FadeIn(prob_lbl, rate_func=win(0.35, 0.62)),
+                        GrowArrow(a1, rate_func=win(0.45, 0.7)),
+                        FadeIn(model, scale=0.9, rate_func=win(0.52, 0.8)),
+                        GrowArrow(a2, rate_func=win(0.66, 0.9)),
+                        FadeIn(paper_lbl, rate_func=win(0.75, 1.0)),
                         min_time=0.8)
         f1 = self.flow(lambda u, a=a1: a.get_start() + u * (a.get_end() - a.get_start()), color=WHITE_)
         f2 = self.flow(lambda u, a=a2: a.get_start() + u * (a.get_end() - a.get_start()), color=WHITE_)
@@ -286,11 +296,11 @@ class S02Rules(VoiceScene):
         self.play_until(self.frac("lean", "code", 0.24),
                         LaggedStart(*[FadeIn(s, scale=0.4) for s in sqs], lag_ratio=0.008),
                         vis.animate.set_value(1.0), FadeIn(of), rate_func=linear)
-        self.play_until(self.frac("lean", "code", 0.72),
+        self.play_until(self.frac("lean", "code", 0.6),
                         LaggedStart(*[s.animate.set_fill(TEAL_, 0.92) for s in lean], lag_ratio=0.03),
                         tr.animate.set_value(235), rate_func=linear)
         num.clear_updaters()
-        self.play_until(self.frac("lean", "code", 0.9), FadeIn(lab, shift=LEFT * 0.2),
+        self.play_until(self.frac("lean", "code", 0.8), FadeIn(lab, shift=LEFT * 0.2),
                         VGroup(num, of).animate.shift(LEFT * slide), min_time=0.3)
         self.counter = VGroup(num, of, lab)
 
@@ -375,10 +385,9 @@ class S02Rules(VoiceScene):
                  t2c={"at least part": YELLOW_}).next_to(c1, DOWN, buff=0.3)
 
         self.play_between("L2_end", "badge+0.85",
-                          LaggedStart(FadeOut(self.code_grp, shift=LEFT * 0.4),
-                                      AnimationGroup(GrowFromCenter(big), FadeIn(halo, scale=0.3)),
-                                      lag_ratio=0.4),
-                          rate_func=smooth, min_time=0.5)
+                          FadeOut(self.code_grp, shift=LEFT * 0.4, rate_func=win(0, 0.45)),
+                          GrowFromCenter(big, rate_func=win(0.3, 1.0)),
+                          FadeIn(halo, scale=0.3, rate_func=win(0.3, 1.0)), min_time=0.5)
         halo.add_updater(pulse)
         halo.add_updater(lambda m: m.move_to(big))
         self.play_at(self.frac("badge", "L3_end", 0.3), big.animate.move_to([0, 0.8, 0]),

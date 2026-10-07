@@ -121,6 +121,10 @@ def place_left(mob, x, y):
 class C3Kakeya(VoiceScene):
 
     # ============================================================ helpers
+    def frac(self, a, b, f):
+        """A time a fraction f of the way from cue a to cue b (robust to re-timed audio)."""
+        return self.cue(a) + f * (self.cue(b) - self.cue(a))
+
     def construct(self):
         self.phase_needle()
         self.phase_besicovitch()
@@ -297,7 +301,7 @@ class C3Kakeya(VoiceScene):
             return Sector(radius=RD, start_angle=PI / 3 - a, angle=PI / 3 + 2 * a + 1e-4,
                           arc_center=dc, fill_color=ACC, fill_opacity=0.45, stroke_width=0)
         d_fill = always_redraw(dial_fill)
-        self.play_until("zero+0.85", Write(lim), FadeIn(lim_c, shift=UP * 0.1),
+        self.play_until(self.frac("zero", "conj", 0.17), Write(lim), FadeIn(lim_c, shift=UP * 0.1),
                         Create(d_arc), Create(d_base), FadeIn(d_lbl), FadeIn(d_fill))
 
         # ---- two rotated copies cover the remaining directions
@@ -307,7 +311,7 @@ class C3Kakeya(VoiceScene):
         cp = slices.copy()
         cm = slices.copy()
         self.add(cp, cm, slices)
-        self.play_between("zero+0.9", "zero+2.0",
+        self.play_between(self.frac("zero", "conj", 0.18), self.frac("zero", "conj", 0.395),
                           Rotate(cp, PI / 3, about_point=pivot),
                           Rotate(cm, -PI / 3, about_point=pivot),
                           spread.animate.set_value(PI / 3))
@@ -352,8 +356,8 @@ class C3Kakeya(VoiceScene):
         ptr.add_updater(lambda m, dt: m.put_start_and_end_on(
             dc, dc + RD * np.array([np.cos(psi.get_value()), np.sin(psi.get_value()), 0])))
         self.add(trail)
-        self.play_until("zero+2.25", FadeIn(sw), FadeIn(ptr))
-        self.play_until("zero+4.3", psi.animate.set_value(PI - 1e-3), rate_func=linear)
+        self.play_until(self.frac("zero", "conj", 0.445), FadeIn(sw), FadeIn(ptr))
+        self.play_until(self.frac("zero", "conj", 0.85), psi.animate.set_value(PI - 1e-3), rate_func=linear)
         trail.clear_updaters()
         sw.clear_updaters()
         ptr.clear_updaters()
@@ -379,18 +383,18 @@ class C3Kakeya(VoiceScene):
                           r"\;\Longrightarrow\;", r"\dim K = n", font_size=36, color=WHITE_)
         formula.move_to(UP * 2.65)
         self.formula = formula
-        self.play_until("conj+0.9", Transform(star, target), FadeOut(self.side),
+        self.play_until(self.frac("conj", "ndim", 0.19), Transform(star, target), FadeOut(self.side),
                         FadeOut(self.title, shift=UP * 0.2), FadeIn(title3, shift=UP * 0.2))
         self.title = title3
-        self.play_until("conj+2.4", Write(formula))
+        self.play_until(self.frac("conj", "ndim", 0.5), Write(formula))
         lab_area = VGroup(txt("area", 24, GREY_), tex(r"\to 0", 34, GREY_)).arrange(RIGHT, buff=0.15)
         lab_dim = VGroup(txt("dimension", 26, ACC, weight=SEMIBOLD), tex(r"= 2", 36, ACC)).arrange(RIGHT, buff=0.15)
         lab_area.next_to(star, DOWN, buff=0.35)
         lab_dim.next_to(lab_area, DOWN, buff=0.2)
         star.add_updater(lambda m, dt: m.rotate(-0.05 * dt, about_point=m.get_center()))
-        self.play_until("conj+3.0", FadeIn(lab_area, shift=UP * 0.1))
-        self.wait_until("ndim-1.3")
-        self.play_until("ndim-0.5", FadeIn(lab_dim, shift=UP * 0.1),
+        self.play_until(self.frac("conj", "ndim", 0.62), FadeIn(lab_area, shift=UP * 0.1))
+        self.wait_until(self.frac("conj", "ndim", 0.73))
+        self.play_until(self.frac("conj", "ndim", 0.9), FadeIn(lab_dim, shift=UP * 0.1),
                         formula[3].animate.set_color(YELLOW_))
         self.star_labels = VGroup(lab_area, lab_dim)
 
@@ -488,20 +492,20 @@ class C3Kakeya(VoiceScene):
         self.add(hl)
         self.bring_to_back(hl)
         hl.set_opacity(0)
-        self.play_until("wz+0.7", FadeOut(star, shift=RIGHT * 0.4),
+        self.play_until(self.frac("wz", "claim3", 0.11), FadeOut(star, shift=RIGHT * 0.4),
                         FadeOut(self.star_labels, shift=RIGHT * 0.4),
                         hl.animate.set_fill(CARD_HI, 0.9).set_stroke(ACC, 1.6, 1.0))
         self.add(lines)
-        self.play_until("wz+1.3", FadeIn(lines), FadeIn(bush_lbl))
-        self.play_until("wz+2.4", Write(name))
+        self.play_until(self.frac("wz", "claim3", 0.21), FadeIn(lines), FadeIn(bush_lbl))
+        self.play_until(self.frac("wz", "claim3", 0.38), Write(name))
         wzc = self.check_cell("Wang–Zahl 2025", self.X_D, ROWS[3])
-        self.wait_until("wz+2.5")
-        self.play_until("wz+3.2", FadeOut(self.cells[3], rate_func=early(0.3)),
+        self.wait_until(self.frac("wz", "claim3", 0.4))
+        self.play_until(self.frac("wz", "claim3", 0.51), FadeOut(self.cells[3], rate_func=early(0.3)),
                         FadeIn(wzc, shift=RIGHT * 0.15, rate_func=late(0.3)),
                         FadeIn(sub, shift=UP * 0.1))
         self.cells[3] = wzc
-        self.wait_until("wz+4.7")
-        self.play_until("wz+5.3", FadeIn(hum, scale=1.15))
+        self.wait_until(self.frac("wz", "claim3", 0.75))
+        self.play_until(self.frac("wz", "claim3", 0.845), FadeIn(hum, scale=1.15))
         self.bush = VGroup(lines, bush_lbl)
         self.credit = credit
 
@@ -513,7 +517,7 @@ class C3Kakeya(VoiceScene):
 
         self.wait_until("claim3")
         self.bush[0].clear_updaters()
-        self.play_until("claim3+0.8", FadeOut(self.bush, shift=RIGHT * 0.4),
+        self.play_until(self.frac("claim3", "tubes", 0.12), FadeOut(self.bush, shift=RIGHT * 0.4),
                         FadeOut(self.credit, shift=RIGHT * 0.4),
                         FadeIn(card3, shift=LEFT * 0.8), FadeIn(tag, shift=RIGHT * 0.2))
         # maximal column
@@ -524,23 +528,23 @@ class C3Kakeya(VoiceScene):
             4: place_left(txt("?", 26, GREY_), X_M, ROWS[4]),
             5: place_left(txt("?", 26, GREY_), X_M, ROWS[5]),
         }
-        self.play_until("claim3+1.4", FadeIn(h_max, shift=DOWN * 0.1),
+        self.play_until(self.frac("claim3", "tubes", 0.21), FadeIn(h_max, shift=DOWN * 0.1),
                         LaggedStart(*[FadeIn(mcells[n], shift=RIGHT * 0.15) for n in (2, 4, 5)],
                                     lag_ratio=0.2))
         claimed3 = place_left(chip("CLAIMED", YELLOW_, size=20), X_M, ROWS[3])
         arr = Arrow(self.cells[3].get_right() + RIGHT * 0.05, claimed3.get_left() + LEFT * 0.02,
                     buff=0.05, stroke_width=3, color=GREY_, max_tip_length_to_length_ratio=0.35,
                     max_stroke_width_to_length_ratio=8)
-        self.play_until("claim3+2.0", GrowArrow(arr))
-        self.play_until("claim3+2.6", FadeIn(claimed3, scale=1.25))
+        self.play_until(self.frac("claim3", "tubes", 0.3), GrowArrow(arr))
+        self.play_until(self.frac("claim3", "tubes", 0.39), FadeIn(claimed3, scale=1.25))
         # "the maximal conjecture"
         mformula = tex(r"\|K_\delta f\|_{L^3(S^2)}\lesssim_\varepsilon \delta^{-\varepsilon}\,\|f\|_{L^3(\mathbb{R}^3)}",
                        32).move_to([4.15, -2.6, 0])
         card3.add_updater(lambda m, dt: m.shift(UP * 0.03 * dt))
-        self.wait_until("claim3+2.8")
-        self.play_until("claim3+4.0", Write(mformula))
-        self.wait_until("tubes-1.5")
-        self.play_until("tubes-0.6", Indicate(h_max, color=YELLOW_, scale_factor=1.15),
+        self.wait_until(self.frac("claim3", "tubes", 0.425))
+        self.play_until(self.frac("claim3", "tubes", 0.6), Write(mformula))
+        self.wait_until(self.frac("claim3", "tubes", 0.77))
+        self.play_until(self.frac("claim3", "tubes", 0.91), Indicate(h_max, color=YELLOW_, scale_factor=1.15),
                         h_max.animate.set_color(YELLOW_))
 
         # ---- tubes: thin tubes in different directions can't pile up much
@@ -562,14 +566,14 @@ class C3Kakeya(VoiceScene):
         cap.move_to([4.15, -1.65, 0])
         self.wait_until("tubes")
         card3.clear_updaters()
-        self.play_until("tubes+0.5", FadeOut(card3, shift=RIGHT * 0.6))
-        self.play_until("tubes+1.3", LaggedStart(*[GrowFromCenter(t) for t in tubes], lag_ratio=0.08),
+        self.play_until(self.frac("tubes", "claim4", 0.11), FadeOut(card3, shift=RIGHT * 0.6))
+        self.play_until(self.frac("tubes", "claim4", 0.3), LaggedStart(*[GrowFromCenter(t) for t in tubes], lag_ratio=0.08),
                         FadeIn(cap))
-        self.play_until("tubes+3.0", *[t.animate.move_to(tc) for t in tubes], rate_func=smooth)
+        self.play_until(self.frac("tubes", "claim4", 0.68), *[t.animate.move_to(tc) for t in tubes], rate_func=smooth)
         glow_c = Circle(radius=0.32, arc_center=tc, stroke_color=YELLOW_, stroke_width=2.5)
-        self.play_until("tubes+3.6", Create(glow_c))
-        self.wait_until("L4_end")
-        self.play_until("claim4", FadeOut(glow_c))
+        self.play_until(self.frac("tubes", "claim4", 0.82), Create(glow_c))
+        self.play_until(self.frac("tubes", "claim4", 0.95), FadeOut(glow_c))
+        self.wait_until("claim4")
 
         # ---- second paper: 4D dimension conjecture
         card4 = card_from(PAPER4D, 2.6).move_to([4.95, -0.3, 0])
@@ -577,19 +581,19 @@ class C3Kakeya(VoiceScene):
         new_title = Text("4D Kakeya Hausdorff dimension", font=SANS, font_size=17, color=WHITE_,
                          slant=ITALIC)
         new_title.move_to(tag[1][1]).align_to(tag[1][1], LEFT)
-        self.play_until("claim4+0.8", FadeOut(tubes), FadeOut(cap), FadeOut(mformula),
+        self.play_until(self.frac("claim4", "five", 0.22), FadeOut(tubes), FadeOut(cap), FadeOut(mformula),
                         FadeIn(card3b, shift=LEFT * 0.6), FadeIn(card4, shift=LEFT * 0.9),
                         Transform(tag[1][1], new_title),
                         self.hl.animate.move_to([-2.7, ROWS[4], 0]))
         claimed4 = place_left(chip("CLAIMED", YELLOW_, size=20), X_D, ROWS[4])
-        self.play_until("claim4+1.5", FadeOut(self.cells[4], rate_func=early(0.3)),
+        self.play_until(self.frac("claim4", "five", 0.4), FadeOut(self.cells[4], rate_func=early(0.3)),
                         FadeIn(claimed4, scale=1.25, rate_func=late(0.3)))
 
         banner = result_banner("3D: Kakeya maximal conjecture   ·   4D: Kakeya sets have full dimension",
                                color=YELLOW_, label="CLAIMED RESULTS", lean=False, size=26)
         banner.move_to(UP * 2.75)
-        self.wait_until("claim4+1.6")
-        self.play_until("claim4+2.3", FadeOut(self.formula, shift=UP * 0.3),
+        self.wait_until(self.frac("claim4", "five", 0.43))
+        self.play_until(self.frac("claim4", "five", 0.62), FadeOut(self.formula, shift=UP * 0.3),
                         FadeOut(self.title, shift=UP * 0.3), FadeIn(banner, shift=DOWN * 0.2))
 
         # ---- five and up: open

@@ -602,16 +602,16 @@ class C2Hodge(VoiceScene):
                         trk["cy"].animate.set_value(FC[1]), FadeOut(arc), FadeOut(xi), rate_func=smooth)
         self.play_until(tf("cm", "L3_end", 0.69), trk["a"].animate.set_value(1.0), trk["alpha"].animate.set_value(-0.42),
                         trk["beta"].animate.set_value(0.62), trk["S"].animate.set_value(2.7), rate_func=smooth)
-        self.play_until(tf("cm", "L3_end", 0.86), trk["b"].animate.set_value(1.0), trk["beta"].animate.set_value(0.0),
-                        trk["alpha"].animate.set_value(-(PI / 2 - 0.6)), trk["S"].animate.set_value(3.9),
-                        trk["cy"].animate.set_value(FC[1] + 0.1), rate_func=smooth)
         cg = tex(r"\mathbb{C}^g/\Lambda", 40, WHITE_).move_to(FC + DOWN * 2.15 + RIGHT * 0.0)
         cg_cap = txt("many-dimensional donut", 24, GREY_).next_to(cg, RIGHT, buff=0.25)
         VGroup(cg, cg_cap).move_to([FC[0], FC[1] - 2.2, 0])
+        self.play_until(tf("cm", "L3_end", 0.86), trk["b"].animate.set_value(1.0), trk["beta"].animate.set_value(0.0),
+                        trk["alpha"].animate.set_value(-(PI / 2 - 0.6)), trk["S"].animate.set_value(3.9),
+                        trk["cy"].animate.set_value(FC[1] + 0.1),
+                        FadeIn(VGroup(cg, cg_cap), shift=UP * 0.12, rate_func=late))
         xi2 = tex(r"\times\, i", 38, YELLOW_).move_to(O + hh * 1.55 * 1.38 * np.array([np.cos(PI / 4), np.sin(PI / 4), 0]))
         arc2 = Arc(radius=hh * 1.55, start_angle=0.12, angle=PI / 2 - 0.24, arc_center=O,
                    stroke_color=YELLOW_, stroke_width=4).add_tip(tip_length=0.18, tip_width=0.18)
-        self.play_until(tf("cm", "L3_end", 0.9), FadeIn(VGroup(cg, cg_cap), shift=UP * 0.12))
         self.play_until(tf("cm", "L3_end", 0.965), Rotate(lat, PI / 2, about_point=O),
                         Create(arc2), FadeIn(xi2), rate_func=smooth)
 
