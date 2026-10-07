@@ -484,7 +484,7 @@ class C6Thompson(VoiceScene):
         DY, DS, DIM_K = -1.5, 0.72, 0.5     # both sides dimmed equally: no hint of the verdict yet
         self.seg("both+0.2", "both+0.8",
                  FadeIn(lab_am, shift=DOWN * 0.1), FadeIn(lab_non, shift=DOWN * 0.1), Create(track),
-                 tok.animate(path_arc=PI / 3).scale(1.25).move_to(np.array([0, rowY, 0])),
+                 tok.animate(path_arc=2 * PI / 3).scale(1.25)   # dips under the header text.move_to(np.array([0, rowY, 0])),
                  FadeOut(g_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
                  FadeOut(t_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
                  gridp.animate.scale(DS).move_to(np.array([gL[0], DY, 0])).fade(DIM_K),

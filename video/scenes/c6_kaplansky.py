@@ -164,7 +164,7 @@ class C6Kaplansky(VoiceScene):
         head = caps("group algebra", 20, ACC).move_to([X, 2.75, 0])
         kg = MathTex(r"K[G]", "=", r"\Big\{\sum c_g\, g\Big\}", font_size=46, color=WHITE_)
         kg.move_to([X, 1.75, 0])
-        XE = 2.8  # x of the '=' signs
+        XE = 2.6  # x of the '=' signs (keeps alpha*beta = 1+g+h+gh inside x < 6.7)
         a_eq = MathTex(r"\alpha", "=", r"1+g", font_size=54, color=WHITE_)
         b_eq = MathTex(r"\beta", "=", r"1+h", font_size=54, color=WHITE_)
         p_eq = MathTex(r"\alpha\beta", "=", r"1+g+h+gh", font_size=54, color=WHITE_)
@@ -367,7 +367,9 @@ class C6Kaplansky(VoiceScene):
         quick = dict(rate_func=early)
         self.play(FadeOut(self.line, **quick), FadeOut(k["mk"], **quick), FadeOut(k["tf"], **quick),
                   FadeOut(k["title"], **quick),
-                  ReplacementTransform(k["stmt"], zf), FadeTransform(k["nzd"], ztitle),
+                  FadeOut(k["nzd"], shift=DOWN * 0.3, rate_func=lambda t: early(t, 2.5)),
+                  ReplacementTransform(k["stmt"], zf),
+                  FadeIn(ztitle, shift=DOWN * 0.15, rate_func=lambda t: late(t, 0.4)),
                   Transform(zbox, zbox_t), run_time=1.0)
         zcard = VGroup(zbox, ztitle, zf)
 
@@ -385,7 +387,9 @@ class C6Kaplansky(VoiceScene):
                 rt=0.9, limit="stood")
         zchip = chip("STILL OPEN", ACC, size=18).move_to(zbox.get_bottom() + UP * 0.45)
         self.at(self.ph("The zero-divisor", "stood+0.4"), FadeIn(zchip, scale=1.3),
-                VGroup(ubox, utitle, uf, uchip).animate.set_opacity(0.5), rt=0.6)
+                ubox.animate.set_stroke(opacity=0.5), utitle.animate.set_opacity(0.5),
+                uf.animate.set_opacity(0.3), uchip[0].animate.set_stroke(opacity=0.5).set_fill(opacity=0.07),
+                uchip[1].animate.set_opacity(0.55), rt=0.6)
         self.play(Circumscribe(zbox, color=ACC, buff=0.08, time_width=0.6), run_time=1.0)
         self.breathe(zbox, "claim", ACC)
         self.cards = dict(ubox=ubox, utitle=utitle, uf=uf, uchip=uchip,
@@ -396,6 +400,7 @@ class C6Kaplansky(VoiceScene):
         box = RoundedRectangle(width=3.95, height=1.0, corner_radius=0.14, stroke_color=color,
                                stroke_width=1.8, fill_color=CARD, fill_opacity=0.95).move_to([x, 3.15, 0])
         t = bold(title, 22).move_to(box.get_top() + DOWN * 0.3)
+        t.align_to(box.get_top() + DOWN * 0.155, UP)
         return box, t
 
     def beat_claim(self):

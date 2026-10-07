@@ -283,7 +283,7 @@ def anim_293(scene, mob, T):
     scene.play(*_swap(b2, b3), ShowPassingFlash(flash2, time_width=0.5),
                LaggedStart(*[Indicate(c, color=RED_, scale_factor=1.3) for c in checks],
                            lag_ratio=0.1, group=mob),
-               FadeIn(b4, rate_func=lambda t: smooth(max(0.0, (t - 0.45) / 0.55))),
+               FadeIn(b4, rate_func=_delayed(0.3, 0.6)),
                run_time=0.33 * T)
 
 
