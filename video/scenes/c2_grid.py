@@ -272,11 +272,11 @@ def icon_050():
     rims = VGroup(*[Ellipse(width=2 * rr, height=2 * tilt * rr).move_to([0, sz * hz, 0])
                     for sz in (1, -1)]).set_stroke(WHITE_, 1.8)
     quad = VGroup(fam2, fam1, rims)
-    theta = tex(r"\Theta_h>0", 40, RED_)
-    strike = Line(theta.get_left() + LEFT * 0.08 + DOWN * 0.1, theta.get_right() + RIGHT * 0.08 + UP * 0.1,
-                  stroke_color=RED_, stroke_width=2.6)
-    neg = VGroup(theta, strike)
-    return VGroup(quad, neg).arrange(RIGHT, buff=0.36)
+    # "there is no metric h with Griffiths-positive curvature" (a strike-through over the
+    # formula read as a scribble at tile size)
+    neg = MathTex(r"\nexists", r"\,h:\ \Theta_h>0", font_size=40, color=WHITE_)
+    neg[0].set_color(RED_)
+    return VGroup(quad, neg).arrange(RIGHT, buff=0.3)
 
 
 def _cassini(scale_x=0.48, scale_y=0.5, a=1.0, b=1.08, n=120):

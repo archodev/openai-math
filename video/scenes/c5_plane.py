@@ -303,6 +303,11 @@ class C5Plane(VoiceScene):
         bg = BackgroundRectangle(t, color=BG, fill_opacity=0.85, buff=0.09, corner_radius=0.08)
         return VGroup(bg, t).set_z_index(6)
 
+    @staticmethod
+    def swap(old, new, shift=UP * 0.15):
+        """Out, then in (a cross-fade of two different labels reads as garble)."""
+        return AnimationGroup(FadeOut(old, shift=shift), FadeIn(new, shift=shift), lag_ratio=1.0)
+
     def year_text(self, y, color=GREY_):
         return txt(str(int(y)), 28, color).move_to(self.year_pos).set_z_index(6)
 
@@ -516,7 +521,7 @@ class C5Plane(VoiceScene):
         n4 = self.note("at least 4", self.hud_toks[3].get_x(), ACC)
         self.play(LaggedStart(self.exclude(1), self.exclude(2), self.exclude(3), lag_ratio=0.25),
                   self.hud_toks[6][0].animate.set_stroke(GREY_, width=2),
-                  FadeIn(pill), FadeTransform(n7, n4), run_time=0.6)
+                  FadeIn(pill), self.swap(n7, n4), run_time=0.6)
         self.wait_until(t_g1)
         nd2.clear_updaters()
         self.play_until("spindle", FadeOut(hexes), FadeOut(nd2))
@@ -535,9 +540,9 @@ class C5Plane(VoiceScene):
 
         # "the Moser spindle"
         cap = bold("Moser spindle", 40, WHITE_)
-        csub = txt("7 points · 11 one-inch links", 24, GREY_)
+        csub = txt("1961 · 7 points · 11 one-inch links", 24, GREY_)
         capg = VGroup(cap, csub).arrange(DOWN, aligned_edge=LEFT, buff=0.16)
-        capg.move_to(P(-4.15, 0.75))
+        capg.move_to(P(-4.15, 0.75)).align_to(P(-6.3, 0), LEFT)   # same left edge as the de Grey caption
         self.play_at(self.T("spindle", "L2_end", 0.33),
                      LaggedStart(*[Indicate(elines[e], color=ACC, scale_factor=1.0) for e in sedges], lag_ratio=0.08),
                      run_time=0.8)
@@ -631,7 +636,7 @@ class C5Plane(VoiceScene):
         pill5 = self.pill(5, 7, ACC)
         n5 = self.note("at least 5", self.hud_toks[4].get_x(), ACC)
         self.play_at(self.T("degrey", "L3_end", 0.88), self.exclude(4), Transform(pill, pill5),
-                     FadeTransform(n4, n5),
+                     self.swap(n4, n5),
                      web.animate.set_stroke(ACC, opacity=0.75), run_time=0.7)
 
         # =========================================================== 5. the claim
@@ -642,10 +647,10 @@ class C5Plane(VoiceScene):
         n6 = self.note("at least 6 (claimed)", self.hud_toks[5].get_x() + 0.35, YELLOW_)
         y26 = self.year_text(2026, YELLOW_)
         self.play(FadeOut(VGroup(web, vdots, sgroup, dgg)), self.exclude(5), Transform(pill, pill6),
-                  FadeTransform(n5, n6), FadeTransform(year, y26),
-                  *[self.hud_toks[k][1].animate.set_color(YELLOW_) for k in (5, 6)],
-                  FadeIn(card, shift=LEFT * 2.5), FadeIn(tag), run_time=0.9)
-        card.add_updater(lambda m, dt: m.shift(UP * 0.025 * dt))
+                  FadeOut(n5, shift=UP * 0.15), FadeOut(year, shift=UP * 0.2),
+                  *[self.hud_toks[k][1].animate.set_color(YELLOW_) for k in (5, 6)], run_time=0.5)
+        self.play(FadeIn(n6, shift=UP * 0.15), FadeIn(y26, shift=UP * 0.2),
+                  FadeIn(card, shift=LEFT * 2.5), FadeIn(tag), run_time=0.7)
 
         # "every five-coloring ... has two points one inch apart with the same color"
         seeds, cols = patch_model()
@@ -702,7 +707,7 @@ class C5Plane(VoiceScene):
         banner.move_to(P(-1.45, -0.5))
         self.play(FadeOut(Group(patch, sw5g, nd5, rings, same)), FadeIn(banner, shift=UP * 0.2), run_time=0.8)
         n67 = self.note("6 or 7?", (self.hud_toks[5].get_x() + self.hud_toks[6].get_x()) / 2, YELLOW_, size=28)
-        self.play_at(self.T("range", "L4_end", 0.48), FadeTransform(n6, n67),
+        self.play_at(self.T("range", "L4_end", 0.48), self.swap(n6, n67),
                      *[Indicate(self.hud_toks[k], color=YELLOW_, scale_factor=1.25) for k in (5, 6)],
                      run_time=0.8)
         self.finish()

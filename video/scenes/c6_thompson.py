@@ -442,12 +442,12 @@ class C6Thompson(VoiceScene):
         self.play(gridp.animate.scale(0.85).move_to(gL),
                   g_ro.animate.move_to(np.array([gL[0], -3.2, 0])),
                   LaggedStart(*[Create(g) for g in by_level], lag_ratio=0.3),
-                  run_time=0.36 * span)
+                  run_time=0.28 * span)
         ins = VGroup(*[t_edge(i, "in") for i in at_level(1)])
         bnd = VGroup(*[t_edge(i, "bnd") for i in at_level(2)])
         dts = VGroup(*[t_dot(i) for i in at_level(0) + at_level(1)])
         self.play(FadeIn(dts), Create(ins), Create(bnd), FadeIn(t_ro, shift=UP * 0.1),
-                  run_time=0.2 * span)
+                  run_time=0.16 * span)
         treep = VGroup(skel, ins, bnd, dts)
         self.add(treep)
         ge2 = tex(r"\geq 2", 34, BND_COL).next_to(t_ro[0], RIGHT, buff=0.2)
@@ -457,7 +457,8 @@ class C6Thompson(VoiceScene):
             new_b = [t_edge(i, "bnd") for i in at_level(r + 1)]
             new_d = [t_dot(i) for i in at_level(r)]
             extra = [Write(ge2)] if r == 3 else []
-            self.seg(self.now, t0 + (0.76 if r == 2 else 0.98) * span,
+            # finish on "tree" so the "≥ 2" verdict is readable before the claims beat
+            self.seg(self.now, t0 + (0.62 if r == 2 else 0.80) * span,
                      *[e.animate.set_stroke(CHUNK_COL, width=3.0 * 0.8 ** (r - 1)) for e in old],
                      LaggedStart(*[GrowFromCenter(d) for d in new_d], lag_ratio=0.02),
                      LaggedStart(*[Create(e) for e in new_b], lag_ratio=0.01),
@@ -481,7 +482,7 @@ class C6Thompson(VoiceScene):
         # the readouts have made their point: they leave, and both pictures shrink
         # into the lower band so the claim chips get clean space under the labels
         DY, DS, DIM_K = -1.5, 0.72, 0.5     # both sides dimmed equally: no hint of the verdict yet
-        self.seg("both", "both+0.6",
+        self.seg("both+0.2", "both+0.8",
                  FadeIn(lab_am, shift=DOWN * 0.1), FadeIn(lab_non, shift=DOWN * 0.1), Create(track),
                  tok.animate(path_arc=PI / 3).scale(1.25).move_to(np.array([0, rowY, 0])),
                  FadeOut(g_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
