@@ -1,0 +1,11 @@
+0:00 Intro
+1:26 Number theory
+3:56 Algebraic geometry
+5:22 Analysis and geometry
+7:31 Theoretical computer science
+10:07 Combinatorics
+12:20 Algebra, groups, and logic
+14:19 Dynamics, probability, and physics
+16:08 Operator algebras, topology, and functional analysis
+17:56 Geometry and differential equations
+19:53 Outro

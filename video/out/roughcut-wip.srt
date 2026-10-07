@@ -1,0 +1,1476 @@
+1
+00:00:00,350 --> 00:00:04,895
+Here's an experiment. Take an AI model, and
+hand it about four thousand open
+
+2
+00:00:04,895 --> 00:00:06,330
+problems in mathematics.
+
+3
+00:00:06,630 --> 00:00:10,950
+Real research problems: some open for
+decades, a few for over a century.
+
+4
+00:00:11,250 --> 00:00:14,410
+About three hours of thinking behind each
+result, on average.
+
+5
+00:00:14,710 --> 00:00:16,350
+Then keep only what's worth keeping.
+
+6
+00:00:16,800 --> 00:00:21,574
+Seven hundred and twenty-two papers. Three
+hundred and seventy-two families of
+
+7
+00:00:21,574 --> 00:00:24,450
+results, across seventeen areas of
+mathematics.
+
+8
+00:00:24,750 --> 00:00:27,598
+Some are sharper bounds. Some are
+counterexamples.
+
+9
+00:00:27,598 --> 00:00:31,300
+And some claim major progress on problems
+with very famous names.
+
+10
+00:00:31,600 --> 00:00:35,741
+The zeros of the zeta function. How well
+fractions can approximate pi.
+
+11
+00:00:35,741 --> 00:00:38,757
+The Kakeya conjecture. The Unique Games
+Conjecture.
+
+12
+00:00:38,757 --> 00:00:41,360
+How many colors it takes to paint the plane.
+
+13
+00:00:41,660 --> 00:00:45,170
+This is a guided tour of the highlights:
+fast, but from the ground up.
+
+14
+00:00:46,917 --> 00:00:51,487
+First, ground rules. These are preprints,
+written by an internal OpenAI model.
+
+15
+00:00:51,787 --> 00:00:56,023
+Most came from one fixed procedure; a few,
+like the zeta function and Hodge
+
+16
+00:00:56,023 --> 00:00:57,887
+conjecture work, were exceptions.
+
+17
+00:00:58,187 --> 00:01:02,736
+Two hundred and thirty-five of the families
+come with Lean formalizations: proofs
+
+18
+00:01:02,736 --> 00:01:06,107
+written as code, where a computer checks
+every logical step.
+
+19
+00:01:06,407 --> 00:01:10,550
+Whenever you see this badge, that family has
+one, covering at least part of the
+
+20
+00:01:10,550 --> 00:01:10,917
+result.
+
+21
+00:01:11,217 --> 00:01:15,425
+The rest haven't had that scrutiny yet, and
+the repository warns that some could
+
+22
+00:01:15,425 --> 00:01:16,057
+have issues.
+
+23
+00:01:16,357 --> 00:01:19,317
+So everything you're about to hear is what
+the papers claim.
+
+24
+00:01:19,617 --> 00:01:24,425
+We'll go field by field. The biggest
+problems get a proper explanation; the rest
+get
+
+25
+00:01:24,425 --> 00:01:25,857
+the rapid-fire treatment.
+
+26
+00:01:26,750 --> 00:01:30,170
+Part one. Number theory: the study of whole
+numbers and primes.
+
+27
+00:01:31,417 --> 00:01:35,507
+Start with the most famous function in
+mathematics: the Riemann zeta function.
+
+28
+00:01:35,807 --> 00:01:40,152
+Add up one over n to the s, over every whole
+number n, carefully extend it to
+
+29
+00:01:40,152 --> 00:01:44,667
+complex inputs, and its zeros turn out to
+control how the primes are spread out.
+
+30
+00:01:44,967 --> 00:01:49,525
+The interesting zeros live in a vertical
+strip, between real part zero and one.
+
+31
+00:01:49,525 --> 00:01:53,738
+The Riemann Hypothesis says they all sit on
+the middle line, at one half.
+
+32
+00:01:53,738 --> 00:01:54,777
+That's still open.
+
+33
+00:01:55,077 --> 00:01:58,913
+A zero near the right-hand edge would wreck
+our control of the primes.
+
+34
+00:01:58,913 --> 00:02:03,408
+Yet for over a century, the best anyone
+could prove was a zero-free zone that gets
+
+35
+00:02:03,408 --> 00:02:05,217
+thinner and thinner as you climb.
+
+36
+00:02:05,517 --> 00:02:10,392
+The quasi-Riemann hypothesis asks for much
+less: some fixed wall, anywhere short of
+
+37
+00:02:10,392 --> 00:02:12,507
+the edge, that no zero ever crosses.
+
+38
+00:02:12,807 --> 00:02:15,646
+This paper claims the wall is at seven
+eighths.
+
+39
+00:02:15,646 --> 00:02:20,659
+No zero of zeta, or of its cousins, the
+Dirichlet L-functions, has real part bigger
+
+40
+00:02:20,659 --> 00:02:21,807
+than seven eighths.
+
+41
+00:02:22,107 --> 00:02:27,199
+Not the Riemann Hypothesis, but a fixed
+margin no one had before, enough to rule out
+
+42
+00:02:27,199 --> 00:02:31,867
+the notorious Landau-Siegel zeros:
+hypothetical rogue zeros hugging the edge.
+
+43
+00:02:32,783 --> 00:02:37,719
+Next, pi. It isn't a fraction, but some
+fractions get remarkably close: twenty-two
+
+44
+00:02:37,719 --> 00:02:42,353
+sevenths, or three fifty-five over one
+thirteen, right to six decimal places.
+
+45
+00:02:42,653 --> 00:02:46,482
+The question is how close, compared to the
+size of the denominator.
+
+46
+00:02:46,482 --> 00:02:51,282
+For any irrational number, there are
+infinitely many fractions within about one
+over
+
+47
+00:02:51,282 --> 00:02:51,853
+q squared.
+
+48
+00:02:52,153 --> 00:02:57,475
+The irrationality exponent asks whether you
+can do better infinitely often, say, one
+
+49
+00:02:57,475 --> 00:03:02,670
+over q cubed. For pi, the best anyone had
+proven was that this exponent is at most
+
+50
+00:03:02,670 --> 00:03:04,063
+about seven point one.
+
+51
+00:03:04,363 --> 00:03:09,292
+The paper claims the answer is two, the
+smallest possible: in the long run, pi is no
+
+52
+00:03:09,292 --> 00:03:11,873
+easier to approximate than a typical number.
+
+53
+00:03:12,173 --> 00:03:17,007
+As a bonus, it settles a well-known puzzle:
+the Flint Hills series, a sum built from
+
+54
+00:03:17,007 --> 00:03:18,963
+sines of whole numbers, converges.
+
+55
+00:03:20,700 --> 00:03:25,778
+Rapid fire. Catalan's constant: one, minus a
+ninth, plus a twenty-fifth, minus a
+
+56
+00:03:25,778 --> 00:03:28,190
+forty-ninth, and so on, is irrational.
+
+57
+00:03:28,490 --> 00:03:33,240
+Hilbert's tenth problem, for fractions: no
+single algorithm can tell, for every
+
+58
+00:03:33,240 --> 00:03:37,630
+whole-number polynomial equation, whether it
+has a solution in fractions.
+
+59
+00:03:37,930 --> 00:03:42,575
+Plus: the full Birch and Swinnerton-Dyer
+formula in low rank, Goldfeld's conjecture,
+
+60
+00:03:42,575 --> 00:03:47,055
+modularity over imaginary quadratic fields,
+Erdős's short Egyptian fractions, the
+
+61
+00:03:47,055 --> 00:03:51,700
+Gaussian moat, the infinitude half of
+Artin's conjecture, Ostmann's inverse
+Goldbach
+
+62
+00:03:51,700 --> 00:03:55,350
+problem, large prime gaps, two-point Chowla,
+and Deligne–Drinfeld.
+
+63
+00:03:56,817 --> 00:04:01,337
+Part two. Algebraic geometry: shapes cut out
+by polynomial equations.
+
+64
+00:04:02,583 --> 00:04:06,633
+Here lives one of the seven Millennium Prize
+Problems: the Hodge conjecture.
+
+65
+00:04:06,933 --> 00:04:11,542
+A shape defined by polynomial equations has
+holes and loops, which topology can
+
+66
+00:04:11,542 --> 00:04:16,443
+measure. Some of them are traced out by
+smaller polynomial shapes sitting inside it.
+
+67
+00:04:16,743 --> 00:04:21,433
+The conjecture says that every class passing
+a certain symmetry test, a Hodge class,
+
+68
+00:04:21,433 --> 00:04:24,503
+is built from such pieces, allowing
+fractional amounts.
+
+69
+00:04:24,803 --> 00:04:29,936
+The full conjecture is still open, but this
+paper claims it for an important family,
+
+70
+00:04:29,936 --> 00:04:33,968
+in every dimension: abelian varieties with
+complex multiplication.
+
+71
+00:04:33,968 --> 00:04:37,023
+Think many-dimensional donuts with extra
+symmetry.
+
+72
+00:04:37,323 --> 00:04:42,095
+By older work of Milne, that would also give
+the Tate conjecture for abelian
+
+73
+00:04:42,095 --> 00:04:47,118
+varieties over finite fields. Companion
+papers claim the same for products of K3
+
+74
+00:04:47,118 --> 00:04:47,683
+surfaces.
+
+75
+00:04:49,433 --> 00:04:53,778
+Zariski's cancellation problem: if a shape,
+times a line, is ordinary
+
+76
+00:04:53,778 --> 00:04:57,682
+five-dimensional space, must the shape be
+ordinary four-space?
+
+77
+00:04:57,682 --> 00:05:00,893
+Over the complex numbers, the paper's answer
+is no.
+
+78
+00:05:01,193 --> 00:05:05,694
+Plus Nagata's conjecture, Fujita's freeness
+conjecture, Bloch's conjecture for
+
+79
+00:05:05,694 --> 00:05:09,905
+surfaces, a counterexample to Griffiths
+positivity, Kobayashi's ampleness
+
+80
+00:05:09,905 --> 00:05:14,752
+conjecture, LeBrun–Salamon, the generalized
+Mukai conjecture, Zariski's multiplicity
+
+81
+00:05:14,752 --> 00:05:19,367
+conjecture, disproved, the global spherical
+shell conjecture, Kollár–Pardon, and
+
+82
+00:05:19,367 --> 00:05:21,213
+Campana's abelianity conjecture.
+
+83
+00:05:22,650 --> 00:05:26,480
+Part three. Analysis and geometry:
+functions, waves, and shapes.
+
+84
+00:05:27,717 --> 00:05:31,782
+Take a needle, one unit long. How much area
+do you need to turn it all the way
+
+85
+00:05:31,782 --> 00:05:32,147
+around?
+
+86
+00:05:32,447 --> 00:05:36,671
+In 1928, Besicovitch found a shocking
+answer: as little as you want.
+
+87
+00:05:36,671 --> 00:05:41,517
+You can even fit a needle pointing in every
+direction into a set of zero area.
+
+88
+00:05:41,817 --> 00:05:46,285
+The Kakeya conjecture says these sets still
+can't be thin in another sense: their
+
+89
+00:05:46,285 --> 00:05:50,147
+dimension. In n-dimensional space, they
+should be fully n-dimensional.
+
+90
+00:05:50,447 --> 00:05:55,936
+In 2025, Hong Wang and Joshua Zahl proved
+this in three dimensions: a celebrated
+
+91
+00:05:55,936 --> 00:05:56,417
+result.
+
+92
+00:05:56,717 --> 00:06:01,544
+Building on their work, one paper claims the
+stronger, quantitative version in three
+
+93
+00:06:01,544 --> 00:06:06,085
+dimensions, the maximal conjecture: thin
+tubes pointing in different directions
+
+94
+00:06:06,085 --> 00:06:07,407
+can't pile up too much.
+
+95
+00:06:07,707 --> 00:06:11,535
+A second paper claims the dimension
+conjecture in four dimensions.
+
+96
+00:06:11,535 --> 00:06:12,927
+Five and up remain open.
+
+97
+00:06:13,817 --> 00:06:18,255
+Take a convex shape, centered at the origin,
+and build its dual, the polar body.
+
+98
+00:06:18,255 --> 00:06:22,749
+Stretch the shape and the dual shrinks, so
+the product of their volumes stays the
+
+99
+00:06:22,749 --> 00:06:23,027
+same.
+
+100
+00:06:23,327 --> 00:06:27,252
+That product is largest for a round ball, as
+has long been known.
+
+101
+00:06:27,252 --> 00:06:31,057
+In the late 1930s, Mahler asked: which shape
+makes it smallest?
+
+102
+00:06:31,357 --> 00:06:34,213
+The papers claim the answer in every
+dimension.
+
+103
+00:06:34,213 --> 00:06:37,374
+Among symmetric shapes: the cube, and its
+relatives.
+
+104
+00:06:37,374 --> 00:06:41,446
+Among all shapes: the simplex. A triangle, a
+tetrahedron, and their
+
+105
+00:06:41,446 --> 00:06:43,087
+higher-dimensional cousins.
+
+106
+00:06:44,833 --> 00:06:49,325
+Falconer's distance conjecture: if a dusty,
+fractal set has more than half the
+
+107
+00:06:49,325 --> 00:06:53,816
+dimension of the space it lives in, the
+distances between its points take up a
+
+108
+00:06:53,816 --> 00:06:57,443
+positive length of the number line. Claimed
+in every dimension.
+
+109
+00:06:57,743 --> 00:07:02,810
+Koebe's circle domain conjecture, from 1908:
+any region with holes, even infinitely
+
+110
+00:07:02,810 --> 00:07:07,815
+many, of any shapes, can be reshaped without
+distorting angles, so that every hole
+
+111
+00:07:07,815 --> 00:07:10,073
+becomes a perfect circle, or a point.
+
+112
+00:07:10,373 --> 00:07:14,691
+Plus Brennan's conjecture, Fourier series
+converging in L log L, Bochner–Riesz,
+
+113
+00:07:14,691 --> 00:07:19,063
+local smoothing, and Fourier restriction for
+curved surfaces, all three in three
+
+114
+00:07:19,063 --> 00:07:23,161
+dimensions, ultraflat Littlewood
+polynomials, the geometric case of Erdős's
+
+115
+00:07:23,161 --> 00:07:27,752
+similarity conjecture, optimality of the
+triangular lattice, the log Brunn–Minkowski
+
+116
+00:07:27,752 --> 00:07:29,883
+inequality, and the Gaussian propeller.
+
+117
+00:07:31,350 --> 00:07:35,851
+Part four. Theoretical computer science:
+what can computers do efficiently, and what
+
+118
+00:07:35,851 --> 00:07:36,440
+can't they?
+
+119
+00:07:37,683 --> 00:07:42,579
+Picture a network where every node must pick
+a label, and every link carries a rule:
+
+120
+00:07:42,579 --> 00:07:45,785
+if you pick this, your neighbor must pick
+exactly that.
+
+121
+00:07:45,785 --> 00:07:48,349
+One choice forces a unique answer next door.
+
+122
+00:07:48,349 --> 00:07:49,573
+That's a unique game.
+
+123
+00:07:49,873 --> 00:07:54,870
+Suppose you're promised that ninety-nine
+percent of the rules can be satisfied at
+
+124
+00:07:54,870 --> 00:07:59,990
+once. The Unique Games Conjecture, posed by
+Subhash Khot in 2002, says no efficient
+
+125
+00:07:59,990 --> 00:08:04,986
+algorithm can tell that apart from a network
+where only one percent can, unless P
+
+126
+00:08:04,986 --> 00:08:05,603
+equals NP.
+
+127
+00:08:05,903 --> 00:08:09,871
+Why care? It pins down how well we can
+approximate hard problems.
+
+128
+00:08:09,871 --> 00:08:14,753
+Take Max-Cut: split a network into two
+teams, with as many links between them as
+
+129
+00:08:14,753 --> 00:08:19,575
+possible. A famous 1995 algorithm always
+gets at least eighty-seven point eight
+
+130
+00:08:19,575 --> 00:08:24,213
+percent of the best; the conjecture implies
+nothing efficient can do better.
+
+131
+00:08:24,513 --> 00:08:27,963
+This paper claims a proof of the Unique
+Games Conjecture.
+
+132
+00:08:27,963 --> 00:08:32,987
+Companions claim direct proofs that Max-
+Cut's eighty-seven point eight percent, and
+
+133
+00:08:32,987 --> 00:08:37,768
+factor two for another classic problem,
+Vertex Cover, can't be beaten, unless P
+
+134
+00:08:37,768 --> 00:08:38,373
+equals NP.
+
+135
+00:08:39,283 --> 00:08:44,467
+Multiplying two n by n matrices the
+schoolbook way takes about n cubed steps.
+
+136
+00:08:44,467 --> 00:08:50,054
+In 1969, Strassen showed you can do better,
+and ever since, the race has been on to
+
+137
+00:08:50,054 --> 00:08:52,343
+pin down omega: the true exponent.
+
+138
+00:08:52,643 --> 00:08:56,000
+Decades of work inched it down: two point
+three seven six.
+
+139
+00:08:56,000 --> 00:08:59,183
+Two point three seven three. Two point three
+seven one.
+
+140
+00:08:59,483 --> 00:09:04,197
+This paper claims omega is at most nine
+fourths: two point two five, over the
+
+141
+00:09:04,197 --> 00:09:09,156
+complex numbers. It's a statement about how
+the cost grows for enormous matrices,
+
+142
+00:09:09,156 --> 00:09:13,563
+not a faster algorithm for your laptop. But
+as jumps go, it's a big one.
+
+143
+00:09:15,300 --> 00:09:20,946
+Coin flips versus memory: the paper claims
+randomness adds no power to computers
+
+144
+00:09:20,946 --> 00:09:25,110
+with a tiny, logarithmic memory. L equals R
+L equals B P L.
+
+145
+00:09:25,410 --> 00:09:30,889
+Multiplying n-digit numbers: since 1971, n
+log n was conjectured to be the speed
+
+146
+00:09:30,889 --> 00:09:36,231
+limit on a standard model of computer. A new
+algorithm claims to beat it, by a
+
+147
+00:09:36,231 --> 00:09:36,710
+sliver.
+
+148
+00:09:37,010 --> 00:09:40,781
+And Subset Sum: do some of these numbers add
+up to a target?
+
+149
+00:09:40,781 --> 00:09:45,997
+A randomized method claims two to the zero
+point four nine n time, breaking the two
+
+150
+00:09:45,997 --> 00:09:48,260
+to the n over two barrier from 1974.
+
+151
+00:09:48,560 --> 00:09:53,048
+Plus hardness of coloring three-colorable
+graphs, two-to-one games, mean-payoff
+
+152
+00:09:53,048 --> 00:09:57,649
+games, a permanent versus determinant lower
+bound, approximately counting perfect
+
+153
+00:09:57,649 --> 00:10:02,364
+matchings, a counterexample to quadratic
+sensitivity, scheduling on three machines,
+
+154
+00:10:02,364 --> 00:10:06,170
+shortest superstrings, and factoring
+polynomials deterministically.
+
+155
+00:10:07,617 --> 00:10:11,147
+Part five. Combinatorics: counting,
+coloring, and patterns.
+
+156
+00:10:12,383 --> 00:10:16,968
+Paint every point of an infinite plane, with
+one rule: any two points exactly one
+
+157
+00:10:16,968 --> 00:10:20,703
+inch apart must get different colors. How
+many colors do you need?
+
+158
+00:10:21,003 --> 00:10:25,583
+Seven is enough. Tile the plane with
+hexagons, just under an inch across, and
+color
+
+159
+00:10:25,583 --> 00:10:27,293
+them in this repeating pattern.
+
+160
+00:10:27,593 --> 00:10:31,576
+And you need at least four. Here's a small
+network of one-inch links, the Moser
+
+161
+00:10:31,576 --> 00:10:33,693
+spindle, that can't be colored with three.
+
+162
+00:10:33,993 --> 00:10:38,733
+That's where things sat until 2018, when
+Aubrey de Grey found a network of more than
+
+163
+00:10:38,733 --> 00:10:40,933
+fifteen hundred points that needs five.
+
+164
+00:10:41,233 --> 00:10:46,162
+This paper claims at least six: every five-
+coloring of the plane has two points, one
+
+165
+00:10:46,162 --> 00:10:50,503
+inch apart, with the same color. If it
+holds, the answer is six, or seven.
+
+166
+00:10:51,417 --> 00:10:56,086
+An arithmetic progression is a run of evenly
+spaced numbers, like five, twelve,
+
+167
+00:10:56,086 --> 00:10:57,327
+nineteen, twenty-six.
+
+168
+00:10:57,627 --> 00:11:02,252
+Erdős conjectured that if a set of whole
+numbers is big enough that adding up one
+
+169
+00:11:02,252 --> 00:11:06,764
+over each of them gives infinity, it must
+contain progressions of every length.
+
+170
+00:11:06,764 --> 00:11:11,104
+The primes pass that test, and Green and Tao
+famously proved they do contain
+
+171
+00:11:11,104 --> 00:11:12,817
+arbitrarily long progressions.
+
+172
+00:11:13,117 --> 00:11:17,651
+The paper claims Erdős's conjecture in full,
+by showing that sets without long
+
+173
+00:11:17,651 --> 00:11:22,301
+progressions must thin out much faster than
+anyone had proved for lengths beyond
+
+174
+00:11:22,301 --> 00:11:25,557
+three. It was one of Erdős's famous cash-
+prize problems.
+
+175
+00:11:27,300 --> 00:11:32,093
+Borsuk asked whether every shape can be cut
+into one more piece than its dimension,
+
+176
+00:11:32,093 --> 00:11:36,367
+each strictly narrower. The smallest known
+counterexample was in dimension
+
+177
+00:11:36,367 --> 00:11:39,370
+sixty-three; the paper claims one in
+dimension nine.
+
+178
+00:11:39,670 --> 00:11:44,504
+The periodic tiling conjecture: if a shape
+tiles space by sliding copies around,
+
+179
+00:11:44,504 --> 00:11:49,459
+there's always a repeating pattern. Already
+known to fail in huge dimensions, it's
+
+180
+00:11:49,459 --> 00:11:53,870
+now claimed false in three: the lowest
+possible, for tiles made of cubes.
+
+181
+00:11:54,170 --> 00:11:59,471
+And Hadwiger's conjecture from 1943, linking
+graph coloring to hidden cliques, is
+
+182
+00:11:59,471 --> 00:12:03,070
+claimed false, with large, random-like
+counterexamples.
+
+183
+00:12:03,370 --> 00:12:07,159
+Plus Barnette's conjecture, Seymour's second
+neighborhood conjecture,
+
+184
+00:12:07,159 --> 00:12:11,607
+counterexamples to Sidorenko, and to Ryser,
+Hindman's sums and products, crossing
+
+185
+00:12:11,607 --> 00:12:15,945
+numbers of complete graphs, circulant
+Hadamard matrices, the Heilbronn triangle
+
+186
+00:12:15,945 --> 00:12:19,130
+problem, and a game called Snaky, won in
+twenty-one moves.
+
+187
+00:12:20,583 --> 00:12:25,498
+Part six. Algebra, groups, and logic: the
+rules of symmetry, and of mathematics
+
+188
+00:12:25,498 --> 00:12:25,933
+itself.
+
+189
+00:12:27,183 --> 00:12:31,445
+Take a group of symmetries, and build its
+group algebra: formal sums of group
+
+190
+00:12:31,445 --> 00:12:34,433
+elements, which you add and multiply like
+polynomials.
+
+191
+00:12:34,733 --> 00:12:40,016
+If some symmetry returns to the start after
+a few repeats, it's easy to multiply two
+
+192
+00:12:40,016 --> 00:12:45,111
+nonzero things and get zero. Kaplansky
+conjectured in the 1950s that without such
+
+193
+00:12:45,111 --> 00:12:49,073
+looping, called torsion, it can never
+happen: no zero divisors.
+
+194
+00:12:49,373 --> 00:12:54,299
+In 2021, Giles Gardam disproved a sibling,
+Kaplansky's unit conjecture.
+
+195
+00:12:54,299 --> 00:12:57,073
+The zero-divisor conjecture still stood.
+
+196
+00:12:57,373 --> 00:13:02,324
+This paper claims a counterexample: a
+torsion-free group, built with the help of
+
+197
+00:13:02,324 --> 00:13:07,336
+random graphs, where two nonzero elements,
+with coefficients mod two, multiply to
+
+198
+00:13:07,336 --> 00:13:12,163
+exactly zero. A companion breaks Kaplansky's
+direct finiteness conjecture too.
+
+199
+00:13:13,050 --> 00:13:17,656
+Thompson's group F is made of bent-line maps
+of an interval: straight pieces, bends
+
+200
+00:13:17,656 --> 00:13:21,930
+at points like one half or three quarters,
+and slopes that are powers of two.
+
+201
+00:13:22,230 --> 00:13:25,117
+The question, open since 1979: is it
+amenable?
+
+202
+00:13:25,117 --> 00:13:30,201
+Roughly, can you find finite chunks of the
+group with almost no boundary, the way
+
+203
+00:13:30,201 --> 00:13:32,900
+you can on a grid, but never can on a tree?
+
+204
+00:13:33,200 --> 00:13:36,083
+Over the years, claimed solutions went both
+ways.
+
+205
+00:13:36,083 --> 00:13:39,320
+This paper says no: Thompson's group F is
+not amenable.
+
+206
+00:13:41,067 --> 00:13:45,662
+Cannon's conjecture: if a negatively curved
+group, seen from infinitely far away,
+
+207
+00:13:45,662 --> 00:13:50,087
+looks like a sphere, then it comes from
+hyperbolic three-dimensional geometry.
+
+208
+00:13:50,387 --> 00:13:55,320
+And in logic, the partition principle, from
+1902: splitting a set never gives more
+
+209
+00:13:55,320 --> 00:13:58,688
+pieces than elements. Does it imply the
+axiom of choice?
+
+210
+00:13:58,688 --> 00:14:01,877
+The paper builds a universe of sets where it
+doesn't.
+
+211
+00:14:02,177 --> 00:14:06,827
+Plus Serre's intersection multiplicities,
+Lech's conjecture, Kurosh's division ring
+
+212
+00:14:06,827 --> 00:14:11,365
+problem, Saxl's conjecture, Alperin's weight
+conjecture, Donovan's conjecture, an
+
+213
+00:14:11,365 --> 00:14:16,072
+infinite, finitely presented two-group,
+Boone–Higman, the Artin K pi one conjecture,
+
+214
+00:14:16,072 --> 00:14:18,257
+and the rigidity of the Turing degrees.
+
+215
+00:14:19,717 --> 00:14:24,086
+Part seven. Dynamics, probability, and
+physics: things that move, mix, and
+
+216
+00:14:24,086 --> 00:14:24,677
+fluctuate.
+
+217
+00:14:25,917 --> 00:14:30,786
+Picture a fluid swirling on a tabletop,
+where the velocity at every point is given
+
+218
+00:14:30,786 --> 00:14:31,677
+by polynomials.
+
+219
+00:14:31,977 --> 00:14:36,756
+Some paths settle into isolated loops,
+called limit cycles: nearby paths spiral
+
+220
+00:14:36,756 --> 00:14:38,027
+toward them, or away.
+
+221
+00:14:38,327 --> 00:14:43,533
+In 1900, as part of his sixteenth problem,
+Hilbert asked how many limit cycles such
+
+222
+00:14:43,533 --> 00:14:48,801
+a flow can have. It's notoriously hard. Even
+for degree two, nobody knew whether one
+
+223
+00:14:48,801 --> 00:14:50,997
+upper limit covers every such flow.
+
+224
+00:14:51,297 --> 00:14:55,434
+This paper claims that for every degree,
+there is a finite ceiling.
+
+225
+00:14:55,434 --> 00:14:58,337
+It doesn't compute it, but it proves it
+exists.
+
+226
+00:14:58,337 --> 00:15:03,463
+A companion pins down one classic case
+exactly: a degree-five oscillator family has
+
+227
+00:15:03,463 --> 00:15:05,007
+at most two limit cycles.
+
+228
+00:15:05,917 --> 00:15:10,496
+In quantum mechanics, two ways of measuring
+are mutually unbiased if knowing the
+
+229
+00:15:10,496 --> 00:15:14,847
+result of one tells you nothing about the
+other, like position and momentum.
+
+230
+00:15:15,147 --> 00:15:19,892
+In a dimension d that's a prime power, like
+two, three, four or five, you can fit d
+
+231
+00:15:19,892 --> 00:15:24,122
+plus one such measurements. Six is the first
+dimension that isn't, and for
+
+232
+00:15:24,122 --> 00:15:28,467
+thirty-five years, the maximum could have
+been anything from three to seven.
+
+233
+00:15:28,767 --> 00:15:32,597
+The paper claims exactly three, with a
+large, computer-assisted proof.
+
+234
+00:15:34,333 --> 00:15:39,145
+Haldane's conjecture: a ring of spin-one
+quantum magnets, each pointing against its
+
+235
+00:15:39,145 --> 00:15:42,565
+neighbors, keeps an energy gap however long
+the ring grows.
+
+236
+00:15:42,565 --> 00:15:46,043
+Claimed for even-length rings, with an
+explicit lower bound.
+
+237
+00:15:46,343 --> 00:15:50,903
+Plus Rokhlin's multiple mixing problem,
+chaos in the standard map, weak mixing in
+
+238
+00:15:50,903 --> 00:15:55,350
+triangular billiards, critical percolation,
+the Benjamini–Schramm nonuniqueness
+
+239
+00:15:55,350 --> 00:15:59,685
+conjecture, the exact size of S L E curves,
+the Thorp shuffle, Mézard–Parisi,
+
+240
+00:15:59,685 --> 00:16:03,682
+Anderson localization, the ionization
+conjecture, Penrose inequalities,
+
+241
+00:16:03,682 --> 00:16:07,453
+Bose–Einstein condensation, and parity in
+shallow quantum circuits.
+
+242
+00:16:08,917 --> 00:16:14,085
+Part eight. Operator algebras, topology, and
+functional analysis: the mathematics of
+
+243
+00:16:14,085 --> 00:16:16,177
+infinite dimensions, and of shape.
+
+244
+00:16:17,417 --> 00:16:22,079
+Take the free group on two letters: every
+word you can spell with a, b, and their
+
+245
+00:16:22,079 --> 00:16:24,497
+inverses. Its picture is an infinite tree.
+
+246
+00:16:24,797 --> 00:16:29,147
+From any group, you can build an algebra of
+operators, its von Neumann algebra,
+
+247
+00:16:29,147 --> 00:16:31,735
+which for a free group is infinite-
+dimensional.
+
+248
+00:16:31,735 --> 00:16:34,544
+Two letters, or three: do you get the same
+algebra?
+
+249
+00:16:34,544 --> 00:16:37,077
+The groups themselves are certainly
+different.
+
+250
+00:16:37,377 --> 00:16:41,330
+The question goes back to Richard Kadison,
+and has been open for decades.
+
+251
+00:16:41,330 --> 00:16:45,607
+In the nineties, it was shown to be all or
+nothing: either all these free group
+
+252
+00:16:45,607 --> 00:16:48,207
+algebras are the same, or they're all
+different.
+
+253
+00:16:48,507 --> 00:16:52,982
+The paper claims: all the same. With two or
+more letters, the number of letters is
+
+254
+00:16:52,982 --> 00:16:54,947
+completely invisible to the algebra.
+
+255
+00:16:56,700 --> 00:17:01,708
+Kadison's similarity problem, from 1955: can
+every bounded representation be
+
+256
+00:17:01,708 --> 00:17:05,068
+straightened out by a single change of
+coordinates?
+
+257
+00:17:05,068 --> 00:17:06,320
+The paper says yes.
+
+258
+00:17:06,620 --> 00:17:11,361
+The hyperinvariant subspace problem, a
+stronger cousin of the famous invariant
+
+259
+00:17:11,361 --> 00:17:16,223
+subspace problem: the paper builds an
+operator with no nontrivial hyperinvariant
+
+260
+00:17:16,223 --> 00:17:19,140
+subspace, though the famous original stays
+open.
+
+261
+00:17:19,440 --> 00:17:23,928
+The Hilbert–Smith conjecture: a locally
+compact group acting faithfully on a
+
+262
+00:17:23,928 --> 00:17:27,235
+manifold must be a smooth Lie group, like
+the rotations.
+
+263
+00:17:27,235 --> 00:17:28,830
+Claimed in every dimension.
+
+264
+00:17:29,130 --> 00:17:34,167
+And Crouzeix's conjecture, in complete form:
+plug a matrix into a polynomial, even
+
+265
+00:17:34,167 --> 00:17:39,265
+one whose coefficients are matrices too, and
+the result's size is at most twice the
+
+266
+00:17:39,265 --> 00:17:42,520
+polynomial's maximum on the matrix's
+numerical range.
+
+267
+00:17:42,820 --> 00:17:46,920
+Plus Kadison–Kastler, Connes' bicentralizer
+problem, the generator problem,
+
+268
+00:17:46,920 --> 00:17:51,511
+Baum–Connes, disproved, the Kervaire
+invariant at the prime three, cosmetic
+surgery,
+
+269
+00:17:51,511 --> 00:17:54,900
+Singer's conjecture in four dimensions, and
+Tingley's problem.
+
+270
+00:17:56,350 --> 00:18:00,503
+Part nine. Geometry and differential
+equations: the shape of space, and the
+
+271
+00:18:00,503 --> 00:18:01,610
+equations of nature.
+
+272
+00:18:02,850 --> 00:18:07,330
+Take a flat metal plate, insulated around
+its edges, heat it unevenly, and wait.
+
+273
+00:18:07,630 --> 00:18:12,540
+As the heat evens out, the leftover
+unevenness settles into one basic pattern.
+
+274
+00:18:12,540 --> 00:18:15,120
+Where are the hottest and coldest points?
+
+275
+00:18:15,120 --> 00:18:18,960
+Jeffrey Rauch asked in 1974: are they always
+on the boundary?
+
+276
+00:18:19,260 --> 00:18:23,988
+Not always: in 1999, Burdzy and Werner found
+a counterexample with holes.
+
+277
+00:18:23,988 --> 00:18:27,550
+But for shapes without holes, the question
+stayed open.
+
+278
+00:18:27,850 --> 00:18:32,274
+This paper claims it for every smooth shape
+without holes: the hot and cold spots
+
+279
+00:18:32,274 --> 00:18:33,530
+always sit on the edge.
+
+280
+00:18:34,417 --> 00:18:39,298
+A thin, hot plasma, like the solar wind, is
+a swarm of charged particles that rarely
+
+281
+00:18:39,298 --> 00:18:43,947
+collide, moving through the electric and
+magnetic fields they create themselves.
+
+282
+00:18:44,247 --> 00:18:48,640
+The relativistic Vlasov–Maxwell equations
+describe that feedback loop.
+
+283
+00:18:48,640 --> 00:18:53,660
+Do smooth solutions stay smooth forever, or
+can particles get kicked to infinite
+
+284
+00:18:53,660 --> 00:18:57,677
+momentum? In three dimensions, that's been
+open since the 1980s.
+
+285
+00:18:57,977 --> 00:19:02,550
+The paper claims: smooth forever. Global
+existence and uniqueness, for any
+
+286
+00:19:02,550 --> 00:19:07,309
+reasonable starting plasma made of one kind
+of particle, with no smallness or
+
+287
+00:19:07,309 --> 00:19:08,607
+symmetry assumptions.
+
+288
+00:19:10,367 --> 00:19:14,871
+De Giorgi's conjecture, about phase
+transitions like oil separating from water:
+
+289
+00:19:14,871 --> 00:19:17,437
+claimed in dimension eight, the hardest
+case.
+
+290
+00:19:17,737 --> 00:19:22,277
+A fluid that computes: stir water just
+right, and a particle lands in a target
+
+291
+00:19:22,277 --> 00:19:24,897
+exactly when a chosen computer program
+halts.
+
+292
+00:19:25,197 --> 00:19:29,830
+And every sphere, in any dimension, however
+you dent or stretch it, has infinitely
+
+293
+00:19:29,830 --> 00:19:33,617
+many different closed geodesics: think
+rubber bands, snapped tight.
+
+294
+00:19:33,917 --> 00:19:38,399
+Plus Yau's uniformization conjecture,
+isometric immersions of surfaces in four
+
+295
+00:19:38,399 --> 00:19:43,225
+dimensions, Katok's entropy rigidity
+conjecture, a nearby Lagrangian
+counterexample,
+
+296
+00:19:43,225 --> 00:19:47,133
+symplectic ball packing, the metric Blaschke
+conjecture, Donaldson's
+
+297
+00:19:47,133 --> 00:19:51,787
+tamed-to-compatible conjecture, a Calabi
+flow singularity, and free boundaries in
+
+298
+00:19:51,787 --> 00:19:52,707
+dimension seven.
+
+299
+00:19:54,150 --> 00:19:58,190
+That's over a hundred and twenty results,
+out of three hundred and seventy-two.
+
+300
+00:19:58,490 --> 00:20:03,330
+Not all of them will survive. Mathematics
+has a long history of claimed proofs that
+
+301
+00:20:03,330 --> 00:20:08,112
+cracked under scrutiny, and the real test
+for these is expert checking, and formal
+
+302
+00:20:08,112 --> 00:20:08,870
+verification.
+
+303
+00:20:09,170 --> 00:20:13,646
+But two hundred and thirty-five families
+already have Lean proofs of at least part
+
+304
+00:20:13,646 --> 00:20:17,030
+of the result, and every paper is public,
+for anyone to check.
+
+305
+00:20:17,330 --> 00:20:21,746
+If even a fraction of these hold up, the way
+mathematics gets done is about to
+
+306
+00:20:21,746 --> 00:20:24,860
+change. The repository is linked below. Go
+take a look.
