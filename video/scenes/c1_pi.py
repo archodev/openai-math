@@ -319,7 +319,7 @@ class C1Pi(VoiceScene):
 
         # ---- 22/7
         m22 = frac_marker(V22, r"\frac{22}{7}")
-        src22 = r_22[0].copy()
+        src22 = r_22[0].copy().set_opacity(0)      # no full-opacity pop at the row
         self.play(FadeIn(r_22[1:], shift=RIGHT * 0.15), FadeIn(r_22[0]),
                   FadeIn(m22[0]), FadeIn(m22[1]), ReplacementTransform(src22, m22[2]),
                   run_time=max(0.4, min(0.9, self.cue("f355") - self.now - 0.05)))
@@ -329,7 +329,7 @@ class C1Pi(VoiceScene):
 
         # ---- 355/113
         m355 = frac_marker(V355, r"\frac{355}{113}")
-        src355 = r_355[0].copy()
+        src355 = r_355[0].copy().set_opacity(0)
         self.play(FadeIn(r_355[1:], shift=RIGHT * 0.15), FadeIn(r_355[0]),
                   FadeIn(m355[0]), FadeIn(m355[1]), ReplacementTransform(src355, m355[2]),
                   run_time=0.9)
