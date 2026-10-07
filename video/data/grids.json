@@ -1,0 +1,680 @@
+{
+ "c1_grid": [
+  {
+   "num": "005",
+   "name": "Catalan's constant is irrational",
+   "verdict": "proved",
+   "caption": "G = 1 − 1/9 + 1/25 − 1/49 + ⋯ is not a fraction."
+  },
+  {
+   "num": "004",
+   "name": "Hilbert's tenth problem over ℚ",
+   "verdict": "resolved",
+   "caption": "No algorithm decides whether a polynomial equation has a rational solution."
+  },
+  {
+   "num": "002",
+   "name": "Full BSD formula in Selmer corank ≤ 1",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "006",
+   "name": "Goldfeld's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "030",
+   "name": "Modularity over imaginary quadratic fields",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "025",
+   "name": "Erdős's short Egyptian fractions",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "028",
+   "name": "The Gaussian moat conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "029",
+   "name": "Artin's conjecture: infinitude part",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "013",
+   "name": "Ostmann's inverse Goldbach problem",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "026",
+   "name": "Positive density of large prime gaps",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "007",
+   "name": "Two-point Chowla conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "008",
+   "name": "Deligne–Drinfeld conjecture",
+   "verdict": "proved",
+   "caption": null
+  }
+ ],
+ "c2_grid": [
+  {
+   "num": "047",
+   "name": "Zariski cancellation fails over ℂ",
+   "verdict": "counterexample",
+   "caption": "X × line ≅ 5-space, yet X is not 4-space."
+  },
+  {
+   "num": "039",
+   "name": "Nagata's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "038",
+   "name": "Fujita's freeness conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "040",
+   "name": "Bloch's conjecture for surfaces",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "050",
+   "name": "Griffiths positivity conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "051",
+   "name": "Kobayashi's canonical-ampleness conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "062",
+   "name": "LeBrun–Salamon conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "063",
+   "name": "Generalized Mukai conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "059",
+   "name": "Zariski's multiplicity conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "060",
+   "name": "Global spherical shell conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "058",
+   "name": "Kollár–Pardon universal covers",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "057",
+   "name": "Campana's abelianity conjecture",
+   "verdict": "proved",
+   "caption": null
+  }
+ ],
+ "c3_grid": [
+  {
+   "num": "073",
+   "name": "Falconer distance conjecture",
+   "verdict": "proved",
+   "caption": "dim E > d/2 ⟹ the distance set has positive length."
+  },
+  {
+   "num": "071",
+   "name": "Koebe's circle-domain conjecture",
+   "verdict": "proved",
+   "caption": "Any domain can be mapped conformally so every hole is a disk or a point."
+  },
+  {
+   "num": "072",
+   "name": "Brennan's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "075",
+   "name": "L log L Fourier convergence",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "078",
+   "name": "Bochner–Riesz in 3D",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "079",
+   "name": "Local smoothing in 3D",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "077",
+   "name": "Restriction for curved surfaces",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "076",
+   "name": "Ultraflat Littlewood polynomials",
+   "verdict": "construction",
+   "caption": null
+  },
+  {
+   "num": "084",
+   "name": "Erdős similarity (geometric case)",
+   "verdict": "resolved",
+   "caption": null
+  },
+  {
+   "num": "090",
+   "name": "Universal optimality of the triangular lattice",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "091",
+   "name": "Log Brunn–Minkowski inequality",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "096",
+   "name": "Gaussian propeller conjecture",
+   "verdict": "proved",
+   "caption": null
+  }
+ ],
+ "c4_grid": [
+  {
+   "num": "103",
+   "name": "L = RL = BPL",
+   "verdict": "proved",
+   "caption": "Coin flips add no power to log-space computation."
+  },
+  {
+   "num": "109",
+   "name": "Integer multiplication below n log n",
+   "verdict": "algorithm",
+   "caption": "O(n (log n)^(1−κ)) with κ = 2⁻¹⁸²: a sliver past n log n."
+  },
+  {
+   "num": "138",
+   "name": "Subset Sum in 2^0.49n",
+   "verdict": "algorithm",
+   "caption": "Beats the 2^(n/2) meet-in-the-middle barrier (1974)."
+  },
+  {
+   "num": "106",
+   "name": "Coloring 3-colorable graphs is NP-hard",
+   "verdict": "hardness",
+   "caption": null
+  },
+  {
+   "num": "105",
+   "name": "2-to-1 games, perfect completeness",
+   "verdict": "hardness",
+   "caption": null
+  },
+  {
+   "num": "104",
+   "name": "Quasipolynomial mean-payoff games",
+   "verdict": "algorithm",
+   "caption": null
+  },
+  {
+   "num": "108",
+   "name": "Permanent vs determinant: Ω(n³) bound",
+   "verdict": "bound",
+   "caption": null
+  },
+  {
+   "num": "113",
+   "name": "Approx. counting perfect matchings",
+   "verdict": "algorithm",
+   "caption": null
+  },
+  {
+   "num": "132",
+   "name": "Quadratic sensitivity conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "124",
+   "name": "Scheduling on three machines",
+   "verdict": "algorithm",
+   "caption": null
+  },
+  {
+   "num": "128",
+   "name": "Shortest superstring: factor 2",
+   "verdict": "algorithm",
+   "caption": null
+  },
+  {
+   "num": "142",
+   "name": "Deterministic factoring over 𝔽ₚ",
+   "verdict": "algorithm",
+   "caption": null
+  }
+ ],
+ "c5_grid": [
+  {
+   "num": "156",
+   "name": "Borsuk fails in dimension 9",
+   "verdict": "counterexample",
+   "caption": "A 9-dimensional set that can't be cut into 10 narrower pieces."
+  },
+  {
+   "num": "155",
+   "name": "Periodic tiling fails in 3D",
+   "verdict": "counterexample",
+   "caption": "One tile fills ℤ³ by translations, but never periodically."
+  },
+  {
+   "num": "157",
+   "name": "Hadwiger's conjecture",
+   "verdict": "counterexample",
+   "caption": "Graphs needing more colors than their largest clique minor."
+  },
+  {
+   "num": "180",
+   "name": "Barnette's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "173",
+   "name": "Seymour's second-neighborhood conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "161",
+   "name": "Sidorenko's conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "162",
+   "name": "Ryser's covering conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "164",
+   "name": "Hindman's sums & products",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "165",
+   "name": "Crossing numbers of complete graphs",
+   "verdict": "exact",
+   "caption": null
+  },
+  {
+   "num": "179",
+   "name": "Circulant Hadamard conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "191",
+   "name": "Heilbronn triangle problem",
+   "verdict": "bound",
+   "caption": null
+  },
+  {
+   "num": "187",
+   "name": "Snaky in 21 Maker moves",
+   "verdict": "resolved",
+   "caption": null
+  }
+ ],
+ "c6_grid": [
+  {
+   "num": "246",
+   "name": "Cannon's conjecture",
+   "verdict": "proved",
+   "caption": "Sphere at infinity ⟹ hyperbolic 3-manifold group."
+  },
+  {
+   "num": "244",
+   "name": "Partition principle ⇏ choice",
+   "verdict": "independent",
+   "caption": "A universe of sets where PP holds but AC fails."
+  },
+  {
+   "num": "193",
+   "name": "Serre's intersection multiplicity",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "194",
+   "name": "Lech's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "201",
+   "name": "Kurosh's division-ring problem",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "205",
+   "name": "Saxl's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "202",
+   "name": "Blockwise Alperin weight conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "203",
+   "name": "Donovan's conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "247",
+   "name": "Infinite f.p. residually finite 2-group",
+   "verdict": "construction",
+   "caption": null
+  },
+  {
+   "num": "250",
+   "name": "Boone–Higman conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "254",
+   "name": "Artin K(π,1) conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "241",
+   "name": "Rigidity of the Turing degrees",
+   "verdict": "proved",
+   "caption": null
+  }
+ ],
+ "c7_grid": [
+  {
+   "num": "268",
+   "name": "Spin-one Haldane gap",
+   "verdict": "proved",
+   "caption": "The energy gap stays positive for every even ring length."
+  },
+  {
+   "num": "145",
+   "name": "Rokhlin's multiple-mixing problem",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "146",
+   "name": "Positive entropy of the standard map",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "150",
+   "name": "Weak mixing of triangular billiards",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "213",
+   "name": "No infinite critical clusters",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "214",
+   "name": "Benjamini–Schramm: p_c < p_u",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "230",
+   "name": "Exact Hausdorff measure for SLE",
+   "verdict": "exact",
+   "caption": null
+  },
+  {
+   "num": "238",
+   "name": "Thorp shuffle mixes in Θ(log N)",
+   "verdict": "exact",
+   "caption": null
+  },
+  {
+   "num": "221",
+   "name": "Mézard–Parisi formula",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "261",
+   "name": "Anderson localization in 2D",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "263",
+   "name": "Ionization conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "260",
+   "name": "Spacetime Penrose inequalities",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "267",
+   "name": "Bose–Einstein condensation",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "274",
+   "name": "Parity is not in QAC⁰",
+   "verdict": "proved",
+   "caption": null
+  }
+ ],
+ "c8_grid": [
+  {
+   "num": "288",
+   "name": "Kadison's similarity problem",
+   "verdict": "resolved",
+   "caption": "Every bounded representation is similar to a *-representation."
+  },
+  {
+   "num": "293",
+   "name": "Hyperinvariant subspace problem",
+   "verdict": "counterexample",
+   "caption": "An operator with no hyperinvariant subspace."
+  },
+  {
+   "num": "304",
+   "name": "Hilbert–Smith conjecture",
+   "verdict": "proved",
+   "caption": "Faithful actions on manifolds force Lie groups, in every dimension."
+  },
+  {
+   "num": "325",
+   "name": "Complete Crouzeix conjecture",
+   "verdict": "proved",
+   "caption": "‖p(A)‖ ≤ 2 · max of |p| over the numerical range W(A)."
+  },
+  {
+   "num": "289",
+   "name": "Strong Kadison–Kastler conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "290",
+   "name": "Connes' bicentralizer conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "296",
+   "name": "Generator problem for II₁ factors",
+   "verdict": "resolved",
+   "caption": null
+  },
+  {
+   "num": "285",
+   "name": "Baum–Connes conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "309",
+   "name": "Kervaire invariant at p = 3",
+   "verdict": "resolved",
+   "caption": null
+  },
+  {
+   "num": "306",
+   "name": "Purely cosmetic surgery conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "315",
+   "name": "Singer conjecture in 4D",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "322",
+   "name": "Tingley's problem",
+   "verdict": "resolved",
+   "caption": null
+  }
+ ],
+ "c9_grid": [
+  {
+   "num": "375",
+   "name": "De Giorgi's conjecture in ℝ⁸",
+   "verdict": "proved",
+   "caption": "Monotone Allen–Cahn solutions in dimension 8 are flat."
+  },
+  {
+   "num": "376",
+   "name": "Navier–Stokes flows that compute",
+   "verdict": "construction",
+   "caption": "A forced fluid, starting at rest, that simulates any Turing machine."
+  },
+  {
+   "num": "345",
+   "name": "Infinitely many closed geodesics",
+   "verdict": "proved",
+   "caption": "Every metric on a sphere has infinitely many closed geodesics."
+  },
+  {
+   "num": "338",
+   "name": "Yau's uniformization conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "333",
+   "name": "Isometric immersions into ℝ⁴",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "339",
+   "name": "Katok's entropy rigidity",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "340",
+   "name": "Nearby Lagrangian conjecture",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "343",
+   "name": "Symplectic ball packing",
+   "verdict": "resolved",
+   "caption": null
+  },
+  {
+   "num": "344",
+   "name": "Metric Blaschke conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "342",
+   "name": "Donaldson's tamed-to-compatible conjecture",
+   "verdict": "proved",
+   "caption": null
+  },
+  {
+   "num": "352",
+   "name": "Calabi flow singularity",
+   "verdict": "counterexample",
+   "caption": null
+  },
+  {
+   "num": "367",
+   "name": "Bernoulli free boundaries: dimension 7",
+   "verdict": "exact",
+   "caption": null
+  }
+ ]
+}
