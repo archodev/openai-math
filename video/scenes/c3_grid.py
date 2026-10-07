@@ -386,9 +386,13 @@ def koebe_animate(scene, vis, rt):
         t.match_style(wp)
         anims.append(Transform(wp, t))
     span(0.52, 0.83, *anims, rate_func=smooth)
-    # 4. "every hole becomes a perfect circle, or a point"
-    span(0.84, 0.93, LaggedStart(*[_flash(h, tw=0.8) for h in W.holes], lag_ratio=0.15))
-    span(0.93, 1.0, Indicate(W.dust, color=YELLOW_, scale_factor=1.35))
+    # 4. "every hole becomes a perfect circle, or a point": the round holes, then
+    #    the point-holes, light up and stay lit through the collapse (the card
+    #    folds away while "or a point" is still being said)
+    span(0.84, 0.92, LaggedStart(*[AnimationGroup(_flash(h, tw=0.8),
+                                                  h.animate.set_stroke(YELLOW_, width=2.6))
+                                   for h in W.holes], lag_ratio=0.15))
+    span(0.93, 1.0, W.dust.animate.set_color(YELLOW_).scale(1.12))
 
 
 # ================================================================ 072 Brennan
@@ -526,10 +530,11 @@ def icon_littlewood():
     R0 = 0.44
     ref = Circle(radius=R0, stroke_color=GREY_, stroke_width=1.0, stroke_opacity=0.7).move_to(c)
     t = np.linspace(0, 2 * np.pi, 240, endpoint=False)
-    r = R0 * (1 + 0.035 * np.sin(9 * t) + 0.025 * np.cos(15 * t + 0.7) + 0.015 * np.sin(23 * t + 2))
+    # schematic |p(e^{it})| / sqrt(N): stays inside a thin band around 1 (ultraflat)
+    r = R0 * (1 + 0.026 * np.sin(7 * t) + 0.018 * np.cos(11 * t + 0.7) + 0.01 * np.sin(17 * t + 2))
     mod = curve(np.c_[c[0] + r * np.cos(t), r * np.sin(t)], color=ACC, width=2.2, closed=True)
-    band = Annulus(inner_radius=R0 * 0.92, outer_radius=R0 * 1.08, stroke_width=0, fill_color=ACC,
-                   fill_opacity=0.12).move_to(c)
+    band = Annulus(inner_radius=R0 * 0.93, outer_radius=R0 * 1.07, stroke_width=0, fill_color=ACC,
+                   fill_opacity=0.2).move_to(c)
     arr = r_arrow(0.05, 0.38, 0.0, width=1.6)
     g.add(arr, band, ref, mod)
     return g

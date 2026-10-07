@@ -435,7 +435,8 @@ def big_103():
     coin = _coin(0.32, tilt=1.0)
     coin[0].set_opacity(0)                         # face-on: hide the rim
     coin.next_to(box, RIGHT, buff=0.32)
-    cart = VGroup(head, stem, box, mlab, link, mem, mem_lab, mem_lab2, coin)
+    coin_lab = Text("coin flips", font=SANS, font_size=22, color=GREY_).next_to(coin, DOWN, buff=0.14)
+    cart = VGroup(head, stem, box, mlab, link, mem, mem_lab, mem_lab2, coin, coin_lab)
 
     # known inclusions -> claimed equalities
     form = MathTex(r"\mathsf{L}", r"\subseteq", r"\mathsf{RL}", r"\subseteq", r"\mathsf{BPL}",
@@ -450,6 +451,7 @@ def big_103():
 
     root.add(pad, tape, digits, lab_in, cart, form)
     root.tape, root.cart, root.head, root.mem, root.coin = tape, cart, head, mem, coin
+    root.coin_lab = coin_lab
     root.mem_lab = VGroup(mem_lab, mem_lab2)
     root.form, root.form_tgt = form, tgt
     return root
@@ -497,15 +499,19 @@ def anim_103(scene, mob, rt):
     # 2) coin removed; the deterministic machine walks back with the SAME memory
     state["step"] = -1
     state["ms"] = 1.0
-    cart.remove(coin)          # the coin stays behind, floats up and fades
-    mob.add(coin)
+    coin_lab = mob.coin_lab
+    cart.remove(coin, coin_lab)    # the coin (and its label) stays behind, floats up and fades
+    mob.add(coin, coin_lab)
     coin_saved = coin.copy()
+    lab_saved = coin_lab.copy()
     mem_lab = mob.mem_lab
 
     def run_det(m, a):
         fa = min(1.0, a / 0.3)
         coin.become(coin_saved.copy().set_opacity(0) if fa >= 1 else
                     coin_saved.copy().shift(UP * 0.35 * fa).fade(fa))
+        coin_lab.become(lab_saved.copy().set_opacity(0) if fa >= 1 else
+                        lab_saved.copy().shift(UP * 0.35 * fa).fade(fa))
         e = smooth(a)
         move_to_x(x_far + (x_start - x_far) * e)
         mem_step(a, 12)
@@ -554,7 +560,10 @@ def big_109():
     limit = DashedLine([X(1971), L[5], 0], [2.55, L[5], 0], dash_length=0.1, stroke_width=3,
                        stroke_color=A)
     lim_lab = MathTex(r"n\log n", font_size=32, color=A).move_to([-0.4, L[5] + 0.26, 0])
-    lim_lab2 = Text("conjectured limit (1971)", font=SANS, font_size=22, color=A).move_to([0.0, L[5] - 0.3, 0])
+    lim_lab2 = Text("conjectured limit (1971)", font=SANS, font_size=22, color=A).move_to([0.0, L[5] - 0.27, 0])
+    # the conjecture (and the claim) live in one model of computation
+    lim_lab3 = Text("on multitape Turing machines", font=SANS, font_size=20, color=GREY_)
+    lim_lab3.next_to(lim_lab2, DOWN, buff=0.05)
     claim = VMobject(stroke_color=YELLOW_, stroke_width=3.4).set_points_as_corners(
         [[X(2026), L[5], 0], [X(2026), yc, 0], [2.55, yc, 0]])
     cdot = Dot([X(2026), yc, 0], radius=0.06, color=YELLOW_)
@@ -572,10 +581,10 @@ def big_109():
     c_lab = MathTex(r"n(\log n)^{1-\kappa}", font_size=32, color=YELLOW_).move_to([0.12, 1.55, 0])
     k_lab = MathTex(r"\kappa = 2^{-182}", font_size=30, color=WHITE_).move_to([0.12, 1.05, 0])
     magg = VGroup(mag, m_lim, m_cl, m_gap)
-    lim = VGroup(lim_lab, lim_lab2)
+    lim = VGroup(lim_lab, lim_lab2, lim_lab3)
     root.add(pad, yax, xax, ylab, ticks, path, dots, labs, limit, lim,
              claim, cdot, spot, conn, magg, c_lab, k_lab)
-    _hide(path, dots, labs, limit, lim_lab, lim_lab2, claim, cdot, spot, conn, magg, c_lab, k_lab)
+    _hide(path, dots, labs, limit, lim_lab, lim_lab2, lim_lab3, claim, cdot, spot, conn, magg, c_lab, k_lab)
     root.parts = dict(path=path, dots=dots, labs=labs, limit=limit, lim=lim,
                       claim=claim, cdot=cdot, spot=spot, conn=conn, mag=magg, c_lab=c_lab, k_lab=k_lab)
     return root
@@ -591,7 +600,7 @@ def anim_109(scene, mob, rt):
                run_time=0.33 * rt)
     scene.wait(0.03 * rt)
     # 2) since 1971: n log n conjectured to be the speed limit
-    _show(p["limit"], p["lim"][0], p["lim"][1])
+    _show(p["limit"], *p["lim"])
     scene.play(Create(p["limit"]), FadeIn(p["lim"], shift=RIGHT * 0.15), run_time=0.24 * rt)
     scene.wait(0.06 * rt)
     # 3) the claim: a sliver below the limit (zoomed in)
@@ -649,7 +658,7 @@ def big_138():
     n0, n1 = 88, 100
     xax = Arrow([ox, oy, 0], [2.55, oy, 0], buff=0, stroke_width=2, color=GREY_, tip_length=0.12)
     yax = Arrow([ox, oy, 0], [ox, 1.2, 0], buff=0, stroke_width=2, color=GREY_, tip_length=0.12)
-    nl = MathTex("n", font_size=30, color=GREY_).next_to(xax.get_end(), DOWN, buff=0.1).shift(LEFT * 0.1)
+    nl = MathTex("n", font_size=30, color=GREY_).next_to(xax.get_end(), UP, buff=0.08).shift(LEFT * 0.1)
     tl = Text("time", font=SANS, font_size=22, color=GREY_).next_to(yax.get_end(), RIGHT, buff=0.1)
     f = lambda c: ParametricFunction(
         lambda n: np.array([ox + W * (n - n0) / (n1 - n0), oy + H * 2 ** (c * n - 50), 0]),
@@ -658,12 +667,16 @@ def big_138():
     c49 = f(0.49).set_stroke(YELLOW_, 3.4)
     l50 = MathTex(r"2^{n/2}", font_size=32, color=WHITE_).move_to([ox + 0.5, oy + H - 0.1, 0])
     l49 = MathTex(r"2^{0.49n}", font_size=32, color=YELLOW_).move_to([ox + 0.62, oy + H * 0.5 - 0.05, 0])
+    # the claimed method is randomized (correct w.p. >= 2/3): say so under its plot
+    rnd = Text("randomized", font=SANS, font_size=22, color=YELLOW_)
+    rnd.move_to([(ox + 2.55) / 2, hs.get_y(), 0])
     axes = VGroup(xax, yax, nl, tl)
     root.add(pad, boxes, div, target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs,
-             axes, c50, c49, l50, l49)
-    _hide(target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs, c50, c49, l50, l49, xax, yax, nl, tl)
+             axes, c50, c49, l50, l49, rnd)
+    _hide(target, ca, cb, ha, hb, match, cnt_a, cnt_b, hs, c50, c49, l50, l49, rnd, xax, yax, nl, tl)
     root.parts = dict(boxes=boxes, ca=ca, cb=cb, ha=ha, hb=hb, match=match, cnt_a=cnt_a, cnt_b=cnt_b,
-                      hs=hs, target=target, target2=target2, axes=axes, c50=c50, c49=c49, l50=l50, l49=l49)
+                      hs=hs, target=target, target2=target2, axes=axes, c50=c50, c49=c49, l50=l50, l49=l49,
+                      rnd=rnd)
     return root
 
 
@@ -690,9 +703,9 @@ def anim_138(scene, mob, rt):
     # 3) the claimed running time drops below the 2^{n/2} curve
     _show(*p["axes"])
     scene.play(LaggedStart(*[FadeIn(m) for m in p["axes"]], lag_ratio=0.15), run_time=0.07 * rt)
-    _show(p["c50"], p["c49"], p["l50"], p["l49"])
+    _show(p["c50"], p["c49"], p["l50"], p["l49"], p["rnd"])
     scene.play(Create(p["c50"]), Create(p["c49"]), FadeIn(p["l50"]), FadeIn(p["l49"]),
-               rate_func=smooth, run_time=0.27 * rt)
+               FadeIn(p["rnd"], shift=UP * 0.1), rate_func=smooth, run_time=0.27 * rt)
 
 
 # ================================================================ scene
@@ -704,7 +717,11 @@ def _load_tiles():
     feats = {"103": (big_103, anim_103), "109": (big_109, anim_109), "138": (big_138, anim_138)}
     tiles = []
     for d in data:
-        t = dict(num=d["num"], name=d["name"], verdict=d["verdict"], icon=icons[d["num"]])
+        name = d["name"]
+        head, _, last = name.rpartition(" ")
+        if head and len(last) <= 2:          # no orphaned "2" / "𝔽ₚ" on a line of its own
+            name = head + " " + last
+        t = dict(num=d["num"], name=name, verdict=d["verdict"], icon=icons[d["num"]])
         if d.get("caption"):
             big, anim = feats[d["num"]]
             t["feature"] = dict(caption=d["caption"], big=big, animate=anim)
