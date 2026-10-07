@@ -94,6 +94,12 @@ class C6Thompson(VoiceScene):
             rt = min_time
         self.play(*anims, run_time=rt, **kw)
 
+    def wait_until(self, t, **kw):
+        # skip sub-frame waits (manim would round them up to a whole frame)
+        dt = self.cue(t) - self.now
+        if dt >= 1.0 / config.frame_rate:
+            self.wait(dt, **kw)
+
     # -------------------------------------------------------------- builders
     def token(self, size):
         """Small 'face' of F: the generator x0 in a card."""
@@ -149,7 +155,9 @@ class C6Thompson(VoiceScene):
         ro.num = new
         self._pending = getattr(self, "_pending", []) + [(ro, new)]
         s = ro.track.get_start()
-        return [FadeOut(old, shift=UP * 0.16), FadeIn(new, shift=UP * 0.16),
+        # odometer roll: old digits leave before the new ones arrive (no overlap)
+        return [FadeOut(old, shift=UP * 0.3, rate_func=early(0.6)),
+                FadeIn(new, shift=UP * 0.3, rate_func=late(0.35)),
                 ro.bar.animate.put_start_and_end_on(s, s + RIGHT * ratio * ro.track.get_length() / 2.6)]
 
     def settle(self):
@@ -245,6 +253,10 @@ class C6Thompson(VoiceScene):
         slope_pos = [P(0.41, 0.095), P(0.70, 0.29), P(0.955, 0.6)]
         slopes = VGroup(*[tex(s, 34, c).move_to(p)
                           for s, c, p in zip([r"\frac12", "1", "2"], PIECE_COLS, slope_pos)])
+
+        # the graph starts centred and slides left when the interval diagram arrives
+        D0 = -P(0.5, 0.5)[0]
+        VGroup(gridl, frame, lab0, labx1, laby1, diag, ghosts, curve, pieces, x0lab).shift(RIGHT * D0)
 
         # ---- 0.0: hook — title + axes
         self.play(Write(title, run_time=1.1), Create(frame, run_time=1.0),
