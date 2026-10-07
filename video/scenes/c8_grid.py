@@ -677,13 +677,13 @@ def icon_309():
     # lay the stem numbers out by their own widths (tile width is the binding constraint:
     # this keeps them at ~22pt on screen instead of ~13pt)
     labs = VGroup(*[txt(str(s), 24, WHITE_ if ok else GREY_, weight=SEMIBOLD if ok else NORMAL)
-                    for s, ok in zip(stems, alive)]).arrange(RIGHT, buff=0.17)
-    labs.move_to(P(0, -0.34), aligned_edge=DOWN)
+                    for s, ok in zip(stems, alive)]).arrange(RIGHT, buff=0.12)
+    labs.move_to(P(0, -0.44), aligned_edge=DOWN)
     marks = VGroup()
     for lb, ok in zip(labs, alive):
         x = lb.get_center()[0]
         marks.add(mini_globe(P(x, 0.2), 0.16) if ok else xmark(P(x, 0.2), 0.1, RED_, 3.0))
-    ell = dots_ellipsis(P(labs.get_right()[0] + 0.15, 0.2), r=0.024, gap=0.07)
+    ell = dots_ellipsis(P(labs.get_right()[0] + 0.12, 0.2), r=0.024, gap=0.06)
     base = Line(P(labs.get_left()[0] - 0.06, -0.06), P(ell.get_right()[0], -0.06)) \
         .set_stroke(GREY_, 1.2, opacity=0.6)
     return VGroup(base, marks, labs, ell)

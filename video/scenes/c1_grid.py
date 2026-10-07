@@ -632,11 +632,17 @@ CAPTIONS = {
 }
 
 
+# 004: a no-break space keeps "over ℚ" together (textwrap only breaks at ASCII
+# whitespace); otherwise the tile wraps to "Hilbert's tenth problem over" / "ℚ".
+NAMES = {"004": "Hilbert's tenth problem over\u00a0ℚ"}
+
+
 def _tiles():
     spec = json.loads((VIDEO / "data" / "grids.json").read_text())["c1_grid"]
     out = []
     for d in spec:
-        t = dict(num=d["num"], name=d["name"], verdict=d["verdict"], icon=ICONS[d["num"]])
+        t = dict(num=d["num"], name=NAMES.get(d["num"], d["name"]), verdict=d["verdict"],
+                 icon=ICONS[d["num"]])
         if d.get("caption"):
             t["feature"] = dict(caption=CAPTIONS.get(d["num"], d["caption"]), **FEATURES.get(d["num"], {}))
         out.append(t)
