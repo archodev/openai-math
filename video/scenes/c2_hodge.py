@@ -61,6 +61,9 @@ class Mesh(VGroup):
             p = VMobject(stroke_width=stroke, fill_opacity=1.0)
             p.points = np.zeros((16, 3))
             self.polys.append(p)
+        self.add(*self.polys)
+        self._empty = np.zeros((4, 3))
+        self._clear = np.zeros((1, 4))
         i, j = np.divmod(np.arange(n), nt)
         self.parity = ((i + j) % 2).astype(int)
         front, back = list(front), list(back)
@@ -105,18 +108,22 @@ class Mesh(VGroup):
         pts[:, :, 2] = q + 2 * (b - q) / 3
         pts[:, :, 3] = b
         pts = pts.reshape(n, 16, 3)
+        # A fixed pool of slots that never changes (the Cairo renderer snapshots a
+        # group's children per play() call): slot m shows the m-th quad in depth order.
         op = self.opacity
-        subs = []
-        for k in order:
-            p = self.polys[k]
-            p.points = pts[k]
+        sw = self.sw if op > 0.98 else 0
+        for slot, k in zip(self.polys, order):
+            slot.points = pts[k]
             rgb = self.tab[side[k], self.parity[k], lvl[k]]
             rgba = np.array([[rgb[0], rgb[1], rgb[2], op]])
-            p.fill_rgbas = rgba
-            p.stroke_rgbas = rgba
-            p.stroke_width = self.sw if op > 0.98 else 0
-            subs.append(p)
-        self.submobjects = subs
+            slot.fill_rgbas = rgba
+            slot.stroke_rgbas = rgba
+            slot.stroke_width = sw
+        for slot in self.polys[len(order):]:
+            slot.points = self._empty
+            slot.fill_rgbas = self._clear
+            slot.stroke_rgbas = self._clear
+            slot.stroke_width = 0
         return self
 
 
