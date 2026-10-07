@@ -452,7 +452,6 @@ def big_103():
     root.tape, root.cart, root.head, root.mem, root.coin = tape, cart, head, mem, coin
     root.mem_lab = VGroup(mem_lab, mem_lab2)
     root.form, root.form_tgt = form, tgt
-    root.cw = cw
     return root
 
 

@@ -412,7 +412,7 @@ class C9Vlasov(VoiceScene):
 
     def dbg(self, label):
         try:
-            with open("/tmp/claude-0/-home-user-openai-math/5106a9e4-8263-509c-a885-b44fd752a939/scratchpad/dbg.log", "a") as fh:
+            with open("/tmp/claude-0/-home-user-openai-math/5106a9e4-8263-509c-a885-b44fd752a939/scratchpad/c9v/dbg.log", "a") as fh:
                 fh.write(f"{label}: t={self.now:.2f}\n")
         except OSError:
             pass

@@ -465,17 +465,31 @@ class C8Fgf(VoiceScene):
         i_ = lambda f: self.frac("invisible", "L3_end", f)
         B = rowA.boxes
         self.wait_until("invisible")
-        # "with two or more letters": the trees, then they vanish into their algebras
-        self.play_until(i_(0.14), *[Indicate(t, color=None, scale_factor=1.15) for t in (f2, f3)])
-        self.play_until(i_(0.27), FadeOut(f2, target_position=box2.rect.get_left(), scale=0.2),
-                        FadeOut(f3, target_position=box3.rect.get_right(), scale=0.2))
-        # the question line drops into the row
-        self.play_until(i_(0.37),
-                        Transform(VGroup(box2.rect, box2.lab), B[0].copy()),
-                        Transform(VGroup(box3.rect, box3.lab), B[1].copy()),
-                        Transform(qc, linksA[0].copy()))
-        self.remove(box2.rect, box2.lab, box3.rect, box3.lab, qc)
-        # ... and the whole row collapses into ONE box
+        # "with two or more letters": the trees pulse ...
+        self.play_until(i_(0.115), *[Indicate(t, color=None, scale_factor=1.15) for t in (f2, f3)])
+        # ... shrink into their algebras, and the answered question drains into the
+        # head of the row (fades as it lands: no double image, no pop)
+        early = lambda t: smooth(min(1.0, t / 0.55))
+        late = lambda t: smooth(max(0.0, (t - 0.3) / 0.7))
+        land = lambda t: there_and_back(max(0.0, (t - 0.6) / 0.4))
+        self.play_until(i_(0.28),
+                        FadeOut(f2, target_position=box2.rect.get_left(), scale=0.2, rate_func=early),
+                        FadeOut(f3, target_position=box3.rect.get_right(), scale=0.2, rate_func=early),
+                        FadeOut(VGroup(box2.rect, box2.lab), target_position=B[0].get_center(),
+                                scale=B[0].rect.width / box2.rect.width, rate_func=late),
+                        FadeOut(VGroup(box3.rect, box3.lab), target_position=B[1].get_center(),
+                                scale=B[1].rect.width / box3.rect.width, rate_func=late),
+                        FadeOut(qc, target_position=linksA[0].get_center(),
+                                scale=linksA[0].height / qc.height, rate_func=late),
+                        *[b.rect.animate(rate_func=land).set_stroke(width=4.5) for b in B[:2]])
+        # ... and the whole row collapses into ONE box: the small frames dissolve
+        # while a single hull (kept behind the labels) tightens into the banner
+        hull = RoundedRectangle(width=rowA_all.width + 0.4, height=B[0].rect.height + 0.3,
+                                corner_radius=0.16, stroke_color=YELLOW_, stroke_width=2,
+                                stroke_opacity=0.0, fill_color=CARD, fill_opacity=0.0)
+        hull.move_to(rowA_all)
+        self.add(hull)
+        self.bring_to_back(hull)
         tg = lambda i: VGroup(body[i].copy())
         anims = [
             Transform(B[0].lab, tg(0)), Transform(linksA[0], tg(1)),
@@ -483,15 +497,12 @@ class C8Fgf(VoiceScene):
             Transform(rowA.dots, tg(4)), Transform(linksA[3], tg(5)),
             Transform(B[3].lab, tg(6)),
             FadeOut(VGroup(B[2].lab, linksA[2]), target_position=body[4].get_center(), scale=0.3),
-            Transform(B[0].rect, ban[0].copy()),
+            Transform(hull, ban[0].copy()),
+            *[FadeOut(b.rect, rate_func=early) for b in B],
+            FadeIn(ban[1][0], shift=DOWN * 0.1, rate_func=lambda t: smooth(max(0.0, (t - 0.6) / 0.4))),
         ]
-        for b in B[1:]:
-            anims.append(Transform(b.rect, ban[0].copy()))
-        self.play_until(i_(0.5), *anims)
-        self.remove(rowA_all, *[b.rect for b in B])
-        self.add(ban[0], body)
-        self.play_until(i_(0.57), FadeIn(ban[1][0], shift=DOWN * 0.1))
-        self.remove(ban[0], body, ban[1][0])
+        self.play_until(i_(0.445), *anims)
+        self.remove(rowA_all, hull, ban[1][0])
         self.add(ban)
         gl = glow(ban[0], color=YELLOW_, layers=5, width=16, opacity=0.0)
         self.bring_to_back(gl)

@@ -273,8 +273,13 @@ class C1Qrh(VoiceScene):
         exp = MathTex("=", "1", "+", r"\frac{1}{2^s}", "+", r"\frac{1}{3^s}", "+",
                       r"\frac{1}{4^s}", "+", r"\frac{1}{5^s}", "+", r"\cdots",
                       font_size=62, color=WHITE_).move_to(DOWN * 1.0)
+        rest = VGroup(*full[1:])
         self.play_at("sum", FadeOut(wave), FadeOut(wave_ax), FadeOut(xdots), FadeOut(cap),
-                     TransformMatchingTex(big, full), run_time=self.rt(1.1, "complex"))
+                     ReplacementTransform(big[0], full[0]),
+                     FadeIn(rest, shift=LEFT * 0.2, rate_func=lambda a: smooth(max(0.0, 1.8 * a - 0.8))),
+                     run_time=self.rt(1.2, "complex"))
+        self.remove(big, rest)
+        self.add(full)
         self.play(LaggedStart(*[FadeIn(p, shift=DOWN * 0.15) for p in exp], lag_ratio=0.2),
                   Indicate(full[2], color=ACC, scale_factor=1.12),
                   run_time=self.rt(1.8, "complex"))
@@ -702,8 +707,10 @@ class C1Qrh(VoiceScene):
         tgt = max(gaps)[1]
         arr = self.arrow_to(rh.get_left() + LEFT * 0.1, [sx(0.5) + 0.12, self.Y(tgt), 0])
         still = chip("STILL OPEN", ORANGE_, size=18).next_to(rh, DOWN, buff=0.28, aligned_edge=LEFT)
-        self.play_at("notrh", FadeOut(VGroup(title, *rows, last)), FadeOut(self.hdr), FadeOut(hdrL),
-                     FadeIn(rh, shift=LEFT * 0.2), GrowArrow(arr),
+        self.play_at("notrh", FadeOut(VGroup(title, *rows, last), rate_func=lambda a: smooth(min(1.0, 2 * a))),
+                     FadeOut(self.hdr), FadeOut(hdrL),
+                     FadeIn(rh, shift=LEFT * 0.2, rate_func=lambda a: smooth(max(0.0, 2 * a - 1))),
+                     GrowArrow(arr, rate_func=lambda a: smooth(max(0.0, 2 * a - 1))),
                      self.crit.animate.set_stroke(ACC, width=4, opacity=1.0),
                      run_time=self.rt(0.8, "margin"))
         self.play(FadeIn(still, scale=1.2), self.crit.animate.set_stroke(WHITE_, width=2.5, opacity=0.85),

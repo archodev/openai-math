@@ -12,13 +12,13 @@ def unit(a):
     return np.array([np.cos(a), np.sin(a), 0.0])
 
 
-def dial(r, angle, color, sw=2.4, fill=0.12):
-    """A measurement basis as a glyph: a disc with its two perpendicular
-    basis directions drawn from the centre (a tiny copy of the cartoon)."""
-    c = Circle(radius=r, stroke_color=color, stroke_width=sw * 0.8, stroke_opacity=0.45,
-               fill_color=color, fill_opacity=fill)
-    h1 = Arrow(ORIGIN, RIGHT * r * 0.86, buff=0, color=color, stroke_width=sw * 1.1,
-               max_tip_length_to_length_ratio=0.42, max_stroke_width_to_length_ratio=100)
+def dial(r, angle, color, sw=2.8):
+    """A measurement basis as a glyph: a tiny copy of the cartoon -- a faint grey
+    unit circle with two perpendicular basis arrows reaching its rim (arrows to
+    the rim, equal length, no filled face: reads as 'unit vectors', not a clock)."""
+    c = Circle(radius=r, stroke_color=GREY_, stroke_width=1.5, stroke_opacity=0.6)
+    h1 = Arrow(ORIGIN, RIGHT * r, buff=0, color=color, stroke_width=sw,
+               max_tip_length_to_length_ratio=0.4, max_stroke_width_to_length_ratio=100)
     h1.rotate(angle, about_point=ORIGIN)
     h2 = h1.copy().rotate(PI / 2, about_point=ORIGIN)
     return VGroup(c, h1, h2)
@@ -73,8 +73,8 @@ class C7Mubs(VoiceScene):
             tip = O + R * unit(t)
             fx = O + R * np.cos(t) * RIGHT
             fy = O + R * np.sin(t) * UP
-            s1 = Line(O, fx, stroke_color=ACCENT, stroke_width=15, stroke_opacity=0.45 * o)
-            s2 = Line(O, fy, stroke_color=ACCENT, stroke_width=15, stroke_opacity=0.45 * o)
+            s1 = Line(O, fx, stroke_color=ACCENT, stroke_width=6.5, stroke_opacity=o)
+            s2 = Line(O, fy, stroke_color=ACCENT, stroke_width=6.5, stroke_opacity=o)
             # fixed dash count: the redraw keeps the same sub-mobject structure (no ghosts)
             d1 = DashedVMobject(Line(tip, fx, stroke_width=2.5, color=GREY_), num_dashes=9)
             d2 = DashedVMobject(Line(tip, fy, stroke_width=2.5, color=GREY_), num_dashes=9)
@@ -92,8 +92,8 @@ class C7Mubs(VoiceScene):
             g = VGroup()
             for x, p in zip(bx, ps):
                 h = max(H * p * s, 1e-3)
-                r = Rectangle(width=bw, height=h, stroke_width=0, fill_color=A_COL,
-                              fill_opacity=0.85)
+                r = Rectangle(width=bw, height=h, stroke_width=0, fill_color=ACCENT,
+                              fill_opacity=0.8)
                 r.move_to([x, base_y + h / 2, 0])
                 pct = txt(f"{round(100 * p)}%", 30, WHITE_)
                 pct.next_to(r, UP, buff=0.14).set_opacity(s)
@@ -146,8 +146,9 @@ class C7Mubs(VoiceScene):
         # "if knowing the result of one ...": shadows of b1 on A = outcome odds
         proj = always_redraw(make_proj)
         bars = always_redraw(make_bars)
+        # shadows sit ON the A axes (yellow = probability, same as the bars), under B
         self.add(proj, bars)
-        self.bring_to_front(a1, a2, B)
+        self.bring_to_front(B)
         self.play_between("measure+4.15", "measure+5.35",
                           pop.animate.set_value(1.0), bsc.animate.set_value(1.0),
                           Create(baseline), FadeIn(plabs), FadeIn(cap, shift=DOWN * 0.1))
@@ -172,7 +173,7 @@ class C7Mubs(VoiceScene):
     def part_chart(self):
         ds = [2, 3, 4, 5, 6, 7, 8, 9]
         xs = {d: -5.25 + 1.5 * i for i, d in enumerate(ds)}
-        y0, pitch, r = -2.05, 0.38, 0.16
+        y0, pitch, r = -2.05, 0.40, 0.175
 
         def row_col(k):
             return interpolate_color(ManimColor(BLUE_), ManimColor(PINK_), min(k, 9) / 9)
@@ -191,7 +192,7 @@ class C7Mubs(VoiceScene):
         facts = {4: "2^2", 8: "2^3", 9: "3^2"}
         flabs = {d: tex(s, 30, GREY_).move_to([xs[d], -3.15, 0]) for d, s in facts.items()}
 
-        h1 = VGroup(tex("N(d)", 40), txt("= most mutually unbiased bases in", 27, GREY_),
+        h1 = VGroup(tex("N(d)", 40), txt("= max number of mutually unbiased bases in", 27, GREY_),
                     tex(r"\mathbb{C}^d", 40, GREY_)).arrange(RIGHT, buff=0.17)
         h1[1].shift(DOWN * 0.02)
         h1.move_to([0, 3.25, 0])
@@ -238,8 +239,8 @@ class C7Mubs(VoiceScene):
         # ---- "Six is the first dimension that isn't"
         x6 = xs[6]
         band = RoundedRectangle(width=1.8, height=4.7, corner_radius=0.15,
-                                stroke_color=ACCENT, stroke_width=1.6, stroke_opacity=0.55,
-                                fill_color=ACCENT, fill_opacity=0.05)
+                                stroke_color=ACCENT, stroke_width=2.4, stroke_opacity=0.9,
+                                fill_color=ACCENT, fill_opacity=0.08)
         band.move_to([x6, -1.07, 0])
         f6 = tex(r"2\cdot 3", 30, ACCENT).move_to([x6, -3.15, 0])
         others = VGroup(*cols.values(), *counts.values(), *[dlabs[d] for d in pp],
@@ -255,7 +256,7 @@ class C7Mubs(VoiceScene):
                           FadeIn(since, shift=DOWN * 0.12))
 
         # "the maximum could have been anything from three to seven"
-        solid = VGroup(*[dial(r, k * PI / 6, ACCENT, fill=0.16).move_to([x6, y0 + k * pitch, 0])
+        solid = VGroup(*[dial(r, k * PI / 6, ACCENT).move_to([x6, y0 + k * pitch, 0])
                          for k in range(3)])
         ghosts = VGroup(*[ghost_dial(r).move_to([x6, y0 + k * pitch, 0]) for k in range(3, 7)])
         brace = Brace(ghosts, RIGHT, buff=0.08, color=GREY_, sharpness=1.2)
@@ -264,10 +265,11 @@ class C7Mubs(VoiceScene):
         rng.move_to([x6, band.get_top()[1] + 0.42, 0])
         rng[0].set_color(ACCENT)
         self.play_between("L1_end-2.6", "L1_end-1.95", Write(rng[2]))
-        self.play_between("L1_end-1.55", "L1_end-0.85",
+        # "... from three" (the known construction) "... to seven" (the d+1 bound)
+        self.play_between("L1_end-1.25", "L1_end-0.7",
                           LaggedStart(*[GrowFromCenter(m) for m in solid], lag_ratio=0.35),
                           FadeIn(rng[0:2], shift=RIGHT * 0.15))
-        self.play_between("L1_end-0.8", "L1_end-0.05",
+        self.play_between("L1_end-0.66", "L1_end+0.1",
                           LaggedStart(*[Create(g) for g in ghosts], lag_ratio=0.3),
                           FadeIn(rng[3:5], shift=LEFT * 0.15),
                           Succession(Wait(0.3), AnimationGroup(GrowFromCenter(brace),

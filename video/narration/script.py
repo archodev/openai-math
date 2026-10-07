@@ -48,7 +48,7 @@ SCENES = [
         "{claim}The paper claims the answer is two, the smallest possible: {typical}in the long run, pi is no easier to approximate than a typical number.",
         "{flint}As a bonus, it settles a well-known puzzle: the Flint Hills series, a sum built from sines of whole numbers, converges.",
     ]),
-    dict(id="c1_grid", lines=[
+    dict(id="c1_grid", head=1.2, lines=[
         "Rapid fire. {f005}Catalan's constant: one, minus a ninth, plus a twenty-fifth, minus a forty-ninth, and so on, is irrational.{f005_end}",
         "{f004}Hilbert's tenth problem, for fractions: no single algorithm can tell, for every whole-number polynomial equation, whether it has a solution in fractions.{f004_end}",
         dict(text="Plus: {t002}the full Birch and Swinnerton-Dyer formula in low rank, {t006}Goldfeld's conjecture, {t030}modularity over imaginary quadratic fields, {t025}Erdős's short Egyptian fractions, {t028}the Gaussian moat, {t029}the infinitude half of Artin's conjecture, {t013}Ostmann's inverse Goldbach problem, {t026}large prime gaps, {t007}two-point Chowla, {t008}and Deligne–Drinfeld.", speed=FAST),
@@ -63,7 +63,7 @@ SCENES = [
         "{open}The full conjecture is still open, {claim}but this paper claims it for an important family, in every dimension: {cm}abelian varieties with complex multiplication. Think many-dimensional donuts with extra symmetry.",
         "{tate}By older work of Milne, that would also give the Tate conjecture for abelian varieties over finite fields. {k3}Companion papers claim the same for products of K3 surfaces.",
     ]),
-    dict(id="c2_grid", lines=[
+    dict(id="c2_grid", head=1.2, lines=[
         "{f047}Zariski's cancellation problem: if a shape, times a line, is ordinary five-dimensional space, must the shape be ordinary four-space? Over the complex numbers, the paper's answer is no.{f047_end}",
         dict(text="Plus {t039}Nagata's conjecture, {t038}Fujita's freeness conjecture, {t040}Bloch's conjecture for surfaces, {t050}a counterexample to Griffiths positivity, {t051}Kobayashi's ampleness conjecture, {t062}LeBrun–Salamon, {t063}the generalized Mukai conjecture, {t059}Zariski's multiplicity conjecture, disproved, {t060}the global spherical shell conjecture, {t058}Kollár–Pardon, {t057}and Campana's abelianity conjecture.", speed=FAST),
     ], tail=1.1),
@@ -83,7 +83,7 @@ SCENES = [
         "{max}That product is largest for a round ball, as has long been known. {mahler}In the late 1930s, Mahler asked: which shape makes it smallest?",
         "{claim}The papers claim the answer in every dimension. {cube}Among symmetric shapes: the cube, and its relatives. {simplex}Among all shapes: the simplex. A triangle, a tetrahedron, and their higher-dimensional cousins.",
     ]),
-    dict(id="c3_grid", lines=[
+    dict(id="c3_grid", head=1.2, lines=[
         "{f073}Falconer's distance conjecture: if a dusty, fractal set has more than half the dimension of the space it lives in, the distances between its points take up a positive length of the number line. Claimed in every dimension.{f073_end}",
         "{f071}Koebe's circle domain conjecture, from 1908: any region with holes, even infinitely many, of any shapes, can be reshaped without distorting angles, so that every hole becomes a perfect circle, or a point.{f071_end}",
         dict(text="Plus {t072}Brennan's conjecture, {t075}Fourier series converging in L log L, {t078}Bochner–Riesz, {t079}local smoothing, {t077}and Fourier restriction for curved surfaces, all three in three dimensions, {t076}ultraflat Littlewood polynomials, {t084}the geometric case of Erdős's similarity conjecture, {t090}optimality of the triangular lattice, {t091}the log Brunn–Minkowski inequality, {t096}and the Gaussian propeller.", speed=FAST),
@@ -102,7 +102,7 @@ SCENES = [
         "{timeline}Decades of work inched it down: {r1}two point three seven six. {r2}Two point three seven three. {r3}Two point three seven one.",
         "{claim}This paper claims omega is at most nine fourths: two point two five, over the complex numbers. {caveat}It's a statement about how the cost grows for enormous matrices, not a faster algorithm for your laptop. {jump}But as jumps go, it's a big one.",
     ]),
-    dict(id="c4_grid", lines=[
+    dict(id="c4_grid", head=1.2, lines=[
         "{f103}Coin flips versus memory: the paper claims randomness adds no power to computers with a tiny, logarithmic memory. L equals R L equals B P L.{f103_end}",
         "{f109}Multiplying n-digit numbers: since 1971, n log n was conjectured to be the speed limit on a standard model of computer. A new algorithm claims to beat it, by a sliver.{f109_end}",
         "{f138}And Subset Sum: do some of these numbers add up to a target? A randomized method claims two to the zero point four nine n time, breaking the two to the n over two barrier from 1974.{f138_end}",
@@ -123,7 +123,7 @@ SCENES = [
         "{erdos}Erdős conjectured that if a set of whole numbers is big enough that adding up one over each of them gives infinity, it must contain progressions of every length. {primes}The primes pass that test, and Green and Tao famously proved they do contain arbitrarily long progressions.",
         "{claim}The paper claims Erdős's conjecture in full, by showing that sets without long progressions must thin out much faster than anyone had proved for lengths beyond three. {prize}It was one of Erdős's famous cash-prize problems.",
     ]),
-    dict(id="c5_grid", lines=[
+    dict(id="c5_grid", head=1.2, lines=[
         "{f156}Borsuk asked whether every shape can be cut into one more piece than its dimension, each strictly narrower. The smallest known counterexample was in dimension sixty-three; the paper claims one in dimension nine.{f156_end}",
         "{f155}The periodic tiling conjecture: if a shape tiles space by sliding copies around, there's always a repeating pattern. Already known to fail in huge dimensions, it's now claimed false in three: the lowest possible, for tiles made of cubes.{f155_end}",
         "{f157}And Hadwiger's conjecture from 1943, linking graph coloring to hidden cliques, is claimed false, with large, random-like counterexamples.{f157_end}",
@@ -143,7 +143,7 @@ SCENES = [
         "{amen}The question, open since 1979: is it amenable? {grid}Roughly, can you find finite chunks of the group with almost no boundary, the way you can on a grid, {tree}but never can on a tree?",
         "{both}Over the years, claimed solutions went both ways. {claim}This paper says no: Thompson's group F is not amenable.",
     ]),
-    dict(id="c6_grid", lines=[
+    dict(id="c6_grid", head=1.2, lines=[
         "{f246}Cannon's conjecture: if a negatively curved group, seen from infinitely far away, looks like a sphere, then it comes from hyperbolic three-dimensional geometry.{f246_end}",
         "{f244}And in logic, the partition principle, from 1902: splitting a set never gives more pieces than elements. Does it imply the axiom of choice? The paper builds a universe of sets where it doesn't.{f244_end}",
         dict(text="Plus {t193}Serre's intersection multiplicities, {t194}Lech's conjecture, {t201}Kurosh's division ring problem, {t205}Saxl's conjecture, {t202}Alperin's weight conjecture, {t203}Donovan's conjecture, {t247}an infinite, finitely presented two-group, {t250}Boone–Higman, {t254}the Artin K pi one conjecture, {t241}and the rigidity of the Turing degrees.", speed=FAST),
@@ -162,7 +162,7 @@ SCENES = [
         "{prime}In a dimension d that's a prime power, like two, three, four or five, you can fit d plus one such measurements. {six}Six is the first dimension that isn't, and for thirty-five years, the maximum could have been anything from three to seven.",
         "{claim}The paper claims exactly three, with a large, computer-assisted proof.",
     ]),
-    dict(id="c7_grid", lines=[
+    dict(id="c7_grid", head=1.2, lines=[
         "{f268}Haldane's conjecture: a ring of spin-one quantum magnets, each pointing against its neighbors, keeps an energy gap however long the ring grows. Claimed for even-length rings, with an explicit lower bound.{f268_end}",
         dict(text="Plus {t145}Rokhlin's multiple mixing problem, {t146}chaos in the standard map, {t150}weak mixing in triangular billiards, {t213}critical percolation, {t214}the Benjamini–Schramm nonuniqueness conjecture, {t230}the exact size of S L E curves, {t238}the Thorp shuffle, {t221}Mézard–Parisi, {t261}Anderson localization, {t263}the ionization conjecture, {t260}Penrose inequalities, {t267}Bose–Einstein condensation, {t274}and parity in shallow quantum circuits.", speed=FAST),
     ], tail=1.1),
@@ -175,7 +175,7 @@ SCENES = [
         "{history}The question goes back to Richard Kadison, and has been open for decades. {dichotomy}In the nineties, it was shown to be all or nothing: either all these free group algebras are the same, or they're all different.",
         "{claim}The paper claims: all the same. {invisible}With two or more letters, the number of letters is completely invisible to the algebra.",
     ]),
-    dict(id="c8_grid", lines=[
+    dict(id="c8_grid", head=1.2, lines=[
         "{f288}Kadison's similarity problem, from 1955: can every bounded representation be straightened out by a single change of coordinates? The paper says yes.{f288_end}",
         "{f293}The hyperinvariant subspace problem, a stronger cousin of the famous invariant subspace problem: the paper builds an operator with no nontrivial hyperinvariant subspace, though the famous original stays open.{f293_end}",
         "{f304}The Hilbert–Smith conjecture: a locally compact group acting faithfully on a manifold must be a smooth Lie group, like the rotations. Claimed in every dimension.{f304_end}",
@@ -196,7 +196,7 @@ SCENES = [
         "{eq}The relativistic Vlasov–Maxwell equations describe that feedback loop. {q}Do smooth solutions stay smooth forever, or can particles get kicked to infinite momentum? {open}In three dimensions, that's been open since the 1980s.",
         "{claim}The paper claims: smooth forever. {details}Global existence and uniqueness, for any reasonable starting plasma made of one kind of particle, with no smallness or symmetry assumptions.",
     ]),
-    dict(id="c9_grid", lines=[
+    dict(id="c9_grid", head=1.2, lines=[
         "{f375}De Giorgi's conjecture, about phase transitions like oil separating from water: claimed in dimension eight, the hardest case.{f375_end}",
         "{f376}A fluid that computes: stir water just right, and a particle lands in a target exactly when a chosen computer program halts.{f376_end}",
         "{f345}And every sphere, in any dimension, however you dent or stretch it, has infinitely many different closed geodesics: think rubber bands, snapped tight.{f345_end}",

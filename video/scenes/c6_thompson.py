@@ -267,14 +267,16 @@ class C6Thompson(VoiceScene):
                  LaggedStart(*[Create(g) for g in ghosts], lag_ratio=0.18),
                  Create(diag))
         t_int = w(0, "interval")
-        self.seg(self.now, t_int + 0.4, Create(curve), FadeIn(x0lab, shift=UP * 0.1))
-        # ---- "of an interval": the interval appears on the right
+        self.seg(self.now, t_int + 0.1, Create(curve), FadeIn(x0lab, shift=UP * 0.1))
+        # ---- "of an interval": graph slides left, the interval appears on the right
         self.add(pieces)
         self.remove(curve)
         t_str = w(0, "straight")
         self.seg(self.now, t_str - 0.02,
-                 ghosts.animate.set_stroke(opacity=0.0),
-                 GrowFromEdge(top_track, LEFT), FadeIn(top_ends))
+                 VGroup(gridl, frame, lab0, labx1, laby1, diag, pieces, x0lab).animate.shift(LEFT * D0),
+                 ghosts.animate.shift(LEFT * D0).set_stroke(opacity=0.0),
+                 GrowFromEdge(top_track, LEFT, rate_func=late(0.5)),
+                 FadeIn(top_ends, rate_func=late(0.5)))
         self.remove(ghosts)
         # ---- "straight pieces": the three pieces light up one by one
         self.add(top_segs)
@@ -304,7 +306,7 @@ class C6Thompson(VoiceScene):
                  FadeIn(quads), GrowArrow(arrow), FadeIn(arrow_lab),
                  LaggedStart(*[FadeIn(m, scale=0.7) for m in stretch], lag_ratio=0.25),
                  LaggedStart(*[FadeIn(m, scale=0.7) for m in slopes], lag_ratio=0.25))
-        self.seg(self.now, "L0_end+0.15", *[TransformMatchingShapes(a, b) for a, b in zip(stretch, stretch2)],
+        self.seg(self.now, "L0_end", *[TransformMatchingShapes(a, b) for a, b in zip(stretch, stretch2)],
                  *[Indicate(m, scale_factor=1.15, color=m.get_color()) for m in slopes])
 
         # ============================== B. the question (cue: amen) ============
@@ -334,7 +336,7 @@ class C6Thompson(VoiceScene):
                  tok.animate.scale(1.03))
         question = serif("Is F amenable?", 60).next_to(open_cap, DOWN, buff=0.45)
         t_is = w(1, "is it amenable")
-        self.seg(t_is - 0.15, "grid-0.05", Write(question), tok.animate.scale(1 / 1.03))
+        self.seg(t_is - 0.15, min(t_is + 0.5, self.cue("grid")), Write(question), tok.animate.scale(1 / 1.03))
 
         # ============================== C. Følner intuition (cue: grid) =========
         N, s = 20, 0.24
@@ -375,9 +377,10 @@ class C6Thompson(VoiceScene):
         inner = chunk_parts(1)[2]
         dots = VGroup(*inner, *ring)
         g_ro = self.readout(4 / sizes[0], np.array([0, -3.2, 0]))
-        self.wait_until("grid")
+        # let the big question land before it shrinks into the header
+        self.wait_until("grid+0.35")
         self.play(ReplacementTransform(tok, header[0]), ReplacementTransform(question, header[1]),
-                  FadeOut(open_cap),
+                  FadeOut(open_cap, rate_func=early(0.35)),
                   LaggedStart(*[Create(l) for l in lattice], lag_ratio=0.02),
                   run_time=1.0)
         self.play(FadeIn(fill), LaggedStart(*[GrowFromCenter(d) for d in dots], lag_ratio=0.05),
@@ -392,7 +395,7 @@ class C6Thompson(VoiceScene):
             self.play(Transform(fill, nf), *[Transform(a, b) for a, b in zip(stubs, ns)],
                       LaggedStart(*[GrowFromCenter(d) for d in nr], lag_ratio=0.01),
                       *self.update_readout(g_ro, 4 / n),
-                      run_time=step_t, rate_func=smooth)
+                      run_time=step_t)
             dots.add(*nr)
             self.add(gridp)
             self.settle()
@@ -475,10 +478,16 @@ class C6Thompson(VoiceScene):
         track = Line(lab_am.get_right() + RIGHT * 0.3, lab_non.get_left() + LEFT * 0.3,
                      color=DIM, stroke_width=3)
         tok = header[0]
+        # the readouts have made their point: they leave, and both pictures shrink
+        # into the lower band so the claim chips get clean space under the labels
+        DY, DS, TREE_FADE = -1.5, 0.72, 0.45
         self.seg("both", "both+0.6",
                  FadeIn(lab_am, shift=DOWN * 0.1), FadeIn(lab_non, shift=DOWN * 0.1), Create(track),
                  tok.animate(path_arc=PI / 3).scale(1.25).move_to(np.array([0, rowY, 0])),
-                 gridp.animate.fade(0.6), treep.animate.fade(0.5))
+                 FadeOut(g_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
+                 FadeOut(t_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
+                 gridp.animate.scale(DS).move_to(np.array([gL[0], DY, 0])).fade(0.6),
+                 treep.animate.scale(DS).move_to(np.array([tC[0], DY, 0])).fade(TREE_FADE))
 
         def claim_chip(name, year, col):
             t = VGroup(txt(name, 22, WHITE_, weight=SEMIBOLD), txt(year, 22, col, weight=BOLD)).arrange(RIGHT, buff=0.16)
@@ -487,41 +496,43 @@ class C6Thompson(VoiceScene):
             t.move_to(box)
             return VGroup(box, t)
 
-        cl = [claim_chip("Shavgulidze", "2009", AMEN_COL).move_to(np.array([gL[0], 1.5, 0])),
-              claim_chip("Moore", "2012", AMEN_COL).move_to(np.array([gL[0], 0.8, 0])),
-              claim_chip("Akhmedov", "2021", NON_COL).move_to(np.array([tC[0], 1.5, 0]))]
+        cl = [claim_chip("Shavgulidze", "2009", AMEN_COL).move_to(np.array([gL[0], 1.55, 0])),
+              claim_chip("Moore", "2012", AMEN_COL).move_to(np.array([gL[0], 0.85, 0])),
+              claim_chip("Akhmedov", "2021", NON_COL).move_to(np.array([tC[0], 1.55, 0]))]
+        # Moore's 2012 amenability claim was withdrawn (research notes)
+        wd = txt("withdrawn", 22, GREY_, slant=ITALIC).next_to(cl[1], RIGHT, buff=0.2)
         nudges = [-0.6, -1.1, 0.8]
         t_claim = self.cue("claim")
         slot = (t_claim - 0.4 - self.now) / 3
-        for chp, dx in zip(cl, nudges):
+        for k, (chp, dx) in enumerate(zip(cl, nudges)):
+            extra = [FadeIn(wd, shift=LEFT * 0.1, rate_func=late(0.3))] if k == 2 else []
             self.play(GrowFromPoint(chp, tok.get_center()),
-                      tok.animate.move_to(np.array([dx, rowY, 0])),
-                      run_time=max(0.3, slot), rate_func=smooth)
+                      tok.animate.move_to(np.array([dx, rowY, 0])), *extra,
+                      run_time=max(0.3, slot))
         self.seg(self.now, "claim", tok.animate.move_to(np.array([0, rowY, 0])))
 
         # ============================== E. the paper (cue: claim) ==============
-        card = paper_card("248", width=2.9)
-        card.move_to(np.array([-3.0, 0.78, 0]))
+        TX = 2.35                                   # x of the verdict column (tree)
+        card = paper_card("248", width=3.1)
+        card.move_to(np.array([-2.3, 0.86, 0]))
         card_target = card.get_center()
         card.shift(LEFT * 4.8)
         tag = paper_tag("248", color=ACC)
-        tree_tgt = np.array([2.8, 0.42, 0])
+        tree_tgt = np.array([TX, 0.42, 0])
         tok_size = tok.width * 0.8
         row_w = tok_size + 0.38 + lab_non.width
-        tok_tgt = np.array([2.8 - row_w / 2 + tok_size / 2, 2.98, 0])
-        lab_tgt = np.array([2.8 + row_w / 2 - lab_non.width / 2, 2.98, 0])
+        tok_tgt = np.array([TX - row_w / 2 + tok_size / 2, 2.98, 0])
+        lab_tgt = np.array([TX + row_w / 2 - lab_non.width / 2, 2.98, 0])
         self.add(card)
         self.seg("claim", "claim+1.0",
-                 FadeOut(VGroup(*cl, lab_am, track, hq), rate_func=early(0.45)),
+                 FadeOut(VGroup(*cl, wd, lab_am, track, hq), rate_func=early(0.45)),
                  FadeOut(gridp, shift=DOWN * 0.3, rate_func=early(0.45)),
-                 FadeOut(g_ro, shift=DOWN * 0.3, rate_func=early(0.4)),
-                 FadeOut(t_ro, shift=DOWN * 0.3, rate_func=early(0.4)),
-                 treep.animate.fade(-1.0).scale(0.8).move_to(tree_tgt),
+                 treep.animate.fade(1 - 1 / (1 - TREE_FADE)).scale(3.2 / treep.height).move_to(tree_tgt),
                  lab_non.animate.move_to(lab_tgt),
                  tok.animate.scale(0.8).move_to(tok_tgt),
                  card.animate.move_to(card_target),
                  FadeIn(tag, shift=RIGHT * 0.2, rate_func=late(0.45)))
-        geo = txt("as Geoghegan conjectured in 1979", 22, GREY_).move_to(np.array([2.8, 2.48, 0]))
+        geo = txt("as Geoghegan conjectured in 1979", 22, GREY_).move_to(np.array([TX, 2.48, 0]))
         banner = result_banner("Thompson's group F is not amenable", lean=CATALOG["248"]["lean"], size=32)
         banner.move_to(np.array([0, -2.15, 0]))
         t_no = w(2, "says no")
