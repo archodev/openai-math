@@ -446,6 +446,30 @@ def _adopt(scene, mob, *parts):
     mob.add(*parts)
 
 
+def _beats(scene, num):
+    """u in [0, 1] along the feature's narration line (cue f<num> -> f<num>_end) ->
+    absolute time, clamped to just before the grid template collapses the card
+    (it starts at f<num>_end - 0.45).  The beats below were read off the voice
+    track as fractions of the line, so they follow the words if it is re-timed."""
+    c0, c1 = scene.cue(f"f{num}"), scene.cue(f"f{num}_end")
+    stop = c1 - 0.5
+    return (lambda u: min(c0 + u * (c1 - c0), stop)), stop
+
+
+def _go(scene, t0, t1, *anims, filler=None, min_rt=0.2):
+    """Start at t0 (or now, if later), end at t1.  `filler(dt)` returns an animation
+    that keeps something moving while we wait for t0."""
+    gap = t0 - scene.now
+    if gap > 0.07:
+        if filler is not None:
+            scene.play(filler(gap), run_time=gap)
+        else:
+            scene.wait(gap)
+    rt = max(min_rt, t1 - scene.now)
+    extra = [filler(rt)] if filler is not None else []
+    scene.play(*anims, *extra, run_time=rt)
+
+
 # ---------------------------------------------------------------- 005 Catalan
 def big_catalan():
     g = VGroup(_frame())
@@ -460,7 +484,7 @@ def big_catalan():
     one = _m("1", 28, GREY_).next_to(ax.c2p(0, 1), LEFT, buff=0.12)
     tick = Line(ax.c2p(0, 1) + LEFT * 0.06, ax.c2p(0, 1) + RIGHT * 0.06, stroke_color=GREY_, stroke_width=1.6)
     g.add(f, ax, gline, gl, one, tick)
-    g._gl = gl
+    g._gl, g._G = gl, f[0]
     S = _catalan_sums(13)
     g._pts = [ax.c2p(i, s) for i, s in enumerate(S)]
     g._terms = [f[2], f[3], f[4], f[5], f[6]]
@@ -472,6 +496,7 @@ def big_catalan():
 
 
 def animate_catalan(scene, mob, rt):
+    T, _ = _beats(scene, "005")
     pts = mob._pts
     dots = [_dot(p, 0.055) for p in pts]
     segs = [Line(pts[i - 1], pts[i], stroke_color=ACC, stroke_width=3) for i in range(1, len(pts))]
@@ -480,24 +505,26 @@ def animate_catalan(scene, mob, rt):
     for d in dots:
         d.set_z_index(63)
     terms = mob._terms
-    # group=mob everywhere: a fresh Group holding card children would be added
-    # to the scene and dissolve the card (Scene.add extracts families).
-    steps = []
-    for i in range(4):              # 1, -1/9, +1/25, -1/49 : one by one, with the voice
+    # "Catalan's constant": the G of the formula and the level it converges to
+    _go(scene, T(0.07), T(0.21), Indicate(mob._G, color=ACC, scale_factor=1.25),
+        Indicate(mob._gl, color=ACC, scale_factor=1.25))
+    # "one, minus a ninth, plus a twenty-fifth, minus a forty-ninth": each term lights
+    # up as it is spoken and adds its point to the partial-sum zig-zag
+    for i, (u0, u1) in enumerate(((0.285, 0.335), (0.345, 0.42), (0.47, 0.55), (0.60, 0.67))):
         a = [FadeIn(dots[i], scale=0.3), terms[i].animate.set_color(ACC)]
         if i:
             a.append(Create(segs[i - 1]))
-        steps.append(AnimationGroup(*a, group=mob))
+        _go(scene, T(u0), T(u1), *a)
+    # "and so on": the rest of the partial sums home in on G as its decimals appear.
+    # group=mob: a fresh Group holding card children would be added to the scene and
+    # dissolve the card (Scene.add extracts families).
     rest = [AnimationGroup(Create(segs[i - 1]), FadeIn(dots[i], scale=0.3), group=mob)
             for i in range(4, len(pts))]
-    steps.append(AnimationGroup(terms[4].animate.set_color(ACC),
-                                LaggedStart(*rest, lag_ratio=0.55, group=mob), run_time=1.6, group=mob))
-    scene.wait(0.11 * rt)
-    scene.play(Succession(*steps, group=mob), run_time=0.66 * rt)
-    scene.play(Write(approx), run_time=0.09 * rt)
-    scene.wait(0.02 * rt)
-    scene.play(FadeIn(res, scale=1.25), Indicate(mob._gl, color=YELLOW_, scale_factor=1.3),
-               run_time=0.10 * rt)
+    _go(scene, T(0.68), T(0.79), terms[4].animate.set_color(ACC),
+        LaggedStart(*rest, lag_ratio=0.55, group=mob), Write(approx))
+    # "is irrational" (lands with the first syllable, so it holds before the collapse)
+    _go(scene, T(0.80), T(0.86), FadeIn(res, scale=1.25),
+        Indicate(mob._gl, color=YELLOW_, scale_factor=1.3))
     _adopt(scene, mob, *segs, *dots, approx, res)
 
 
@@ -511,10 +538,13 @@ def big_h10():
                                 stroke_color=GREY_, stroke_width=1.4, fill_color=BG, fill_opacity=0.6)
         eqs.add(VGroup(pill, t.move_to(pill)))
     eqs.arrange(RIGHT, buff=0.22).move_to(UP * 1.8)
-    box = RoundedRectangle(width=3.7, height=1.2, corner_radius=0.16, stroke_color=ACC, stroke_width=3,
+    # "ONE algorithm": the claim is that no single procedure handles every equation
+    # (individual equations can of course be settled).
+    box = RoundedRectangle(width=4.2, height=1.2, corner_radius=0.16, stroke_color=ACC, stroke_width=3,
                            fill_color=ACC, fill_opacity=0.08).move_to(UP * 0.28)
     gear = _gear(0.26, 9, 0.08, ACC, 2.2).move_to(box.get_left() + RIGHT * 0.62)
-    lab = bold("ALGORITHM", 26, WHITE_).move_to(box).shift(RIGHT * 0.38)
+    lab = bold("ONE ALGORITHM", 24, WHITE_)
+    lab.move_to(box).set_x((gear.get_right()[0] + box.get_right()[0]) / 2)
     ins = VGroup(*[_arrow(e.get_bottom() + DOWN * 0.06, box.get_top() + RIGHT * 0.6 * (i - 1) + UP * 0.04,
                           width=2, tip=0.12) for i, e in enumerate(eqs)])
     yes = chip("YES", GREEN_, size=20, fill_opacity=0.12).move_to(_P(-1.05, -1.42))
@@ -524,6 +554,7 @@ def big_h10():
     ask = txt("rational solution?", 22, GREY_).move_to(DOWN * 2.0)
     g.add(eqs, ins, box, gear, lab, outs, yes, no, ask)
     g._eqs, g._box, g._gear, g._lab, g._outs = eqs, box, gear, lab, outs
+    g._ins, g._ask = ins, ask
     q = _m("?", 64, YELLOW_).move_to(_P(0, -1.42))
     cross = VGroup(Line(box.get_corner(UL) + _P(0.25, -0.12), box.get_corner(DR) + _P(-0.25, 0.12)),
                    Line(box.get_corner(DL) + _P(0.25, 0.12), box.get_corner(UR) + _P(-0.25, -0.12)))

@@ -392,6 +392,8 @@ class C1Pi(VoiceScene):
         d22, d355 = dots[(22, 7)], dots[(355, 113)]
         lab22 = tex(r"\frac{22}{7}", 30, FR).next_to(d22, LEFT, buff=0.12)
         lab355 = tex(r"\frac{355}{113}", 30, FR).next_to(d355, DL, buff=0.06)
+        d3 = dots[(3, 1)]
+        lab3 = tex("3", 30, FR).move_to(d3.get_center() + RIGHT * 0.26 + DOWN * 0.24)
 
         # ---- transition
         t0 = self.now
@@ -441,9 +443,11 @@ class C1Pi(VoiceScene):
 
         # right column
         CX = 4.45
-        cap1 = caps("true for every irrational", 18, GREY_, spacing=0.03).move_to([CX, 2.55, 0])
-        if cap1.get_right()[0] > 6.55:
-            cap1.shift(LEFT * (cap1.get_right()[0] - 6.55))
+        def fit_right(m, xmax=6.55):
+            if m.get_right()[0] > xmax:
+                m.shift(LEFT * (m.get_right()[0] - xmax))
+            return m
+        cap1 = fit_right(caps("true for every irrational", 20, GREY_, spacing=0.03).move_to([CX, 2.55, 0]))
         f_lhs = tex(r"\left|\pi-\frac{p}{q}\right|\;<", 46)
         f_r2 = tex(r"\frac{1}{q^{2}}", 46)
         f_rmu = tex(r"\frac{1}{q^{\mu}}", 46)
@@ -457,8 +461,10 @@ class C1Pi(VoiceScene):
         self.play(FadeIn(rhs2, shift=UP * 0.1), run_time=0.4)
 
         rest = [dots[(p, q)] for p, q, _, _ in PTS if (p, q) not in ((22, 7), (355, 113))]
+        grow_rest = [GrowFromCenter(d) for d in rest]
+        grow_rest[0] = AnimationGroup(grow_rest[0], FadeIn(lab3, shift=LEFT * 0.08))   # rest[0] is 3/1
         self.play_at(self.cue("dirichlet") + 1.75,
-                     LaggedStart(*[GrowFromCenter(d) for d in rest], lag_ratio=0.28),
+                     LaggedStart(*grow_rest, lag_ratio=0.28),
                      run_time=2.0)
         self.play(Write(form), run_time=1.0)
         self.play(FadeIn(cap2, shift=UP * 0.1), run_time=0.6)
@@ -467,15 +473,17 @@ class C1Pi(VoiceScene):
                         mu_line.animate.set_stroke(width=5.5), rate_func=there_and_back)
 
         # ---- irrationality exponent: rotate the line to 1/q^3
-        cap1b = caps("irrationality exponent", 18, ACC, spacing=0.03).move_to([CX, 2.55, 0])
+        cap1b = fit_right(caps("irrationality exponent", 20, ACC, spacing=0.03).move_to([CX, 2.55, 0]))
         cap2b = txt("for infinitely many p/q?", 26, WHITE_).move_to(cap2)
         mu_lab = VGroup(tex(r"\mu =", 44, YELLOW_), Odometer("{:.2f}", 2.0, 44, YELLOW_))
         mu_lab.arrange(RIGHT, buff=0.15).move_to([CX, -0.45, 0])
-        mu_lab[1].add_updater(lambda m: m.set_value(mu.get_value()))
         place_line_label(rhsmu)
         self.play(ReplacementTransform(cap1, cap1b), ReplacementTransform(f_r2, f_rmu),
                   ReplacementTransform(cap2, cap2b), ReplacementTransform(rhs2, rhsmu),
                   FadeIn(mu_lab, shift=UP * 0.1), run_time=1.0)
+        # attach only after the fade-in: Odometer.set_value() re-shapes its glyphs with
+        # become(), which would reset the FadeIn opacity (the readout used to pop in)
+        mu_lab[1].add_updater(lambda m: m.set_value(mu.get_value()))
 
         mu_line.add_updater(lambda m: m.become(mk_line()))
         shade.add_updater(lambda m: m.become(mk_shade()))
@@ -498,12 +506,13 @@ class C1Pi(VoiceScene):
         rhsmu.clear_updaters()
         mu_line.clear_updaters()
         shade.clear_updaters()
-        self.play(Indicate(d22, color=YELLOW_, scale_factor=1.8),
-                  Indicate(d355, color=YELLOW_, scale_factor=1.8),
+        self.play(Indicate(d3, color=YELLOW_, scale_factor=1.8),
+                  Indicate(d22, color=YELLOW_, scale_factor=1.8),
+                  Indicate(d355, color=YELLOW_, scale_factor=1.8), Indicate(lab3, color=YELLOW_),
                   Indicate(lab22, color=YELLOW_), Indicate(lab355, color=YELLOW_),
                   run_time=max(0.5, min(0.9, self.cue("record") - self.now - 0.05)))
 
-        self.plot = VGroup(axes, x_title, y_title, mu_line, shade, rhsmu, lab22, lab355,
+        self.plot = VGroup(axes, x_title, y_title, mu_line, shade, rhsmu, lab3, lab22, lab355,
                            *dots.values(), cap1b, f_lhs, f_rmu, cap2b, mu_lab)
 
     # ------------------------------------------------------------------

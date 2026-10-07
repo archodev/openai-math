@@ -480,14 +480,14 @@ class C6Thompson(VoiceScene):
         tok = header[0]
         # the readouts have made their point: they leave, and both pictures shrink
         # into the lower band so the claim chips get clean space under the labels
-        DY, DS, TREE_FADE = -1.5, 0.72, 0.45
+        DY, DS, DIM_K = -1.5, 0.72, 0.5     # both sides dimmed equally: no hint of the verdict yet
         self.seg("both", "both+0.6",
                  FadeIn(lab_am, shift=DOWN * 0.1), FadeIn(lab_non, shift=DOWN * 0.1), Create(track),
                  tok.animate(path_arc=PI / 3).scale(1.25).move_to(np.array([0, rowY, 0])),
                  FadeOut(g_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
                  FadeOut(t_ro, shift=DOWN * 0.25, rate_func=early(0.6)),
-                 gridp.animate.scale(DS).move_to(np.array([gL[0], DY, 0])).fade(0.6),
-                 treep.animate.scale(DS).move_to(np.array([tC[0], DY, 0])).fade(TREE_FADE))
+                 gridp.animate.scale(DS).move_to(np.array([gL[0], DY, 0])).fade(DIM_K),
+                 treep.animate.scale(DS).move_to(np.array([tC[0], DY, 0])).fade(DIM_K))
 
         def claim_chip(name, year, col):
             t = VGroup(txt(name, 22, WHITE_, weight=SEMIBOLD), txt(year, 22, col, weight=BOLD)).arrange(RIGHT, buff=0.16)
@@ -527,7 +527,8 @@ class C6Thompson(VoiceScene):
         self.seg("claim", "claim+1.0",
                  FadeOut(VGroup(*cl, wd, lab_am, track, hq), rate_func=early(0.45)),
                  FadeOut(gridp, shift=DOWN * 0.3, rate_func=early(0.45)),
-                 treep.animate.fade(1 - 1 / (1 - TREE_FADE)).scale(3.2 / treep.height).move_to(tree_tgt),
+                 # tree returns at 80%: an analogy for the verdict, not a picture of F; the paper is the hero
+                 treep.animate.fade(1 - 0.8 / (1 - DIM_K)).scale(3.2 / treep.height).move_to(tree_tgt),
                  lab_non.animate.move_to(lab_tgt),
                  tok.animate.scale(0.8).move_to(tok_tgt),
                  card.animate.move_to(card_target),

@@ -377,8 +377,8 @@ class C1Qrh(VoiceScene):
         edge = Line(ORIGIN, UP, stroke_color=GREY_, stroke_width=2.5).set_z_index(-1)
         self.vlines.append((edge, 1.0, 0.0))
         self.relayout()
-        lab0 = MathTex("0", font_size=32, color=GREY_).move_to([sx(0) - 0.17, Y0 - 0.33, 0])
-        lab1 = MathTex("1", font_size=32, color=GREY_).move_to([sx(1), Y0 - 0.38, 0])
+        lab0 = MathTex("0", font_size=34, color=GREY_).move_to([sx(0) - 0.17, Y0 - 0.33, 0])
+        lab1 = MathTex("1", font_size=34, color=GREY_).move_to([sx(1), Y0 - 0.38, 0])
         self.att += [(lab0, 0, -0.33), (lab1, 0, -0.38)]
         cap = caps("critical strip", 20, ACC).move_to([sx(0.5), Y0 - 0.85, 0])
         self.strip, self.edge, self.lab0, self.lab1, self.cap = strip, edge, lab0, lab1, cap
@@ -404,7 +404,7 @@ class C1Qrh(VoiceScene):
         crit = VDash(0.5, WHITE_, width=2.5, opacity=0.85).set_z_index(-1)
         crit.layout(self.Y(0), 0.0)
         self.dashes.append(crit)
-        half = MathTex(r"\tfrac12", font_size=32, color=GREY_).move_to([sx(0.5), Y0 - 0.38, 0])
+        half = MathTex(r"\tfrac12", font_size=38, color=GREY_).move_to([sx(0.5), Y0 - 0.38, 0])
         self.att.append((half, 0, -0.38))
         self.crit, self.half = crit, half
         self.play_at("line", FadeOut(span), FadeOut(span_l), Create(crit, lag_ratio=0.6), FadeIn(half),
@@ -631,7 +631,7 @@ class C1Qrh(VoiceScene):
         self.rects.append((band, 7 / 8, lambda: self.band_s1, 1.0))
         self.relayout()
         self.add(band)
-        t78 = MathTex(r"\tfrac78", font_size=32, color=YELLOW_).move_to([sx(7 / 8), Y0 - 0.38, 0])
+        t78 = MathTex(r"\tfrac78", font_size=38, color=YELLOW_).move_to([sx(7 / 8), Y0 - 0.38, 0])
         self.sl_on = False
 
         def fill_band(a):
@@ -719,7 +719,7 @@ class C1Qrh(VoiceScene):
         # {margin}: a fixed margin of width 1/8, and the result banner
         br = Brace(Line([sx(7 / 8) + 0.03, 2.62, 0], [sx(1) - 0.03, 2.62, 0]), UP, buff=0.02,
                    color=WHITE_, sharpness=1.2)
-        br_l = MathTex(r"\tfrac18", font_size=34, color=WHITE_).next_to(br, UP, buff=0.05)
+        br_l = MathTex(r"\tfrac18", font_size=42, color=WHITE_).next_to(br, UP, buff=0.05)
         banner = result_banner(r"&\zeta(s)\neq0,\ \ L(s,\chi)\neq0\\ &\text{for } \operatorname{Re} s>\tfrac78",
                                lean=CATALOG["003"]["lean"], is_tex=True, size=34)
         banner.move_to([PANEL_CX, 2.35, 0]).set_z_index(5)
