@@ -54,6 +54,15 @@ class S02Rules(VoiceScene):
         """Time a fraction f of the way from cue a to cue b."""
         return self.cue(a) + f * (self.cue(b) - self.cue(a))
 
+    def freeze(self, *mobs):
+        """Stop ambient updaters before a fade-out. (Animation copies keep their
+        updaters, which would otherwise fight the fade.) Drops empty drivers."""
+        for m in mobs:
+            for f in m.get_family():
+                f.clear_updaters()
+            if isinstance(m, VMobject) and not m.has_points() and not m.submobjects:
+                self.remove(m)
+
     def drive(self, fn):
         """Run fn(dt) every frame (for groups that are not themselves in the scene)."""
         d = VMobject()
@@ -87,6 +96,8 @@ class S02Rules(VoiceScene):
         self.rest()
         self.claims()
         self.plan()
+        self.wait_until("end-0.5")
+        self.freeze(*self.mobjects)
         self.finish()
 
     # ------------------------------------------------------------ 1. preprints
@@ -162,16 +173,17 @@ class S02Rules(VoiceScene):
         # --- transition from the fan
         self.remove(self.fan_drv)
         self.wait_until("L0_end")
-        self.play_until(self.frac("procedure", "exceptions", 0.45),
-                        FadeOut(stamp, scale=0.9), FadeOut(self.intro_caps, shift=DOWN * 0.2),
-                        *[c.animate.scale(scale).move_to(t) for c, t in zip(cards, targets)],
-                        Create(box), FadeIn(box_lbl), FadeIn(most), FadeIn(paper_lbl),
-                        rate_func=smooth, min_time=0.6)
+        quick = lambda t: smooth(min(1.0, t / 0.25))
         self.play_until(self.frac("procedure", "exceptions", 0.97),
-                        LaggedStart(GrowFromCenter(prob_g), FadeIn(prob_lbl),
+                        FadeOut(stamp, scale=0.9, rate_func=quick),
+                        FadeOut(self.intro_caps, shift=DOWN * 0.2, rate_func=quick),
+                        LaggedStart(AnimationGroup(*[c.animate.scale(scale).move_to(t)
+                                                     for c, t in zip(cards, targets)],
+                                                   Create(box), FadeIn(box_lbl), FadeIn(most)),
+                                    AnimationGroup(GrowFromCenter(prob_g), FadeIn(prob_lbl)),
                                     GrowArrow(a1), FadeIn(model, scale=0.9), GrowArrow(a2),
-                                    lag_ratio=0.25),
-                        rate_func=smooth, min_time=0.6)
+                                    FadeIn(paper_lbl), lag_ratio=0.3, rate_func=linear),
+                        min_time=0.8)
         f1 = self.flow(lambda u, a=a1: a.get_start() + u * (a.get_end() - a.get_start()), color=WHITE_)
         f2 = self.flow(lambda u, a=a2: a.get_start() + u * (a.get_end() - a.get_start()), color=WHITE_)
         self.add(f1, f2)
@@ -241,6 +253,9 @@ class S02Rules(VoiceScene):
         lab = bold("with Lean formalizations", 30, TEAL_)
         row = VGroup(ref, of, lab).arrange(RIGHT, buff=0.28, aligned_edge=DOWN).move_to([0, 2.7, 0])
         tr = ValueTracker(0)
+        slide = (lab.width + 0.28) / 2
+        ref.shift(RIGHT * slide)
+        of.shift(RIGHT * slide)
         num = bold("0", 64, TEAL_).align_to(ref, RIGHT).align_to(ref, DOWN)
         num.v = 0
 
@@ -252,7 +267,9 @@ class S02Rules(VoiceScene):
                 m.v = v
         num.add_updater(upd)
 
-        self.play_between("L1_end", "lean+0.4", FadeOut(self.pipe, shift=UP * 0.3), min_time=0.3)
+        self.wait_until("L1_end")
+        self.freeze(self.pipe)
+        self.play_until("lean+0.4", FadeOut(self.pipe, shift=UP * 0.3), min_time=0.3)
         self.play_until(self.frac("lean", "code", 0.24),
                         LaggedStart(*[FadeIn(s, scale=0.4) for s in sqs], lag_ratio=0.008),
                         FadeIn(num), FadeIn(of), rate_func=linear)
@@ -260,7 +277,8 @@ class S02Rules(VoiceScene):
                         LaggedStart(*[s.animate.set_fill(TEAL_, 0.92) for s in lean], lag_ratio=0.03),
                         tr.animate.set_value(235), rate_func=linear)
         num.clear_updaters()
-        self.play_until(self.frac("lean", "code", 0.9), FadeIn(lab, shift=LEFT * 0.2), min_time=0.3)
+        self.play_until(self.frac("lean", "code", 0.9), FadeIn(lab, shift=LEFT * 0.2),
+                        VGroup(num, of).animate.shift(LEFT * slide), min_time=0.3)
         self.counter = VGroup(num, of, lab)
 
     # ------------------------------------------------------------ 4. Lean code
@@ -291,8 +309,7 @@ class S02Rules(VoiceScene):
         for yy, bar in items:
             ck = check_mark(TEAL_, size=0.15, width=2.6).move_to([gx, yy, 0])
             ck.set_stroke(opacity=0)
-            if bar is not None:
-                ck.scale(0.001)   # bars just light up; no gutter tick
+            ck.is_bar = bar is not None
             checks.add(ck)
 
         self.play_until(self.frac("code", "L2_end", 0.32),
@@ -312,7 +329,7 @@ class S02Rules(VoiceScene):
             m.move_to([panel.get_center()[0], yb, 0])
             for (yy, bar), ck in zip(items, checks):
                 on = yb <= yy + 0.02
-                ck.set_stroke(opacity=1.0 if on else 0.0)
+                ck.set_stroke(opacity=1.0 if (on and not ck.is_bar) else 0.0)
                 if bar is not None:
                     bar.set_fill(TEAL_ if on else DIM, opacity=0.85 if on else 0.75)
         scan(band, 0)
@@ -364,10 +381,15 @@ class S02Rules(VoiceScene):
         legend.move_to([0, 2.68, 0])
 
         self.wait_until("L3_end-0.15")
+        self.freeze(halo)
+        early = lambda t: smooth(min(1.0, t / 0.45))
+        late = lambda t: smooth(max(0.0, (t - 0.35) / 0.65))
         self.play_until("rest+0.6",
-                        Transform(big, small), FadeOut(halo), FadeOut(self.badge_caps, shift=DOWN * 0.2),
-                        FadeIn(self.sqs, scale=0.94), FadeIn(l_txt, shift=LEFT * 0.2),
-                        rate_func=smooth, min_time=0.5)
+                        Transform(big, small, rate_func=smooth),
+                        FadeOut(halo, rate_func=early),
+                        FadeOut(self.badge_caps, shift=DOWN * 0.2, rate_func=early),
+                        FadeIn(self.sqs, scale=0.94, rate_func=late),
+                        FadeIn(l_txt, shift=LEFT * 0.2, rate_func=late), min_time=0.5)
         self.remove(halo)
         self.play_until(self.frac("rest", "L4_end", 0.25),
                         self.lean_sqs.animate.set_fill(opacity=0.28),

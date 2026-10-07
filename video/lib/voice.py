@@ -26,6 +26,9 @@ from manim import *  # noqa: F401,F403
 from .style import ASSETS, BG, BUILD
 
 config.background_color = BG
+# Many renders share one media dir: never let one render's LaTeX cleanup delete
+# another's in-flight .dvi files (manim deletes all non-svg files in tex_dir).
+config.no_latex_cleanup = True
 
 
 class VoiceScene(Scene):
@@ -36,6 +39,13 @@ class VoiceScene(Scene):
     def setup(self):
         sid = self.SCENE_ID or Path(sys.modules[self.__class__.__module__].__file__).stem
         self.scene_id = sid
+        # per-scene LaTeX cache dir avoids cross-render races on identical tex hashes
+        try:
+            base = Path(config.media_dir) / "Tex"
+            config.tex_dir = str(base / sid)
+            Path(config.tex_dir).mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         path = BUILD / "timing" / f"{sid}.json"
         if path.exists():
             self.timing = json.loads(path.read_text())

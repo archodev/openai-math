@@ -242,7 +242,7 @@ class C6Thompson(VoiceScene):
                     tex(r"\frac34", 34, YELLOW_).next_to(P(0.75, 0), DOWN, buff=0.16))
         yl = VGroup(tex(r"\frac14", 32, GREY_).next_to(P(0, 0.25), LEFT, buff=0.16),
                     tex(r"\frac12", 32, GREY_).next_to(P(0, 0.5), LEFT, buff=0.16))
-        slope_pos = [P(0.30, 0.07), P(0.70, 0.29), P(0.955, 0.6)]
+        slope_pos = [P(0.41, 0.095), P(0.70, 0.29), P(0.955, 0.6)]
         slopes = VGroup(*[tex(s, 34, c).move_to(p)
                           for s, c, p in zip([r"\frac12", "1", "2"], PIECE_COLS, slope_pos)])
 
@@ -296,7 +296,7 @@ class C6Thompson(VoiceScene):
                  *[Indicate(m, scale_factor=1.15, color=m.get_color()) for m in slopes])
 
         # ============================== B. the question (cue: amen) ============
-        T_big = self.token(2.3).move_to(UP * 0.45)
+        T_big = self.token(2.3).move_to(UP * 0.95)
         mapping = VGroup(top_track, top_segs, top_ends, top_mid, bot_ticks, quads,
                          movers, stretch2, arrow, arrow_lab)
         self.wait_until("amen")
@@ -380,7 +380,7 @@ class C6Thompson(VoiceScene):
             self.add(gridp)
             self.settle()
         to0 = tex(r"\to 0", 34, BND_COL).next_to(g_ro[0], RIGHT, buff=0.2)
-        self.seg(self.now, "tree-0.02", Write(to0), Indicate(g_ro[0][-1], color=BND_COL))
+        self.seg(self.now, "tree-0.02", Write(to0))
         g_ro.add(to0)
         self.add(g_ro)
 
@@ -510,7 +510,7 @@ class C6Thompson(VoiceScene):
         t_no = w(2, "says no")
         self.seg(max(self.now, t_no - 0.1), max(self.now, t_no - 0.1) + 0.5,
                  Indicate(lab_non, color=NON_COL, scale_factor=1.12),
-                 Indicate(tok, color=NON_COL, scale_factor=1.12))
+                 tok.animate(rate_func=there_and_back).scale(1.15))
         t_ban = max(self.now, w(2, "Thompson's group F is not") - 0.45)
         self.seg(t_ban, t_ban + 0.6, FadeIn(banner, shift=UP * 0.2), FadeIn(geo, shift=UP * 0.08))
         # living hold: the tree's boundary breathes, the card drifts a touch

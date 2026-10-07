@@ -476,7 +476,7 @@
   },
   {
    "num": "214",
-   "name": "Benjamini–Schramm: p_c < p_u",
+   "name": "Benjamini–Schramm nonuniqueness",
    "verdict": "proved",
    "caption": null
   },
@@ -488,7 +488,7 @@
   },
   {
    "num": "238",
-   "name": "Thorp shuffle mixes in Θ(log N)",
+   "name": "Optimal mixing of the Thorp shuffle",
    "verdict": "exact",
    "caption": null
   },

@@ -344,7 +344,7 @@ class C5Erdos(VoiceScene):
         # ============================================================ 5. {prize}
         banner = result_banner(
             r"\sum_{a\in A}\frac{1}{a}=\infty\;\Longrightarrow\;\text{arithmetic progressions of every length}",
-            color=ACC, lean=CATALOG[NUM]["lean"], is_tex=True, size=32)
+            lean=CATALOG[NUM]["lean"], is_tex=True, size=32)
         banner.to_edge(LEFT, buff=0.55).set_y(-0.2)
         coin = VGroup(Circle(radius=0.3, stroke_color=ACC, stroke_width=3, fill_color=ACC,
                              fill_opacity=0.16),

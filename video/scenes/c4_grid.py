@@ -16,9 +16,16 @@ ICON_H1 = 1.12        # tiles with a one-line name
 BIG_W, BIG_H = 5.2, 4.4
 
 
+ICON_MAX_W = 2.6      # leaves room for the 1.12x "lit" pulse inside the tile frame
+
+
 def _pad(content, w=ICON_W, h=ICON_H2):
     """Invisible fixed-size frame around an icon so Tile's auto-fit keeps
     the drawn content at its designed size (stroke widths stay consistent)."""
+    if content.width > ICON_MAX_W:
+        content.scale_to_fit_width(ICON_MAX_W)
+    if content.height > h - 0.02:
+        content.scale_to_fit_height(h - 0.02)
     content.move_to(ORIGIN)
     box = Rectangle(width=w, height=h, stroke_width=0, stroke_opacity=0, fill_opacity=0)
     return VGroup(box, content)
@@ -76,7 +83,7 @@ def icon_103():
     mem = VGroup(*[_cell(0.2, color=A, sw=SW, fill=A, fo=f) for f in (0.6, 0.0, 0.6)])
     mem.arrange(RIGHT, buff=0).next_to(head, DOWN, buff=0.2)
     stem = Line(head.get_bottom(), mem.get_top(), stroke_color=A, stroke_width=SW)
-    logn = Text("log n", font=SANS, font_size=17, color=A).next_to(mem, RIGHT, buff=0.1)
+    logn = Text("log n", font=SANS, font_size=17, color=A).next_to(mem, LEFT, buff=0.1)
     tape_n = Text("n", font=SANS, font_size=17, color=GREY_).next_to(tape, LEFT, buff=0.08)
     coin = _coin(0.2).move_to([0.95, -0.22, 0])
     arc = ArcBetweenPoints(coin.get_left() + LEFT * 0.42 + DOWN * 0.14, coin.get_top() + UP * 0.03,
@@ -511,6 +518,7 @@ def anim_103(scene, mob, rt):
     scene.play(UpdateFromAlphaFunc(mob, run_det), run_time=0.28 * rt, rate_func=linear)
     scene.wait(0.04 * rt)
     # 3) the inclusions collapse to equalities
+    mob.form_tgt.move_to(mob.form)
     scene.play(Transform(mob.form, mob.form_tgt), run_time=0.16 * rt)
 
 
@@ -605,7 +613,7 @@ def big_138():
     root = VGroup()
     pad = Rectangle(width=BIG_W, height=BIG_H, stroke_width=0, fill_opacity=0)
     nums = SS_A + SS_B
-    xs = [-2.25, -1.75, -1.25, -0.6, -0.1, 0.4]
+    xs = [-2.35, -1.85, -1.35, -0.7, -0.2, 0.3]
     boxes = VGroup()
     for i, (v, x) in enumerate(zip(nums, xs)):
         col = A if i < 3 else WHITE_
@@ -613,29 +621,29 @@ def big_138():
                               stroke_width=2, fill_color=col, fill_opacity=0.0)
         t = MathTex(str(v), font_size=32, color=WHITE_).move_to(sq)
         boxes.add(VGroup(sq, t).move_to([x, 1.8, 0]))
-    div = DashedLine([-0.925, 2.1, 0], [-0.925, -1.3, 0], dash_length=0.08, stroke_color=DIM,
+    div = DashedLine([-1.025, 2.1, 0], [-1.025, -1.3, 0], dash_length=0.08, stroke_color=DIM,
                      stroke_width=2)
 
-    def tbox(tx, color):
-        m = MathTex(tx, font_size=34, color=WHITE_)
+    def tbox(tx, color, fs=34):
+        m = MathTex(tx, font_size=fs, color=WHITE_)
         bx = SurroundingRectangle(m, buff=0.13, corner_radius=0.08, stroke_color=color, stroke_width=2)
         return VGroup(bx, m)
 
     target = tbox(r"t = 37", A).move_to([1.75, 1.8, 0])
-    target2 = tbox(r"17 + 20 = 37", YELLOW_).move_to([1.75, 1.8, 0])
+    target2 = tbox(r"17 + 20 = 37", YELLOW_, fs=30).move_to([1.75, 1.8, 0])
     sa = _sums(SS_A)
     sb = _sums(SS_B)[::-1]
-    ca = VGroup(*[MathTex(str(v), font_size=28, color=A).move_to([-1.75, 1.15 - 0.31 * i, 0])
+    ca = VGroup(*[MathTex(str(v), font_size=28, color=A).move_to([-1.85, 1.15 - 0.31 * i, 0])
                   for i, v in enumerate(sa)])
-    cb = VGroup(*[MathTex(str(v), font_size=28, color=WHITE_).move_to([-0.1, 1.15 - 0.31 * i, 0])
+    cb = VGroup(*[MathTex(str(v), font_size=28, color=WHITE_).move_to([-0.2, 1.15 - 0.31 * i, 0])
                   for i, v in enumerate(sb)])
     ia, ib = sa.index(17), sb.index(20)
     ha = SurroundingRectangle(ca[ia], buff=0.07, corner_radius=0.06, stroke_color=YELLOW_, stroke_width=2)
     hb = SurroundingRectangle(cb[ib], buff=0.07, corner_radius=0.06, stroke_color=YELLOW_, stroke_width=2)
     match = Line(ha.get_right(), hb.get_left(), stroke_color=YELLOW_, stroke_width=2.4)
-    cnt_a = MathTex(r"2^{n/2}", font_size=28, color=GREY_).move_to([-1.75, -1.55, 0])
-    cnt_b = MathTex(r"2^{n/2}", font_size=28, color=GREY_).move_to([-0.1, -1.55, 0])
-    hs = Text("meet in the middle, 1974", font=SANS, font_size=22, color=GREY_).move_to([-0.92, -2.0, 0])
+    cnt_a = MathTex(r"2^{n/2}", font_size=28, color=GREY_).move_to([-1.85, -1.55, 0])
+    cnt_b = MathTex(r"2^{n/2}", font_size=28, color=GREY_).move_to([-0.2, -1.55, 0])
+    hs = Text("meet in the middle, 1974", font=SANS, font_size=22, color=GREY_).move_to([-1.02, -2.0, 0])
     # running time: true shapes of 2^{n/2} and 2^{0.49 n} on a window n in [88, 100],
     # both divided by 2^{50} (so the claimed curve ends at exactly half height)
     ox, oy, W, H = 0.95, -1.75, 1.45, 2.65
@@ -676,7 +684,7 @@ def anim_138(scene, mob, rt):
     pick = [p["boxes"][i][0] for i in sorted(SS_PICK)]
     scene.play(Create(p["ha"]), Create(p["hb"]), Create(p["match"]),
                *[b.animate.set_fill(YELLOW_, opacity=0.25).set_stroke(YELLOW_) for b in pick],
-               Transform(p["target"], p["target2"]),
+               Transform(p["target"], p["target2"].move_to(p["target"])),
                run_time=0.14 * rt)
     scene.wait(0.06 * rt)
     # 3) the claimed running time drops below the 2^{n/2} curve
