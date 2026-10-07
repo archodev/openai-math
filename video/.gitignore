@@ -4,3 +4,4 @@ assets/thumbs/
 assets/hires/
 __pycache__/
 *.pyc
+media/
