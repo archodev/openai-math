@@ -525,8 +525,9 @@ def animate_047(scene, vis, run_time):
     ghost = vis.front.copy().set_fill(opacity=0).set_stroke(opacity=0)
     vis.add(cube, cong, lab_c5, blob2, lab_x2, sq, lab_c4, rel_q)
     five = AnimationGroup(
-        AnimationGroup(TransformFromCopy(full_cyl, cube.hull), Write(cong), FadeIn(lab_c5), run_time=1.0),
-        AnimationGroup(Create(cube.grid, lag_ratio=0.1), Create(cube.inner), FadeIn(cube.tint), run_time=0.6),
+        AnimationGroup(TransformFromCopy(full_cyl, cube.hull), FadeIn(lab_c5), run_time=1.0),
+        AnimationGroup(Write(cong), Create(cube.grid, lag_ratio=0.1), Create(cube.inner), FadeIn(cube.tint),
+                       run_time=0.7),
         lag_ratio=1.0)
     four = AnimationGroup(
         AnimationGroup(TransformFromCopy(ghost, blob2), FadeIn(lab_x2, shift=DOWN * 0.1),

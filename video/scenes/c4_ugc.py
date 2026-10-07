@@ -313,7 +313,9 @@ class C4Ugc(VoiceScene):
         self.play(LaggedStart(*[GrowArrow(a) for a in darrs], lag_ratio=0.18),
                   LaggedStart(*[FadeIn(c, shift=RIGHT * 0.2) for c in chips_], lag_ratio=0.18),
                   FadeIn(opt_lab), run_time=min(1.6, max(0.5, self.cue("maxcut") - self.now - 0.6)))
-        self.play(Indicate(chips_[0], scale_factor=1.08, color=YELLOW_),
+        chips_[0][1].set_z_index(3)
+        self.play(Indicate(chips_[0][1], scale_factor=1.12, color=YELLOW_),
+                  chips_[0][0].animate.set_stroke(YELLOW_, 2.5),
                   run_time=min(0.8, max(0.3, self.cue("maxcut") - self.now)))
 
         # "Take Max-Cut": a fresh copy of the network

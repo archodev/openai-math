@@ -511,29 +511,45 @@ class C1Qrh(VoiceScene):
         self.sl_edge = VMobject(stroke_color=GREEN_, stroke_width=3).set_z_index(-1)
         self.sl_frac = 0.0
         self.sl_on = True
+        # close-up of the edge, sigma in [0.8, 1]
+        mb_frame = Rectangle(width=MB_W, height=MB_H, stroke_color=GREY_, stroke_width=1.5)
+        mb_frame.move_to([MB_X0 + MB_W / 2, MB_Y0 + MB_H / 2, 0])
+        mb_strip = Rectangle(width=mbx(1) - MB_X0, height=MB_H, stroke_width=0, fill_color=ACC,
+                             fill_opacity=0.13).move_to(mb_frame, aligned_edge=LEFT).set_z_index(-5)
+        mb_red = Line([mbx(1), MB_Y0, 0], [mbx(1), MB_Y0 + MB_H, 0], stroke_color=RED_, stroke_width=4)
+        mb_ticks = VGroup()
+        for v, lab in ((0.8, "0.8"), (0.9, "0.9"), (1.0, "1")):
+            tk = Line([mbx(v), MB_Y0, 0], [mbx(v), MB_Y0 - 0.08, 0], stroke_color=GREY_, stroke_width=2)
+            tl = MathTex(lab, font_size=28, color=RED_ if v == 1.0 else GREY_).next_to(tk, DOWN, buff=0.06)
+            mb_ticks.add(tk, tl)
+        mb_sig = MathTex(r"\sigma", font_size=30, color=GREY_).next_to(mb_ticks[-1], RIGHT, buff=0.25)
+        mb_title = caps("close-up of the edge", 18, GREY_).next_to(mb_frame, UP, buff=0.14, aligned_edge=LEFT)
+        self.mb_fill = Polygon(*[[0, 0, 0]] * 3, stroke_width=0, fill_color=GREEN_,
+                               fill_opacity=0.3).set_z_index(-4)
+        self.mb_edge = VMobject(stroke_color=GREEN_, stroke_width=3)
+        self.mb_on = True
         self.update_sliver()
         self.add(self.sl_fill, self.sl_edge)
+        self.mbox = VGroup(mb_strip, mb_frame, mb_red, mb_ticks, mb_sig, mb_title)
 
         def grow_sl(a):
             self.sl_frac = a
 
         self.play_at("sliver", FadeOut(hz), FadeOut(hm), FadeOut(blab), FadeOut(band), FadeOut(err),
                      FadeOut(self.inset), run_time=self.rt(0.5, "L3_end"))
-        self.play(self.drive(grow_sl), run_time=self.rt(1.1, "L3_end"))
+        self.add(self.mb_fill, self.mb_edge)
+        self.play(self.drive(grow_sl), FadeIn(self.mbox), run_time=self.rt(1.1, "L3_end"))
 
         cz = VGroup(bold("Classical zero-free zone", 28, color=GREEN_),
                     MathTex(r"\sigma>1-\frac{c}{\log t}", font_size=42, color=WHITE_),
                     txt("de la Vallée Poussin, 1899", 22, GREY_))
-        cz.arrange(DOWN, aligned_edge=LEFT, buff=0.22).move_to([RIGHT_X + 0.2, 2.2, 0], aligned_edge=UL)
+        cz.arrange(DOWN, aligned_edge=LEFT, buff=0.2).move_to([RIGHT_X + 0.2, 2.55, 0], aligned_edge=UL)
         cz_arr = self.arrow_to([RIGHT_X + 0.05, cz[1].get_y(), 0], [sx(1) - 0.03, cz[1].get_y(), 0], color=GREEN_)
-        hlab = caps("height", 18, GREY_)
-        self.counter_anchor = np.array([RIGHT_X + 0.2, -1.55, 0])
-        cnt = self.counter_tex(52).copy().move_to(self.counter_anchor, aligned_edge=LEFT)
-        hlab.next_to(cnt, UP, buff=0.18, aligned_edge=LEFT)
-        self.counter = VGroup(hlab, cnt)
+        # the t-axis label becomes a height read-out while we climb
+        self.counter = self.counter_tex(52).copy().move_to(self.counter_anchor, aligned_edge=LEFT)
         self.update_counter()
         self.cz, self.cz_arr = cz, cz_arr
-        self.play(FadeIn(cz, shift=LEFT * 0.2), GrowArrow(cz_arr), FadeIn(self.counter),
+        self.play(FadeIn(cz, shift=LEFT * 0.2), GrowArrow(cz_arr), FadeOut(self.t_lab), FadeIn(self.counter),
                   run_time=self.rt(0.8, "L3_end"))
 
         # climb: window base tb from 0 to 10^12 (exponential), sliver thins
@@ -551,7 +567,7 @@ class C1Qrh(VoiceScene):
                           MathTex(r"\sigma_0<1", font_size=38, color=WHITE_)).arrange(RIGHT, buff=0.18),
                    VGroup(txt("no zero with", 26, GREY_),
                           MathTex(r"\sigma>\sigma_0", font_size=38, color=WHITE_)).arrange(RIGHT, buff=0.18))
-        q.arrange(DOWN, aligned_edge=LEFT, buff=0.24).move_to([RIGHT_X + 0.2, 2.2, 0], aligned_edge=UL)
+        q.arrange(DOWN, aligned_edge=LEFT, buff=0.24).move_to([RIGHT_X + 0.2, 2.55, 0], aligned_edge=UL)
         self.wsig = 0.93
         wall = Line(ORIGIN, UP, stroke_color=WHITE_, stroke_width=5).set_z_index(1)
         self.vlines.append((wall, lambda: self.wsig, 0.0))
@@ -564,12 +580,16 @@ class C1Qrh(VoiceScene):
 
         self.play_at("quasi", FadeOut(self.cz), FadeOut(self.cz_arr), FadeIn(q, shift=LEFT * 0.2),
                      run_time=self.rt(0.8, "claim"))
-        self.play(Create(wall_draw), FadeIn(wlab, shift=DOWN * 0.15), run_time=self.rt(0.7, "claim"))
+        mb_wall = Line([mbx(self.wsig), MB_Y0 + MB_H, 0], [mbx(self.wsig), MB_Y0, 0],
+                       stroke_color=WHITE_, stroke_width=4)
+        self.play(Create(wall_draw), Create(mb_wall), FadeIn(wlab, shift=DOWN * 0.15),
+                  run_time=self.rt(0.7, "claim"))
         self.remove(wall_draw)
         self.add(wall)
+        self.mb_wall = mb_wall
 
         # "anywhere short of the edge": the wall slides around
-        keys = [0.93, 0.82, 0.96, 0.9]
+        keys = [0.93, 0.84, 0.96, 0.91]
 
         def wig(a):
             seg = min(int(a * 3), 2)

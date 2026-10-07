@@ -528,9 +528,12 @@ class C6Kaplansky(VoiceScene):
         banner = result_banner(r"\text{torsion-free } G \text{ and nonzero } \alpha,\beta\in\mathbb{F}_2[G]"
                                r"\text{ with } \alpha\beta=0", lean=CATALOG["196"]["lean"], is_tex=True, size=38)
         banner.move_to([0, -0.55, 0])
+        # the big "alpha beta = 0" flies into its place at the end of the banner statement
+        slot = banner[1][1][0][-4:].copy()
         self.play(FadeOut(card, rate_func=early), FadeOut(VGroup(dA, dB, la, lb, mod2, schem, grow), rate_func=early),
-                  abz.animate.move_to(banner[1][1]).set_opacity(0),
+                  ReplacementTransform(abz, slot),
                   FadeIn(banner, scale=0.97, rate_func=late), run_time=1.0)
+        self.remove(slot)
 
         # companion: direct finiteness also broken (family 197)
         sdb, sdt = self.small_card("Direct finiteness", 4.2, RED_)
