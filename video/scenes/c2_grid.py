@@ -179,10 +179,7 @@ def icon_039():
     params = sorted(nodes + simple)
     dots = VGroup(*[
         Dot(f(t), radius=0.062 if t in nodes else 0.046, color=WHITE_) for t in params])
-    margin = Rectangle(width=curve.width + 0.3, height=curve.height + 0.12, stroke_opacity=0,
-                       fill_opacity=0).move_to(curve)
-    g = VGroup(margin, curve, dots)
-    return g
+    return VGroup(curve, dots)
 
 
 def icon_038():
@@ -442,6 +439,17 @@ def icon_057():
     return VGroup(lat, form).arrange(RIGHT, buff=0.24)
 
 
+def _padded(fn, fx=1.1, fy=1.02):
+    """Invisible margin around an icon, so the tile's 'lit' pulse (scale 1.12) never pushes a
+    full-width icon past the tile frame."""
+    def make():
+        g = fn()
+        box = Rectangle(width=g.width * fx, height=g.height * fy, stroke_opacity=0,
+                        fill_opacity=0).move_to(g)
+        return VGroup(box, g)
+    return make
+
+
 # ============================================================== featured: 047 big card
 def big_047():
     """Left half of the 047 card. Initially only the shape X; animate_047 extrudes it."""
@@ -544,18 +552,18 @@ def animate_047(scene, vis, run_time):
 class C2Grid(GridScene):
     CHAPTER = "ag"
     TILES = [
-        dict(num="047", name="Zariski cancellation fails over ℂ", verdict="counterexample", icon=icon_047,
+        dict(num="047", name="Zariski cancellation fails over ℂ", verdict="counterexample", icon=_padded(icon_047),
              feature=dict(caption="X × line ≅ 5-space, yet X is not 4-space.",
                           big=big_047, animate=animate_047)),
-        dict(num="039", name="Nagata's conjecture", verdict="proved", icon=icon_039),
-        dict(num="038", name="Fujita's freeness conjecture", verdict="proved", icon=icon_038),
-        dict(num="040", name="Bloch's conjecture for surfaces", verdict="proved", icon=icon_040),
-        dict(num="050", name="Griffiths positivity conjecture", verdict="counterexample", icon=icon_050),
-        dict(num="051", name="Kobayashi's canonical-ampleness conjecture", verdict="proved", icon=icon_051),
-        dict(num="062", name="LeBrun–Salamon conjecture", verdict="proved", icon=icon_062),
-        dict(num="063", name="Generalized Mukai conjecture", verdict="proved", icon=icon_063),
-        dict(num="059", name="Zariski's multiplicity conjecture", verdict="counterexample", icon=icon_059),
-        dict(num="060", name="Global spherical shell conjecture", verdict="proved", icon=icon_060),
-        dict(num="058", name="Kollár–Pardon universal covers", verdict="proved", icon=icon_058),
-        dict(num="057", name="Campana's abelianity conjecture", verdict="proved", icon=icon_057),
+        dict(num="039", name="Nagata's conjecture", verdict="proved", icon=_padded(icon_039)),
+        dict(num="038", name="Fujita's freeness conjecture", verdict="proved", icon=_padded(icon_038)),
+        dict(num="040", name="Bloch's conjecture for surfaces", verdict="proved", icon=_padded(icon_040)),
+        dict(num="050", name="Griffiths positivity conjecture", verdict="counterexample", icon=_padded(icon_050)),
+        dict(num="051", name="Kobayashi's canonical-ampleness conjecture", verdict="proved", icon=_padded(icon_051)),
+        dict(num="062", name="LeBrun–Salamon conjecture", verdict="proved", icon=_padded(icon_062)),
+        dict(num="063", name="Generalized Mukai conjecture", verdict="proved", icon=_padded(icon_063)),
+        dict(num="059", name="Zariski's multiplicity conjecture", verdict="counterexample", icon=_padded(icon_059)),
+        dict(num="060", name="Global spherical shell conjecture", verdict="proved", icon=_padded(icon_060)),
+        dict(num="058", name="Kollár–Pardon universal covers", verdict="proved", icon=_padded(icon_058)),
+        dict(num="057", name="Campana's abelianity conjecture", verdict="proved", icon=_padded(icon_057)),
     ]

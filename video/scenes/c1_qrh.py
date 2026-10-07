@@ -122,19 +122,6 @@ class VDash(VGroup):
         return self
 
 
-def qrh_tag():
-    """paper_tag, but with the LaTeX in the paper title rendered as plain text."""
-    tag = paper_tag("003", color=ACC)
-    row = tag[1]
-    old = row[1]
-    new = Text("The Quasi-Riemann Hypothesis: A Zero-Free Half-Plane Re s > 7/8",
-               font=SANS, font_size=17, color=WHITE_, slant=ITALIC)
-    new.next_to(row[0], DOWN, buff=0.06, aligned_edge=LEFT)
-    row.remove(old)
-    row.add(new)
-    return tag
-
-
 class C1Qrh(VoiceScene):
 
     # ============================================================ helpers
@@ -611,26 +598,34 @@ class C1Qrh(VoiceScene):
         card = paper_card("003", width=3.0).move_to([PANEL_CX, 0.1, 0]).set_z_index(6)
         card_target = card.get_center()
         card.shift(RIGHT * 6.5)
-        tag = qrh_tag()
+        tag = paper_tag("003", color=ACC)
 
         def to78(a):
             self.wsig = s0 + (7 / 8 - s0) * a
             wall.set_stroke(interpolate_color(ManimColor(WHITE_), ManimColor(YELLOW_), a))
 
         counter, self.counter = self.counter, None
-        self.play_at("claim", self.drive(to78), FadeOut(q), FadeOut(counter),
-                     ReplacementTransform(wlab, lab78),
-                     card.animate.move_to(card_target), run_time=self.rt(0.8, "cousins"))
         self.xatt = []
+        self.mb_on, mb_wall, self.mb_wall = False, self.mb_wall, None
+        self.play_at("claim", self.drive(to78), FadeOut(q), FadeOut(counter), FadeIn(self.t_lab),
+                     FadeOut(wlab), FadeIn(lab78, shift=DOWN * 0.15),
+                     FadeOut(VGroup(self.mbox, mb_wall, self.mb_fill, self.mb_edge)),
+                     card.animate.move_to(card_target), run_time=self.rt(0.8, "cousins"))
         self.vlines = [v for v in self.vlines if v[0] is not wall]
         w78 = VDash(7 / 8, YELLOW_, width=4).set_z_index(1)
         w78.layout(self.Y(0), 0.0)
         band = Polygon(*[[0, 0, 0]] * 4, stroke_width=0, fill_color=YELLOW_, fill_opacity=0.2).set_z_index(-4)
-        self.rects.append((band, 7 / 8, 1.0))
+        self.band_s1 = 7 / 8
+        self.rects.append((band, 7 / 8, lambda: self.band_s1, 1.0))
         self.relayout()
+        self.add(band)
         t78 = MathTex(r"\tfrac78", font_size=32, color=YELLOW_).move_to([sx(7 / 8), Y0 - 0.34, 0])
         self.sl_on = False
-        self.play(ReplacementTransform(wall, w78), GrowFromEdge(band, LEFT),
+
+        def fill_band(a):
+            self.band_s1 = 7 / 8 + a / 8
+
+        self.play(self.drive(fill_band), ReplacementTransform(wall, w78),
                   FadeOut(self.sl_fill), FadeOut(self.sl_edge), FadeIn(t78), FadeIn(tag, shift=RIGHT * 0.2),
                   run_time=self.rt(0.8, "cousins"))
         zf = caps("zero-free", 20, YELLOW_).rotate(PI / 2).move_to([sx(15 / 16), 1.05, 0])
@@ -720,7 +715,7 @@ class C1Qrh(VoiceScene):
                   run_time=self.rt(0.8, "siegel"))
 
         # {siegel}: a hypothetical real zero hugging s = 1 is ruled out
-        sz = Dot([sx(0.94), Y0, 0], radius=0.085, color=RED_).set_z_index(5)
+        sz = Dot([sx(0.94), Y0, 0], radius=0.075, color=RED_).set_z_index(5)
         sl = VGroup(bold("Landau–Siegel zero", 28, color=RED_),
                     txt("hypothetical real zero of L(s,χ)", 22, GREY_))
         sl.arrange(DOWN, aligned_edge=LEFT, buff=0.14).move_to([RIGHT_X + 0.2, -0.8, 0], aligned_edge=UL)
@@ -733,7 +728,7 @@ class C1Qrh(VoiceScene):
         self.play(sz.animate.move_to([sx(0.965), Y0, 0]), Flash(sz, color=RED_, line_length=0.15,
                                                                  flash_radius=0.2),
                   run_time=self.rt(0.8, "L6_end"))
-        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.17).move_to([sx(0.965), Y0, 0])
+        cross = VGroup(Line(UL, DR), Line(DL, UR)).scale(0.13).move_to([sx(0.965), Y0, 0])
         cross.set_stroke(YELLOW_, width=6).set_z_index(6)
         self.wait_until(max(self.now, self.cue("L6_end") - 2.4))
         self.play(Create(cross), sz.animate.set_opacity(0.35), banner[0].animate(rate_func=there_and_back).set_stroke(width=5),

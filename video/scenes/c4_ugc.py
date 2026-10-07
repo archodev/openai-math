@@ -256,7 +256,7 @@ class C4Ugc(VoiceScene):
         t_one = self.tw("one percent", "conj", "The Unique Games", "L1_end", None, 0.62)
         if t_one - 0.5 - self.now > 1.6:
             self.wait_until(max(self.now, (self.now + t_one - 0.5) / 2 - 0.75))
-            self.play(ShowPassingFlash(frame_l.copy().set_stroke(WHITE_, 3, opacity=1), time_width=0.35),
+            self.play(ShowPassingFlash(frame_l.copy().set_fill(opacity=0).set_stroke(WHITE_, 3, opacity=1), time_width=0.35),
                       run_time=1.1)
             self.play(ShowPassingFlash(Line(arr_l.get_start(), arr_l.get_end()).set_stroke(WHITE_, 5),
                                        time_width=1.0), Indicate(algo_t, scale_factor=1.05, color=WHITE_),
