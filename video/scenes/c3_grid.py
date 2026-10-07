@@ -708,5 +708,5 @@ class C3Grid(GridScene):
                               t.icon.animate(rate_func=there_and_back).scale(1.08)]
         self.play(*lit, run_time=0.5)
         back = min(0.4, max(0.2, until - self.now - 0.45))
-        self.wait(max(0.0, until - self.now - back - 0.05) * 0.5)
+        self.wait_until(max(self.now, until - back - 0.05))
         self.play(*[a for t in group for a in t.visited()], run_time=back)

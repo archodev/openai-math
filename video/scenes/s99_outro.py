@@ -305,8 +305,8 @@ class S99Outro(VoiceScene):
         M.wave(t_pub + 0.1, 1.6, V_all, radial)                         # 3: all public
         # "If even a fraction...": the room dims almost uniformly (no random flicker under
         # the closing line), then on "fraction" the 40 survivors warm to gold.
-        M.wave(t_end + 0.05, 0.6, V_survive, radial, tau=0.45)          # 4a: lights down
-        M.wave(t_end + 0.68, 0.9, V_frac, rng.uniform(0, 1, N), tau=0.35)  # 4b: a fraction
+        M.wave(t_end - 0.15, 0.65, V_survive, radial, tau=0.5)          # 4a: lights down (in the pause)
+        M.wave(t_end + 0.6, 0.9, V_frac, rng.uniform(0, 1, N), tau=0.35)   # 4b: a fraction
         M.wave(t_link - 0.15, 0.9, V_dim, tau=0.9)                      # 5: end-card wall
         M.glint(t_end + 1.7, t_link - 0.15, V_frac_lo - V_frac, rng.uniform(0, 2 * np.pi, N))
 

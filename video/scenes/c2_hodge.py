@@ -277,10 +277,13 @@ class C2Hodge(VoiceScene):
         title = serif("The Hodge Conjecture", 72).move_to(UP * 0.45)
         mp_chip = chip("MILLENNIUM PRIZE PROBLEM", ACC, size=20, pad_x=0.18, pad_y=0.1)
         mp_chip.next_to(title, DOWN, buff=0.45)
+        early = lambda t: smooth(min(1.0, t / 0.45))
         self.play_until("L0_end",
-                        FadeOut(hodge_tile, scale=1.6, shift=UP * 0.6), FadeIn(title, scale=0.55, shift=DOWN * 0.6),
-                        *[FadeOut(tl, shift=DOWN * 0.4) for tl in others], FadeOut(ck, shift=DOWN * 0.4),
-                        FadeOut(mp_head, shift=UP * 0.3),
+                        FadeOut(hodge_tile, scale=1.6, shift=UP * 0.6, rate_func=early),
+                        FadeIn(title, scale=0.55, shift=DOWN * 0.6, rate_func=lambda t: smooth(max(0.0, t - 0.15) / 0.85)),
+                        *[FadeOut(tl, shift=DOWN * 0.4, rate_func=early) for tl in others],
+                        FadeOut(ck, shift=DOWN * 0.4, rate_func=early),
+                        FadeOut(mp_head, shift=UP * 0.3, rate_func=early),
                         FadeIn(mp_chip, shift=UP * 0.2, rate_func=lambda t: smooth(max(0.0, t - 0.35) / 0.65)))
 
         # ------------------------------------------------------------ 1. a shape with loops
@@ -598,7 +601,7 @@ class C2Hodge(VoiceScene):
         self.play_until(tf("cm", "L3_end", 0.565), trk["S"].animate.set_value(2.1), trk["cx"].animate.set_value(FC[0]),
                         trk["cy"].animate.set_value(FC[1]), FadeOut(arc), FadeOut(xi), rate_func=smooth)
         self.play_until(tf("cm", "L3_end", 0.69), trk["a"].animate.set_value(1.0), trk["alpha"].animate.set_value(-0.42),
-                        trk["beta"].animate.set_value(0.62), rate_func=smooth)
+                        trk["beta"].animate.set_value(0.62), trk["S"].animate.set_value(2.7), rate_func=smooth)
         self.play_until(tf("cm", "L3_end", 0.86), trk["b"].animate.set_value(1.0), trk["beta"].animate.set_value(0.0),
                         trk["alpha"].animate.set_value(-(PI / 2 - 0.6)), trk["S"].animate.set_value(3.9),
                         trk["cy"].animate.set_value(FC[1] + 0.1), rate_func=smooth)

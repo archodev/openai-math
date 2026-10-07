@@ -259,23 +259,33 @@ class S02Rules(VoiceScene):
         slide = (lab.width + 0.28) / 2
         ref.shift(RIGHT * slide)
         of.shift(RIGHT * slide)
-        num = bold("0", 64, TEAL_).align_to(ref, RIGHT).align_to(ref, DOWN)
-        num.v = 0
+        # fixed pool of digit glyphs (3 slots x 10 digits), shown/hidden in place:
+        # no become()/re-parenting mid-play, so no ghosting
+        vis = ValueTracker(0)
+        num = VGroup()
+        for k in range(3):
+            slot = VGroup(*[bold(str(d), 64, TEAL_) for d in range(10)])
+            for g in slot:
+                g.move_to([ref[k].get_center()[0], 0, 0]).align_to(ref, DOWN)
+            num.add(slot)
 
         def upd(m):
             v = int(round(tr.get_value()))
-            if v != m.v:
-                new = bold(str(v), 64, TEAL_).align_to(ref, RIGHT).align_to(ref, DOWN)
-                m.become(new)
-                m.v = v
+            digs = [v // 100, (v // 10) % 10, v % 10]
+            show = [v >= 100, v >= 10, True]
+            for slot, dgt, on in zip(m, digs, show):
+                for d, g in enumerate(slot):
+                    g.set_fill(opacity=vis.get_value() if (on and d == dgt) else 0.0)
+        upd(num)
         num.add_updater(upd)
 
         self.wait_until("L1_end")
         self.freeze(self.pipe)
         self.play_until("lean+0.4", FadeOut(self.pipe, shift=UP * 0.3), min_time=0.3)
+        self.add(num)
         self.play_until(self.frac("lean", "code", 0.24),
                         LaggedStart(*[FadeIn(s, scale=0.4) for s in sqs], lag_ratio=0.008),
-                        FadeIn(num), FadeIn(of), rate_func=linear)
+                        vis.animate.set_value(1.0), FadeIn(of), rate_func=linear)
         self.play_until(self.frac("lean", "code", 0.72),
                         LaggedStart(*[s.animate.set_fill(TEAL_, 0.92) for s in lean], lag_ratio=0.03),
                         tr.animate.set_value(235), rate_func=linear)

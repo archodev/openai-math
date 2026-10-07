@@ -373,7 +373,7 @@ class C3Kakeya(VoiceScene):
         if target.height > 2.5:
             target.scale(2.5 / target.height)
         target.move_to([4.15, 0.45, 0])
-        target[3].set_stroke(opacity=0.22)        # needles recede: the set itself is the subject now
+        target[3].set_stroke(opacity=0.1)        # needles recede: the set itself is the subject now
         title3 = caps("The Kakeya conjecture", 20, ACC).move_to(self.title)
         formula = MathTex(r"K\subset\mathbb{R}^n", r"\text{ contains a unit segment in every direction}",
                           r"\;\Longrightarrow\;", r"\dim K = n", font_size=36, color=WHITE_)
