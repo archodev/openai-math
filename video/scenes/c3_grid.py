@@ -695,6 +695,8 @@ class C3Grid(GridScene):
         # narration says "all three in three dimensions", light the three 3D tiles
         # together (Bochner-Riesz, local smoothing, restriction).
         target = self.cue(t)
+        if 0 < target - self.now < 1.0 / config.frame_rate:
+            return   # sub-frame wait: Manim would pad it to a whole frame (drift)
         if not getattr(self, "_did_3d", False) and self.has_cue("t077") and self.has_cue("t076"):
             s = max(self.cue("t077") + 1.0, self.cue("t076") - 1.5)
             if self.now <= s + 0.05 and target >= s + 1.15:

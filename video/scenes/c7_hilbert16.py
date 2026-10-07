@@ -371,6 +371,7 @@ class C7Hilbert16(VoiceScene):
         gx = np.arange(-6.75, 1.6, 0.62)
         gy = np.arange(-3.45, 3.5, 0.62)
         arr = arrow_field(swirl_field, C1, SA, gx, gy, right_fade, op=0.38)
+        arr_rev = arrow_field(lambda P: -swirl_field(P), C1, SA, gx, gy, right_fade, op=0.38)
         arr_hil = arrow_field(hil_field, C1, SB, gx, gy, mask_b, op=0.38)
 
         # "... where the velocity at every point ..."
@@ -424,8 +425,9 @@ class C7Hilbert16(VoiceScene):
         for tpath in (tr_in, tr_out):
             tpath.set_stroke(WHITE_, width=2.6, opacity=0.95)
         heads = VGroup(*[Dot(tp.get_start(), radius=0.065, color=WHITE_) for tp in (tr_in, tr_out)])
+        head_op = ValueTracker(1.0)
         for d_, tp in zip(heads, (tr_in, tr_out)):
-            d_.add_updater(lambda m, tp=tp: m.move_to(tp.points[-1]))
+            d_.add_updater(lambda m, tp=tp: m.move_to(tp.points[-1]).set_opacity(head_op.get_value()))
         self.wait_until(self.at("L1", "L1_end", 0.58))
         self.add(heads)
         self.play_until(self.at("L1", "L1_end", 0.86),
@@ -435,7 +437,8 @@ class C7Hilbert16(VoiceScene):
         # "... or away."   (reverse time: the same loop now repels)
         v_dash = cycle_curve(swirl_cyc, C1, SA, False, width=5)
         self.play_until("hilbert",
-                        f_a.rate.animate.set_value(-1.0),
+                        f_a.rate.animate.set_value(-1.0), Transform(arr, arr_rev),
+                        head_op.animate(rate_func=lambda t: smooth(min(1.0, max(0.0, (t - 0.72) / 0.28)))).set_value(0.0),
                         Uncreate(tr_in, rate_func=linear), Uncreate(tr_out, rate_func=linear),
                         FadeOut(v_cyc), FadeOut(v_glow), FadeIn(v_dash),
                         Succession(FadeOut(sub_a, shift=UP * 0.1, run_time=0.35),
@@ -638,17 +641,22 @@ class C7Hilbert16(VoiceScene):
         #  {lienard}  A companion pins down one classic case exactly: a
         #             degree-five oscillator family has at most two limit cycles.
         # ================================================================
-        banner = result_banner(
-            r"\#\{\text{limit cycles}\}\ \le\ B(d)<\infty\quad\text{for every degree-}d\text{ polynomial field}",
-            color=YELLOW_, is_tex=True, size=34)
+        parts = [r"\#\,\text{limit cycles}", r"\le", r"B(d)", r"<\infty",
+                 r"\quad\text{for every degree-}d\text{ polynomial field}"]
+        banner = result_banner("".join(parts), color=YELLOW_, is_tex=True, size=34)
         banner.move_to([0, 2.85, 0])
+        body = mt(*parts, size=34).move_to(banner[1][1])
+        body[2].set_color(YELLOW_)
+        banner[1].remove(banner[1][1])
+        banner[1].add(body)
         banner[0].set_z_index(-1)
         chart = VGroup(x_axis, y_axis, d_lab, *tick_lab, dots_lab, loops, regions, ceil, clabs, every, chips_)
         self.wait_until("lienard")
         for c_ in [*ceil, *clabs, *regions]:
             c_.clear_updaters()
         self.play(FadeOut(chart, shift=DOWN * 0.3),
-                  FadeTransform(title_c, banner[1][1]),
+                  *[ReplacementTransform(title_c[i], body[i]) for i in range(4)],
+                  FadeIn(body[4], shift=LEFT * 0.3),
                   FadeIn(banner[0]), FadeIn(banner[1][0]),
                   card.animate.shift(LEFT * 6.5), run_time=1.0)
         self.remove(card, clock)
@@ -663,11 +671,13 @@ class C7Hilbert16(VoiceScene):
         comp = VGroup(caps("companion paper", size=22, color=GREY_, spacing=0.05), lean_badge(20)).arrange(
             RIGHT, buff=0.3)
         le1 = tex(r"\dot x = y - F(x),\qquad \dot y = -x", size=42)
-        le2 = mt(r"\deg F \le 5", r"\ \Longrightarrow\ ", r"\text{at most } 2", r"\text{ limit cycles}", size=38)
-        le2[2].set_color(YELLOW_)
+        le2 = mt(r"\deg F \le 5", size=42)
+        le3 = mt(r"\Longrightarrow\ \ ", r"\text{at most } 2", r"\text{ limit cycles}", size=42)
+        le3[1].set_color(YELLOW_)
         sharp = txt("and some have exactly 2", 24, GREY_)
-        lblock = VGroup(comp, le1, le2, sharp).arrange(DOWN, buff=0.42, aligned_edge=LEFT)
-        lblock.move_to([0.35, -0.45, 0], aligned_edge=LEFT)
+        lblock = VGroup(comp, le1, le2, le3, sharp).arrange(DOWN, buff=0.36, aligned_edge=LEFT)
+        lblock.move_to([0.6, -0.5, 0], aligned_edge=LEFT)
+        sharp.shift(UP * 0.05)
         self.until(self.at("lienard", "L3_end", 0.27),
                    f_lie.op.animate.set_value(1.0),
                    LaggedStart(*[FadeIn(a) for a in arr_lie], lag_ratio=0.004),
@@ -676,7 +686,7 @@ class C7Hilbert16(VoiceScene):
         self.until(self.at("lienard", "L3_end", 0.42), Write(le1))
         # "... a degree-five oscillator family ..."
         self.wait_until(self.at("lienard", "L3_end", 0.46))
-        self.until(self.at("lienard", "L3_end", 0.62), Write(le2[0]))
+        self.until(self.at("lienard", "L3_end", 0.62), Write(le2))
         # "... has at most two limit cycles."
         lc = [cycle_curve(p, C2, S2, st, width=4.4) for p, st in lie_cyc]
         lglow = [glow(c_, ATTR, layers=4, width=14, opacity=0.06) if st else VGroup()
@@ -688,12 +698,12 @@ class C7Hilbert16(VoiceScene):
             pt = C2 + S2 * np.array([p[j, 0], p[j, 1], 0])
             nums_l[i].move_to(pt + np.array([0.26, 0.26, 0]))
         self.wait_until(self.at("lienard", "L3_end", 0.74))
-        self.until(self.at("lienard", "L3_end", 0.9),
+        self.until(self.at("lienard", "L3_end", 0.88),
                    LaggedStart(*[AnimationGroup(Create(c_), FadeIn(g_), FadeIn(n_))
                                  for c_, g_, n_ in zip(lc, lglow, nums_l)], lag_ratio=0.5),
                    arrows_level(arr_lie, 1.0, 0.6), f_lie.op.animate.set_value(0.7),
-                   Write(le2[1:]))
-        self.until(min(self.now + 0.6, self.cue("end-0.55")), FadeIn(sharp, shift=UP * 0.1))
+                   Write(le3))
+        self.until(self.at("lienard", "L3_end", 0.95), FadeIn(sharp, shift=UP * 0.1))
 
         # ---------------------------------------------------------- out
         self.wait_until("end-0.5")
