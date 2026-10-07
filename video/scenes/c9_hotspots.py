@@ -289,7 +289,7 @@ class C9Hotspots(VoiceScene):
         # placements (centre x, centre y, scale: manim units per shape unit)
         P1 = (-0.9, -0.25, 2.1)
         P2 = (-3.45, -0.35, 1.42)
-        P4 = (-4.45, 0.45, 1.5)
+        P4 = (-4.45, 0.25, 1.5)
         moves = [(t_holes + 0.1, t_holes + 1.1, P1, P2), (t_claim, t_claim + 0.9, P2, P4)]
 
         def placement(t):
@@ -618,7 +618,7 @@ class C9Hotspots(VoiceScene):
 
         # ============================================== 7. the paper {claim}
         card = paper_card("369", width=3.2)
-        card.move_to([2.3, 0.5, 0])
+        card.move_to([2.3, 0.3, 0])
         tag = paper_tag("369", color=acc)
         every = txt("any smooth shape without holes", 26, GREY_)
         every.move_to([0, P4[1] - 1.9, 0]).align_to(np.array([-6.3, 0, 0]), LEFT)
@@ -629,7 +629,7 @@ class C9Hotspots(VoiceScene):
         self.play_until(t_m0 + 0.6, FadeIn(every, shift=UP * 0.1))
         banner = result_banner("Smooth simply connected planar domains:\nhot & cold spots lie on the boundary",
                                lean=CATALOG["369"]["lean"], size=28)
-        banner.move_to([6.55 - banner.width / 2, 0.85, 0])
+        banner.move_to([6.55 - banner.width / 2, 0.65, 0])
         crit = VGroup(tex(r"\nabla u \neq 0", 36, WHITE_), txt("inside: no interior critical point", 26, GREY_)).arrange(RIGHT, buff=0.25)
         crit.next_to(banner, DOWN, buff=0.4).align_to(banner, LEFT).shift(RIGHT * 0.35)
         self.wait_until(t_ban)

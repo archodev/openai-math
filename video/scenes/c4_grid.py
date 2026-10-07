@@ -16,7 +16,7 @@ ICON_H1 = 1.12        # tiles with a one-line name
 BIG_W, BIG_H = 5.2, 4.4
 
 
-ICON_MAX_W = 2.6      # leaves room for the 1.12x "lit" pulse inside the tile frame
+ICON_MAX_W = 2.72     # 1.06x "lit" pulse -> 2.88, still inside the tile's 0.13 side padding
 
 
 def _pad(content, w=ICON_W, h=ICON_H2):
@@ -77,14 +77,14 @@ def icon_103():
     bits = "011010011101"
     tape = VGroup(*[_cell(0.215, color=GREY_, fill=WHITE_, fo=0.3 if b == "1" else 0.0)
                     for b in bits]).arrange(RIGHT, buff=0).move_to(UP * 0.4)
-    k = 3
+    k = 4
     head = Triangle(stroke_width=0, fill_color=A, fill_opacity=1).scale(0.085)
     head.next_to(tape[k], DOWN, buff=0.04)
     mem = VGroup(*[_cell(0.2, color=A, sw=SW, fill=A, fo=f) for f in (0.6, 0.0, 0.6)])
     mem.arrange(RIGHT, buff=0).next_to(head, DOWN, buff=0.2)
     stem = Line(head.get_bottom(), mem.get_top(), stroke_color=A, stroke_width=SW)
-    logn = Text("log n", font=SANS, font_size=17, color=A).next_to(mem, LEFT, buff=0.1)
-    tape_n = Text("n", font=SANS, font_size=17, color=GREY_).next_to(tape, LEFT, buff=0.08)
+    logn = Text("log n", font=SANS, font_size=20, color=A).next_to(mem, LEFT, buff=0.1)
+    tape_n = Text("n", font=SANS, font_size=20, color=GREY_).next_to(tape, LEFT, buff=0.08)
     coin = _coin(0.2).move_to([0.95, -0.22, 0])
     arc = ArcBetweenPoints(coin.get_left() + LEFT * 0.42 + DOWN * 0.14, coin.get_top() + UP * 0.03,
                            angle=-PI / 2.2)
@@ -344,7 +344,7 @@ def icon_124():
         y = 0.3 - r * rowh
         rails.add(Line([x0 - 0.06, y - s / 2 - 0.035, 0], [x_end, y - s / 2 - 0.035, 0],
                        stroke_color=DIM, stroke_width=1.0))
-        labels.add(MathTex(f"M_{r + 1}", font_size=20, color=GREY_).move_to([x0 - 0.27, y, 0]))
+        labels.add(MathTex(f"M_{r + 1}", font_size=24, color=GREY_).move_to([x0 - 0.3, y, 0]))
     for t, col in enumerate(slots):
         for r, on in enumerate(col):
             if on:
@@ -360,7 +360,7 @@ def icon_124():
                        color=WHITE_, sw=1.3, tip=0.07))
     end = DashedLine([x_end, 0.47, 0], [x_end, -0.47, 0],
                      stroke_color=GREY_, stroke_width=1.2, dash_length=0.05)
-    cmax = MathTex(r"C_{\max}", font_size=20, color=GREY_).next_to(end, RIGHT, buff=0.06)
+    cmax = MathTex(r"C_{\max}", font_size=24, color=GREY_).next_to(end, RIGHT, buff=0.06)
     return _pad(VGroup(rails, labels, grp, arr, end, cmax), h=ICON_H1)
 
 

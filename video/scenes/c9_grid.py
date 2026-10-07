@@ -301,7 +301,7 @@ def anim_degiorgi(scene, vis, rt):
     # 2. the cross-section is exactly the tanh profile
     curve = mp(_tanh_graph(d["x0"], d["x1"], d["gy"], d["amp"], d["k"], w=3.0, n=90))
     form = mp(tex(r"u=\tanh\!\big(x_8/\sqrt2\big)", 26, AC)
-              .move_to([-1.2, d["gy"] + 0.52 * d["amp"], 0]))
+              .move_to([-1.2, d["gy"] + 0.46 * d["amp"], 0]))
     form.set_stroke(BG, 4, background=True)
     _z(curve, form)
     scene.play(Create(curve), FadeIn(form, shift=UP * 0.1), run_time=0.2 * rt)
@@ -625,11 +625,12 @@ def anim_geodesics(scene, vis, rt):
         taut.add(_line(Qt[seg], YELLOW_, 3.4 if vv else 2.0, 1.0 if vv else 0.3))
     mp(band.shift(UP * GEO_Y)), mp(taut.shift(UP * GEO_Y))
     _z(band)
-    used = 4 * t_loop + 0.09 * rt
-    snap_t = 0.17 * rt
-    scene.wait(max(0.0, rt - used - snap_t - 0.13 * rt - 0.05))
-    scene.play(Create(band), run_time=0.13 * rt)
-    scene.play(Transform(band, taut), run_time=snap_t, rate_func=rush_into)
+    used = 4 * t_loop + 0.09 * rt                     # = 0.53 rt
+    scene.wait(0.08 * rt)                             # band appears ~"think rubber bands"
+    scene.play(Create(band), run_time=0.11 * rt)
+    scene.play(Transform(band, taut), run_time=0.14 * rt, rate_func=rush_into)
+    # held (snapped) for the remaining ~0.19 rt, with a brief glow
+    scene.play(Indicate(band, color=YELLOW_, scale_factor=1.03), run_time=0.08 * rt)
     _keep(vis, *loops, count, band)
 
 
@@ -848,8 +849,8 @@ def icon_packing():
                                                 ((0.04, -0.25), 0.16), ((-0.29, -0.2), 0.09),
                                                 ((0.3, -0.17), 0.08)]])
     balls = VGroup(big, big_eq, small)
-    conds = VGroup(tex(r"\textstyle\sum_i R_i^{\,n}<R^n", 30, WHITE_),
-                   tex(r"R_i+R_j<R", 30, WHITE_)).arrange(DOWN, buff=0.12, aligned_edge=LEFT)
+    conds = VGroup(tex(r"\textstyle\sum_i R_i^{\,n}<R^n", 27, WHITE_),
+                   tex(r"R_i+R_j<R", 27, WHITE_)).arrange(DOWN, buff=0.12, aligned_edge=LEFT)
     return _fit(VGroup(balls, conds).arrange(RIGHT, buff=0.3))
 
 
@@ -951,9 +952,9 @@ def icon_bernoulli():
                 _line([[xs[6], 0], [xs[8], 0]], GREY_, 1.2, 0.6))
     ticks = _multi([[(x, -0.05), (x, 0.05)] for n, x in xs.items() if n != 7], GREY_, 1.2, 0.9)
     nums = VGroup(*[txt(str(n), 22, AC if n == 7 else GREY_, weight=BOLD if n == 7 else NORMAL)
-                    .move_to([x, -0.22, 0]) for n, x in xs.items()])
+                    .move_to([x, -0.27, 0]) for n, x in xs.items()])
     seven = Dot([xs[7], 0, 0], radius=0.06, color=AC)
-    halo = Circle(radius=0.11).move_to(seven).set_stroke(AC, 1.4, 0.8)
+    halo = Circle(radius=0.095).move_to(seven).set_stroke(AC, 1.4, 0.8)
     dims = VGroup(nl, ticks, nums, seven, halo)
     return _fit(VGroup(cone, dims).arrange(RIGHT, buff=0.35))
 
